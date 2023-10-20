@@ -1,6 +1,6 @@
-PWD c:\Users\jovin\Documents\Computer Science (FR)\Year 5\Level 5 Individual Project\interim_report
+PWD c:\Users\jovin\Documents\Computer Science (FR)\Year 5\Level 5 Individual Project\3D-Face-Recognition-from-RGB-Camera-and-Radar-Sensors\interim_report
 INPUT C:\Users\jovin\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
-INPUT c:\Users\jovin\Documents\Computer Science (FR)\Year 5\Level 5 Individual Project\interim_report\interim.tex
+INPUT c:\Users\jovin\Documents\Computer Science (FR)\Year 5\Level 5 Individual Project\3D-Face-Recognition-from-RGB-Camera-and-Radar-Sensors\interim_report\interim.tex
 OUTPUT interim.log
 INPUT .\interim.cls
 INPUT .\interim.cls
