@@ -42,6 +42,11 @@ venv.bak/
 **/python/mymodel_rt_slab_25/
 **/p2go/
 
+data/
+models/
 
 # SECRET CONFIGURATION KEYS #
 # config.py
+
+# Virtual Environment #
+3dfr/
