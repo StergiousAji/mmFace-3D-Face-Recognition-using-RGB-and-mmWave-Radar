@@ -1,1 +1,0 @@
-SERPER_API = "9d8c3bae3f68d967afdd8a87e6be0691ba19ef83"
