@@ -46,7 +46,7 @@ data/
 models/
 
 # SECRET CONFIGURATION KEYS #
-# config.py
+config.py
 
 # Virtual Environment #
 3dfr/
