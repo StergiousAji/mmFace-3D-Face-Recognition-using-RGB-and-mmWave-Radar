@@ -24,16 +24,46 @@ env/
 venv/ 
 ENV/ 
 env.bak/ 
-venv.bak/ 
+venv.bak/
 
 # Visual Studio Code # 
-.vscode/*
-**/.vscode/* 
+**/.vscode/*
 !.vscode/settings.json 
 !.vscode/tasks.json 
 !.vscode/launch.json 
 !.vscode/extensions.json 
 .history
+
+## Core latex/pdflatex auxiliary files:
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb
+.pdf
+
+## Bibliography auxiliary files (bibtex/biblatex/biber):
+*.bbl
+*.bcf
+*.blg
+*-blx.aux
+*-blx.bib
+*.run.xml
+
+## Build tool auxiliary files:
+*.fdb_latexmk
+*.synctex
+*.synctex(busy)
+*.synctex.gz
+*.synctex.gz(busy)
+*.pdfsync
 
 # Data Files - Chaitanya-code #
 **/data/*.json
