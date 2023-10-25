@@ -1,7 +1,10 @@
 \contentsline {section}{\numberline {1}Introduction}{2}{}%
 \contentsline {subsection}{\numberline {1.1}Motivation}{2}{}%
 \contentsline {subsection}{\numberline {1.2}Aims}{2}{}%
-\contentsline {section}{\numberline {2}Statement of Problem??}{2}{}%
-\contentsline {section}{\numberline {3}Background Survey}{2}{}%
-\contentsline {section}{\numberline {4}Proposed Approach}{2}{}%
-\contentsline {section}{\numberline {5}Work Plan}{2}{}%
+\contentsline {section}{\numberline {2}Background Survey}{2}{}%
+\contentsline {subsection}{\numberline {2.1}Data Acquisition}{2}{}%
+\contentsline {subsection}{\numberline {2.2}Multimodality of Data}{2}{}%
+\contentsline {subsection}{\numberline {2.3}Data Fusion Techniques}{2}{}%
+\contentsline {subsection}{\numberline {2.4}Deep Learning for Face Recognition}{2}{}%
+\contentsline {section}{\numberline {3}Proposed Approach}{2}{}%
+\contentsline {section}{\numberline {4}Work Plan}{2}{}%

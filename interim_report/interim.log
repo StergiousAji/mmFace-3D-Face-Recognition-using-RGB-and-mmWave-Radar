@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (MiKTeX 21.10) (preloaded format=pdflatex 2022.3.11)  20 OCT 2023 14:58
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (MiKTeX 21.10) (preloaded format=pdflatex 2022.3.11)  25 OCT 2023 11:56
 entering extended mode
 **"c:/Users/jovin/Documents/Computer Science (FR)/Year 5/Level 5 Individual Project/3D-Face-Recognition-from-RGB-Camera-and-Radar-Sensors/interim_report/interim.tex"
 (c:/Users/jovin/Documents/Computer Science (FR)/Year 5/Level 5 Individual Project/3D-Face-Recognition-from-RGB-Camera-and-Radar-Sensors/interim_report/interim.tex
@@ -103,19 +103,23 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 \tf@toc=\write3
 \openout3 = `interim.toc'.
 
- [1] (interim.bbl [2]) [3] (interim.aux) ) 
+ [1] (interim.bbl
+
+LaTeX Warning: Empty `thebibliography' environment on input line 3.
+
+) [2] (interim.aux) ) 
 Here is how much of TeX's memory you used:
- 1336 strings out of 478681
- 23799 string characters out of 2846535
- 320241 words of memory out of 3000000
- 19466 multiletter control sequences out of 15000+600000
- 410781 words of font info for 51 fonts, out of 8000000 for 9000
+ 1333 strings out of 478681
+ 23772 string characters out of 2846535
+ 320238 words of memory out of 3000000
+ 19464 multiletter control sequences out of 15000+600000
+ 410434 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 55i,6n,62p,360b,215s stack positions out of 5000i,500n,10000p,200000b,80000s
-<C:/Users/jovin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/jovin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/jovin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/jovin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on interim.pdf (4 pages, 83253 bytes).
+ 55i,6n,62p,360b,180s stack positions out of 5000i,500n,10000p,200000b,80000s
+<C:/Users/jovin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/jovin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/jovin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb>
+Output written on interim.pdf (3 pages, 69165 bytes).
 PDF statistics:
- 39 PDF objects out of 1000 (max. 8388607)
+ 31 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  6 words of extra memory for PDF output out of 10000 (max. 10000000)
 
