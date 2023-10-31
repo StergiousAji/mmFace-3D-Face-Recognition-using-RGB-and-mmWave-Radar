@@ -104,8 +104,26 @@ https://github.com/deepinsight/insightface
 ### Meeting with Chaitanya
 
 - Got Soli running, need to install Anaconda to have all packages and Spyder.
-    - **TODO:** Install ANACONDA
+    - **TODO:** Install ANACONDA $\checkmark$
     - Need to `pip3 install zmq`
 - Meet Friday to get back devices and run full pipeline to get data
 - Look at Google Soli papers:
     - [Soli: Ubiquitous Gesture Sensing with Millimeter Wave Radar](https://dl.acm.org/doi/pdf/10.1145/2897824.2925953)
+
+### Meeting with Chaitanya (23/10/23)
+
+- `testzmq.py` cannot capture real-time data :(
+- Use `soli_nonrt/examples/main` (Sync RealSense and Radar to capture data simultaneously) and `soli_nonrt/examples/RS_no_p2go.py` on 2 separate terminals.
+    - **TODO:** Configure `main.cc)` range and duration (MAY NOT NEED AS `simplelogger_zmq` WORKING)
+    - **TODO:** Get RealSense USB detected on Ubuntu VM $\checkmark$
+    
+
+## Meeting 6 (24/10/23) - 0:12
+
+- Use $80\%/10\%/10\%$ split for $\text{Train}/\text{Validation}/\text{Test}$
+    - Or $68/16/16$ if ambitious
+- Split by participants and use all poses for training.
+- Talk about evaluation metrics in Interim Report
+- These devices are thought out for an airport scenario.
+- Got RealSense synced with Soli to get data by using `main` and `RS_rgb_new.py` *(modified)*:
+    - **TODO:** Look at TODOs in `RS_rgb_new.py`
