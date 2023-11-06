@@ -36,9 +36,15 @@
 % example references: \cite{BK08}
 
 \subsection{Motivation}
-Facial recognition systems have come a long way since its dawn in the 1960s where (REF) distinguished faces by comparing distances of manually annotated landmark features such as the nose, eyes, ears and mouth.
+Facial Recognition is a crucial area of research for its wide range of applications spanning security surveillance, forensics, human-computer interaction and healthcare. It's most popular application being access control using biometric authentication. This removes the need to remember passwords and provides a non-invasive, hands-free approach to human verification. Facial metrics are naturally more accessible in comparison to other biometrics like fingerprint, iris or palm print.
 
-ith the advent of Deep Learning techniques Deep Concurrent Neural Networks (DCNN)
+Facial recognition systems have come a long way since its dawn in the 1960s. The earliest work by \cite{}(REF) distinguished faces by comparing distances of manually annotated landmark features such as the nose, eyes, ears and mouth. In more recent years, the advent of Deep Learning techniques has greatly improved face recognition performance with help of the sheer number of images of faces online. However, these systems primarily rely on 2D imagery from RGB cameras which are vulnerable to lighting changes and pose variations. To compensate for this, depth information of facial attributes are required. Additionally, moving to 3D facial recognition increases the security of biometric authentication systems.
+
+3D face recognition systems are becoming more popular with the likes of many smartphone companies integrating a type of face unlock such as Apple's FaceID \cite{}(REF). Furthermore, this demand has pushed this depth sensing technology to smaller form factors and requiring little power and computation to work efficiently on mobile devices on the fly.
+
+Most depth cameras used for this purpose use a form of active face acquisition where non-visible light is emitted and reflected back from a person's face which is subsequently captured by sensors and measured to estimate facial features. The most popular approach uses LiDAR which emit waves in the near-infrared spectrum. The main disadvantage to this is that it is usually too weak to penetrate clothing or hair. In contrast, millimeter waves used in Radar can penetrate thin objects to directly reach the dermal layer of the skin meaning that it may perform better against occlusion like obstacles or even rain or fog.
+
+Very little research has been done in the effectiveness of using Radar waves for 3D face recognition but what has been done show positive results \cite{}(REF). Radar technology is often less expensive in terms of acquisition cost and computational cost since it can requires very little energy to power compared to LiDAR cameras. However, Radar has its drawbacks since it is less accurate and sparse which may hinder its performance for facial recognition. A solution is to combine RGB information with the depth captured by the Radar sensors to effectively learn facial features and identify them.
 
 \subsection{Aims}
 

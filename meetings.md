@@ -127,3 +127,29 @@ https://github.com/deepinsight/insightface
 - These devices are thought out for an airport scenario.
 - Got RealSense synced with Soli to get data by using `main` and `RS_rgb_new.py` *(modified)*:
     - **TODO:** Look at TODOs in `RS_rgb_new.py`
+- Working on InsightFace with NBA players dataset
+
+### Meeting with Chaitanya (30/10/23)
+
+- Can simply feed the complex range-doppler (CRD) data into model. Maybe want to use `np.abs(crd_data)` first to get rid of complexity 😉
+- Ethics will be done after 12th most likely
+- Tripod will be given tomorrow from the ARC
+- Use PyTorch to create CNN for radar recognition
+
+## Meeting 7 (31/10/23) - 0.15
+
+- Use PyTorch as most popular for building CNN
+- Can directly feed complex data
+- No prop department must use my own stuff for occlusion
+- Just use protractor and ruler to measure angles for poses.
+
+### Meeting with Chaitanya
+
+- Received tripod. No mounting available just place cameras on top.
+- Chaitanya emailing for access to a room in the ARC.
+
+### Meeting with Chaitanya (02/11/23)
+
+- Got access to the ARC and Room 371 (Doors lock themselves) (Access 8am-6pm)
+- Setup sensors with tripod and marked tape for experiment.
+- May need to look at lighting as currently face too dark (open curtain?)
