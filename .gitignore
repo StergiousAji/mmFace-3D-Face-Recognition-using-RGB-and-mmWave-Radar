@@ -27,6 +27,7 @@ env.bak/
 venv.bak/
 
 # Visual Studio Code # 
+.vscode/
 **/.vscode/*
 !.vscode/settings.json 
 !.vscode/tasks.json 
@@ -41,15 +42,18 @@ venv.bak/
 **/python/mymodel_rt_slab_25/
 **/p2go/
 
+# Virtual Environment #
+3dfr/
+
+# 3DFR_Net #
 data/
 models/
 
 # SECRET CONFIGURATION KEYS #
 config.py
 
-# Virtual Environment #
-3dfr/
-
+# soli_realsense
+**/soli_realsense/soli
 
 
 # PDFLATEX/BIBTEX AUXILLARY FILES
