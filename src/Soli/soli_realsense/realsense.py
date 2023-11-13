@@ -13,6 +13,7 @@ import pyrealsense2 as rs
 import numpy as np
 import cv2
 import socket
+from experiment import experiment
 
 SUBJECT_PATH = ""
 
@@ -20,7 +21,6 @@ def config():
     print("Executing image Task on Process {}".format(os.getpid()))
     config = rs.config()
 
-    # TODO: MIGHT CHANGE TO rs.stream.color for RGB instead of depth rs.format.any
     # Params: stream, resolution_x, resolution_y, module, frame rate
     config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30) 
     config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
@@ -39,19 +39,14 @@ def config():
 
 def grab_frames():
     # Set the number of frames to capture proportional to FPS. 
-    # TODO: ONLY NEED 10 FRAMES PERHAPS?
+    # TODO: Investigate if running camera for longer improves depth. Maybe sans alignment?
     frames = 10
+    # Height = Rows, Width = Columns
+    depth_frames_list = np.zeros((frames, 480, 640), np.float16)
+    colour_frames_list = np.zeros((frames, 480, 640, 3), np.float16)
 
-    depth_frames_list = np.zeros((frames, 640, 480))
-    colour_frames_list = np.zeros((frames, 640, 480, 3))
-
-    # TODO: CLIP BACKGROUND
-    clipping_distance_in_meters = 1 # 1 meter
-    clipping_distance = clipping_distance_in_meters / depth_scale
-    # TODO: ALIGN DEPTH FRAMES TO RGB
     # rs.align allows us to perform alignment of depth frames to others frames
     align = rs.align(rs.stream.color)
-
     
     timestamps = np.zeros((frames, 2))
 
@@ -60,41 +55,34 @@ def grab_frames():
        for i in range(frames):        
             frames = pipeline.wait_for_frames()
 
-            # aligned_frames = align.process(frames)
-            # depth_frame = aligned_frames.get_depth_frame()
-            # colour_frame = aligned_frames.get_color_frame()
-
-            depth_frame = frames.get_depth_frame()
-            colour_frame = frames.get_color_frame()
+            aligned_frames = align.process(frames)
+            depth_frame = aligned_frames.get_depth_frame()
+            colour_frame = aligned_frames.get_color_frame()
             if not depth_frame or not colour_frame:
                 continue
             
-            depth_image = np.asanyarray(depth_frame.get_data())
-            # colour_image = np.asanyarray(colour_frame.get_data())
+            depth_image = np.asanyarray(depth_frame.data)
 
-            # grey = 153
-            # depth_image_3d = np.dstack((depth_image, depth_image, depth_image))
-            # bg_removed = np.where((depth_image_3d > clipping_distance) | (depth_image_3d <= 0), grey, colour_image)
+            colour_image = np.asanyarray(colour_frame.data)
 
-            depth_colourmap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+            depth_colourmap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_VIRIDIS)
 
-            depth_frames_list[i] = depth_image.astype('float16')
-            # TODO: MAY NOT NEED TO QUANTISE PIXELS
-            colour_frames_list[i] = np.asanyarray(colour_frame.get_data()).astype('float16')#[::5,::5]
+            depth_frames_list[i] = depth_image.astype(np.float16)
+            # Reverse BGR to RGB
+            colour_frames_list[i] = colour_image.astype(np.float16)[:,:,::-1]
 
             timestamps[i, 0] = frames.timestamp
             timestamps[i, 1] = time.time()
-            print('Frame',i,'device time difference',frames.timestamp-timestamps[i-1, 0],'system time difference',(time.time()-timestamps[i-1, 1])*1e3)
+            print(f"\nFrame {i}\nDevice Time Difference: {frames.timestamp - timestamps[i-1, 0]}\nSystem Time Difference: {(time.time() - timestamps[i-1, 1])*1e3}")
             
-            cv2.imshow("RealSense", np.hstack((colour_frames_list[i], depth_colourmap)))
-            # cv.imshow("RealSense (Aligned)", np.hstack((bg_removed, depth_colourmap)))
+            cv2.imshow("RealSense", np.hstack((colour_image, depth_colourmap)))
             cv2.waitKey(1)
     finally:
         pipeline.stop()
-        print("\nSaving depth and colour frames...")
+        print("\nSaving frames...")
         np.save(f"{SUBJECT_PATH}_depth.npy", depth_frames_list)
         np.save(f"{SUBJECT_PATH}_colour.npy", colour_frames_list)
-        # TODO: DO I NEED TIMESTAMPS?
+        # TODO: DO I NEED TIMESTAMPS? ALSO NOT CORRECT
         np.save(f"{SUBJECT_PATH}_timestamps.npy", timestamps)
 
 def server():
@@ -139,11 +127,16 @@ def server():
 def subject_exists():
     return os.path.exists(f"{SUBJECT_PATH}_depth.npy") or os.path.exists(f"{SUBJECT_PATH}_colour.npy") or os.path.exists(f"{SUBJECT_PATH}_timestamps.npy")
 
+def make_dir(dirpath):
+    if not os.path.exists(dirpath):
+        os.mkdir(dirpath)
+
 if __name__ == '__main__':
     if len(sys.argv) == 3 and sys.argv[1].isdigit() and sys.argv[2].isdigit():
         SUBJECT_PATH = f"./data/{sys.argv[1]}/{sys.argv[1]}-{sys.argv[2]}"
         if not subject_exists():
-            os.mkdir(f"./data/{sys.argv[1]}/")
+            make_dir(f"./data/{sys.argv[1]}/")
+            print(f"SUBJECT: {sys.argv[1]} | EXPERIMENT: {sys.argv[2]} - {experiment[int(sys.argv[2])]}")
             server()
         else:
             print(f"ERROR: SUBJECT {sys.argv[1]} DATA FILES OF EXPERIMENT {sys.argv[2]} ALREADY EXIST")

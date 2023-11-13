@@ -129,6 +129,7 @@ https://github.com/deepinsight/insightface
     - **TODO:** Look at TODOs in `RS_rgb_new.py`
 - Working on InsightFace with NBA players dataset
 
+
 ### Meeting with Chaitanya (30/10/23)
 
 - Can simply feed the complex range-doppler (CRD) data into model. Maybe want to use `np.abs(crd_data)` first to get rid of complexity 😉
@@ -136,7 +137,7 @@ https://github.com/deepinsight/insightface
 - Tripod will be given tomorrow from the ARC
 - Use PyTorch to create CNN for radar recognition
 
-## Meeting 7 (31/10/23) - 0.15
+## Meeting 7 (31/10/23) - 0:15
 
 - Use PyTorch as most popular for building CNN
 - Can directly feed complex data
@@ -153,3 +154,14 @@ https://github.com/deepinsight/insightface
 - Got access to the ARC and Room 371 (Doors lock themselves) (Access 8am-6pm)
 - Setup sensors with tripod and marked tape for experiment.
 - May need to look at lighting as currently face too dark (open curtain?)
+
+
+## Meeting 8 (06/11/23) - 0:30
+
+- Split by participants but metric will be the distance from unseen test data to (average) distribution of training embeddings.
+    - Large distances correspond to poor model performance since faces should get mapped to same distribution.
+    - Look at t-SNE (t-distributed Stochastic Neighbour Embedding) to classify distribution of high-D data preserving relationships between data (vs. PCA that preserves variance). Can be used to identify ***anomalies***
+
+        [Introduction to t-SNE](https://www.datacamp.com/tutorial/introduction-t-sne)
+- Starting Interim Report this week. Can show drafts to Hang for feedback.
+- Once first data samples collected make presentation for outside perspective on project.
