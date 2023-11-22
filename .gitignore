@@ -49,11 +49,15 @@ venv.bak/
 data/
 models/
 
+# presentation #
+presentation/**/faces/
+
 # SECRET CONFIGURATION KEYS #
 config.py
 
 # soli_realsense
 **/soli_realsense/soli
+**/soli_realsense/names.py
 
 
 # PDFLATEX/BIBTEX AUXILLARY FILES

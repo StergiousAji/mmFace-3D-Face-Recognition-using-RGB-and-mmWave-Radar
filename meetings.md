@@ -165,3 +165,10 @@ https://github.com/deepinsight/insightface
         [Introduction to t-SNE](https://www.datacamp.com/tutorial/introduction-t-sne)
 - Starting Interim Report this week. Can show drafts to Hang for feedback.
 - Once first data samples collected make presentation for outside perspective on project.
+
+
+## Meeting 9 (14/11/23) - 0:15
+
+- Start data collection this week.
+- Can test accuracy on face recognition of test data vs. reference data (0, 1 if same person [similarity threshold])
+- t-SNE can also group by different ages, genders if data is strong enough.
