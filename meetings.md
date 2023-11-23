@@ -172,3 +172,20 @@ https://github.com/deepinsight/insightface
 - Start data collection this week.
 - Can test accuracy on face recognition of test data vs. reference data (0, 1 if same person [similarity threshold])
 - t-SNE can also group by different ages, genders if data is strong enough.
+
+
+## Meeting 10 (21/11/23) - 0:23
+
+- Ask Chaitanya about the transformation of the Soli data and hard-coded values in the `compute_rp` function.
+- Add sample images into slides and high-level model architecture.
+- Do not need to talk specifics about Radar technology.
+- Feature fusion section should talk in specific relation to 3D face recognition.
+
+### Meeting with Chaitanya (22/11/23)
+
+- Experimented with capturing moving hand with Soli and CRD plot looks correct so fine to use64 chirps per burst when converting.
+- a.u. means Arbitrary Units
+- The 3 channels coming from the 3 receiver antennas of Soli.
+- Data Acquisition presentation postponed to Monday 4th December. Can talk about model architecture next week.
+- 2 more people available tomorrow 3 and half 3pm.
+

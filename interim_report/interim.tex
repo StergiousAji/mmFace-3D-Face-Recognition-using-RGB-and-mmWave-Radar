@@ -68,9 +68,12 @@ Before any work is conducted, a review of relevant literature in the field is co
 \subsection{Radar Technology}
 Radio Detection and Ranging, or Radar, technology has been around for decades and is used in many important applications such as space exploration, military and commercial aircraft and ship navigation, as well as, weather forecasting. However, only recently with the miniaturisation of Radar sensors to the millimetre wave (mmWave) spectrum has research expanded to other small scale domains \cite{}(CITE). Most notably, Google integrated their own Soli sensor for face detection and motion gesture recognition into their Pixel 4 smartphone \cite{}(CITE). Furthermore, mmWave sensing is being explored in the domain of autonomous driving for instance, the application of collision warning and adaptive cruise control systems \cite{dfrobot}. mmWaves offer an advantage over the traditional near-infrared waves used by Light Detection and Ranging (Lidar) cameras, with its robustness to atmospheric conditions such as dust, smoke, fog and rain as well as extreme lighting conditions \cite{}(CITE).
 
-
-
 \subsection{Data Acquisition}
+There are various techniques available in capturing 3D face data, but they can be categorised into two main types: Active and Passive. Active acquisition systems emit non-visible light on to the target and use the reflected light information to estimate a 3D representation of the object. Contrastingly, passive systems use the available light in the scene to capture facial feature information. For instance, stereoscopic cameras use two or more cameras to capture images of the target from different perspectives enabling depth perception. In addition, 3D facial features can be inferred using shape-from-shading by analysing the luminance values of a 2D grayscale image. 
+
+While passive systems offer advantages of not requiring emission of light and being able to work in real-time, it is highly sensitive to the lighting conditions in the environment. Active systems are robust against this since they use their own light to illuminate the target being able to work in extremely dim conditions. 
+
+Active systems often combine the use of structured light and triangulation based methods to capture depth information. In the case of Lidar cameras such as the Intel RealSense, the time-of-flight of emitted light is measured to infer the distances of points on the target. The Radar sensor is also a form of active acquisition using 3 receiving antennas to capture reflected mmWaves from the target, measuring the phase difference and Doppler shift to estimate the distance and velocity of the target. 
 
 \subsection{Multimodality of Data}
 
