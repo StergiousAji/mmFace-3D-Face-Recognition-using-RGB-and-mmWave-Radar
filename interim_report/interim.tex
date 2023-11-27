@@ -1,5 +1,7 @@
 \documentclass{interim}
-\usepackage{graphicx}
+\usepackage{physics, amssymb, graphicx, fancyvrb}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{pdfpages}
 
 % alternative font if you prefer
 %\usepackage{times}
@@ -9,7 +11,7 @@
 %\usepackage{fancyheadings}
 
 
-% other potentially useful packages
+% other potentially useful packagess
 %\uspackage{amssymb,amsmath}
 %\usepackage{url}
 %\usepackage{fancyvrb}
@@ -25,7 +27,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\tableofcontents
+{\hypersetup{hidelinks}\tableofcontents}
 \newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -36,6 +38,12 @@
 % example references: \cite{BK08}
 
 \subsection{Motivation}
+PRIVACY
+
+RADAR PENETRATE HAIR, CLOTH \cite{vizard2006advances}
+
+3D FACE RECOGNITION SURVEY \cite{zhou20183d}
+
 Facial Recognition is a crucial area of research for its wide range of applications spanning security surveillance, forensics, human-computer interaction and healthcare. Its most popular application being access control using biometric authentication. This removes the need to remember passwords and provides a non-invasive, hands-free approach to human verification. Facial metrics are naturally more accessible in comparison to other biometrics like fingerprint, iris or palm print.
 
 Facial recognition systems have come a long way since its dawn in the 1960s. The earliest work by Bledsoe \cite{bledsoe1966model} distinguished faces by comparing distances of manually annotated landmark features such as the nose, eyes, ears and mouth. In more recent years, the advent of Deep Learning techniques has greatly improved face recognition performance with help of the sheer number of images of faces online. However, these systems primarily rely on 2D imagery from RGB cameras which are vulnerable to lighting changes and pose variations. To compensate for this, depth information of facial attributes are required. Additionally, moving to 3D facial recognition increases the security of biometric authentication systems.
@@ -44,10 +52,10 @@ Facial recognition systems have come a long way since its dawn in the 1960s. The
 
 Most depth cameras used for this purpose use a form of active face acquisition where non-visible light is emitted and reflected back from a person's face which is subsequently captured by sensors and measured to estimate facial features. The most popular approach uses LiDAR which emit waves in the near-infrared spectrum. The main disadvantage to this is that it is usually too weak to penetrate clothing or hair. In contrast, millimetre waves used in Radar can penetrate thin objects to directly reach the dermal layer of the skin meaning that it may perform better against occlusion like obstacles or even rain or fog.
 
-Very little research has been done in the effectiveness of using Radar waves for 3D face recognition but what has been done show positive results \cite{}(CITE). Radar technology is often less expensive in terms of acquisition cost and computational cost since it requires little energy to power compared to LiDAR cameras. However, Radar has its drawbacks since it is less accurate and sparse which may hinder its performance for facial recognition. A solution is to combine RGB information with the depth captured by the Radar sensors to effectively learn facial features and identify them.
+Very little research has been done in the effectiveness of using Radar waves for 3D face recognition but what has been done show positive results \cite{hof2020face, lim2020dnn,kim2020face, pho2021radar,challa2021face}. Radar technology is often less expensive in terms of acquisition cost and computational cost since it requires little energy to power compared to LiDAR cameras. However, Radar has its drawbacks since it is less accurate and sparse which may hinder its performance for facial recognition. A solution is to combine RGB information with the depth captured by the Radar sensors to effectively learn facial features and identify them.
 
 \subsection{Aims}
-This project aims to investigate the effectiveness of using RGB cameras in conjunction with mmWave Radar sensors for 3D facial recognition. Since there are no easily accessible datasets online for this purpose, we will require acquiring this data ourselves. We will be using an Intel RealSense L515 \cite{intel-l515} camera to capture the RGB information of a subject's face. The Google Soli Radar sensor \cite{}(CITE) will be used to capture depth information from reflected millimetre waves. 
+This project aims to investigate the effectiveness of using RGB cameras in conjunction with mmWave Radar sensors for 3D facial recognition. Since there are no easily accessible datasets online for this purpose, we will require acquiring this data ourselves. We will be using an Intel RealSense L515 \cite{intel-l515} camera to capture the RGB information of a subject's face. The Google Soli Radar sensor \cite{lien2016soli} will be used to capture depth information from reflected millimetre waves. 
 
 This RealSense camera also includes a LiDAR sensor which produces a more accurate dense depth image. As a backup, a separate model can be trained to transform the sparse Soli data into a more dense representation before inputting into the facial recognition model. However, if the Radar data works well this may not be needed. (MAY NOT INCLUDE)
 
@@ -66,14 +74,32 @@ Next we aim to produce our very own face recognition model using a Deep Concurre
 Before any work is conducted, a review of relevant literature in the field is conducted in order to corroborate best practices and gain a deeper understanding of the strengths and weaknesses of using a Radar sensor, specifically for face identification. Firstly, a look into the datasets available for our purpose and the subsequent reasoning behind the requirement to gather our own dataset will be explored. This section also provides recent study of using machine learning techniques to classify radar signatures of human faces. 
 
 \subsection{Radar Technology}
-Radio Detection and Ranging, or Radar, technology has been around for decades and is used in many important applications such as space exploration, military and commercial aircraft and ship navigation, as well as, weather forecasting. However, only recently with the miniaturisation of Radar sensors to the millimetre wave (mmWave) spectrum has research expanded to other small scale domains \cite{}(CITE). Most notably, Google integrated their own Soli sensor for face detection and motion gesture recognition into their Pixel 4 smartphone \cite{}(CITE). Furthermore, mmWave sensing is being explored in the domain of autonomous driving for instance, the application of collision warning and adaptive cruise control systems \cite{dfrobot}. mmWaves offer an advantage over the traditional near-infrared waves used by Light Detection and Ranging (Lidar) cameras, with its robustness to atmospheric conditions such as dust, smoke, fog and rain as well as extreme lighting conditions \cite{}(CITE).
+Radio Detection and Ranging, or Radar, has been around for decades and is used in many important applications such as space exploration, military and commercial aircraft and ship navigation, as well as, weather forecasting. However, only recently with the miniaturisation of Radar sensors to the millimetre wave band (mmWave) has research expanded to other small scale domains \cite{soumya2023recent}. Most notably, Google integrated their own Soli sensor for face detection and motion gesture recognition into their Pixel 4 smartphone \cite{googleblog2020}. Furthermore, mmWave sensing is being explored in the domain of autonomous driving for instance, the application of collision warning and adaptive cruise control systems \cite{dfrobot}. mmWaves offer an advantage over the traditional near-infrared waves used by Light Detection and Ranging (Lidar) cameras, with its robustness to atmospheric conditions such as dust, smoke, fog and rain as well as extreme lighting conditions \cite{cadenceblog2022}. This is counter-balanced by the lower accuracy of mmWaves in comparison.
+
 
 \subsection{Data Acquisition}
-There are various techniques available in capturing 3D face data, but they can be categorised into two main types: Active and Passive. Active acquisition systems emit non-visible light on to the target and use the reflected light information to estimate a 3D representation of the object. Contrastingly, passive systems use the available light in the scene to capture facial feature information. For instance, stereoscopic cameras use two or more cameras to capture images of the target from different perspectives enabling depth perception. In addition, 3D facial features can be inferred using shape-from-shading by analysing the luminance values of a 2D grayscale image. 
+There are various techniques available in capturing 3D face data, but they can be categorised into two main types: \textit{Active} and \textit{Passive}. Active acquisition systems emit non-visible light on to the target and use the reflected light information to estimate a 3D representation of the object. Contrastingly, passive systems use the available light in the scene to capture facial feature information. For instance, stereoscopic cameras use two or more cameras to capture images of the target from different perspectives enabling depth perception. In addition, 3D facial features can be inferred using shape-from-shading by analysing the luminance values of a 2D grayscale image. 
 
 While passive systems offer advantages of not requiring emission of light and being able to work in real-time, it is highly sensitive to the lighting conditions in the environment. Active systems are robust against this since they use their own light to illuminate the target being able to work in extremely dim conditions. 
 
 Active systems often combine the use of structured light and triangulation based methods to capture depth information. In the case of Lidar cameras such as the Intel RealSense, the time-of-flight of emitted light is measured to infer the distances of points on the target. The Radar sensor is also a form of active acquisition using 3 receiving antennas to capture reflected mmWaves from the target, measuring the phase difference and Doppler shift to estimate the distance and velocity of the target. 
+
+When collecting data of human faces for 3D face recognition, it is often ideal to ensure the data encompasses a wide range of facial poses and expressions, lighting conditions and occlusion scenarios. Unlike 2D face images, the pure geometric information from 3D face scans ensure the models are insensitive to pose and lighting changes. \cite{prabhu2011unconstrained} found that the maximum angle that their Local Binary Pattern (LBP) based model is robust against is $60^\circ$. A wide range of genders, ages and ethnicities are also vital for the model to be robust enough against real-world scenarios.
+
+In recent years, the number of 3D face databases available has grown using a variety of different acquisition techniques and devices. Most notable datasets include the BU-3DFE \cite{yin20063d} and the FRGC \cite{phillips2005overview} database, widely accepted as the standard reference database for performance evaluation of 3D face recognition systems. The BU-3DFE dataset primarily focusses on expression-invariance containing 6 types of expressions from 100 individuals using stereo photography. While these datasets are unsuitable for this project, it is useful to survey the data collection process used to amass them. From the extensive research done, there is currently only one public database including Radar signatures of 206 human faces available \cite{mmwavefacedata}. This dataset was captured with a Qualcomm 60GHz mmWave Radar, however, does not include any RGB face images of the participants of the study. These factors motivate building our own dataset with both RGB face images and mmWave Radar face signatures. This allows us to investigate the model's effectiveness against varying conditions such as lighting, pose variation and occlusion.
+
+\subsection{Prior Work on Radar-based Face Recognition}
+The use of mmWaves for human face identification is a relatively new research field driven by the miniaturisation of Radar sensor technology to the millimetre wave band. The earliest paper found to investigate human identification using mmWaves dates back to 2019 \cite{zhao2019mid}. While this paper focusses on simulataneous classification of people by their gait and body shape rather than facial features, it displayed the ability for mmWaves to capture subtle idiosyncracies between individuals for machine learning models to achieve accurate classification accuracies.  
+
+Following this, Hof et. al. \cite{hof2020face} proposed a Deep Neural Network (DNN) based Autoencoder that is able to distinguish human faces captured by a 802.11ad/y networking chipset operating at a centre frequency of 60GHz. The Autoencoder is able to encode mmWave face signatures of over 200 individuals with enough separation to distinguish positive and negative instances by measuring their Mean Squared Error (MSE) against a reference encoding of a face. The study involved a decently-sized data acquisition procedure capturing mmWave signatures of 206 individuals of varying genders and ages with 5 poses each: frontal, as well as, $15^\circ$ and $25^\circ$ left and right. This dataset was subsequently made available as a IEEE Data Port \cite{mmwavefacedata}, however, does not include common occlusion scenarios which our study hopes to investigate. Additionally, the chipset used contained a large sensor containing over 1024 transmitting and receiving antenna pairs. This is in contrast to the compact mobile Soli chip with a single transmit and three receiver antennas. The study also simulated the effect of reducing the number of antennas to 10 which made a significant reduction in the distinctivity of the faces. Promisingly, increasing the number of neurons and an additional hidden layer to ther Neural Network was able to maintain high accuracy.
+
+Lim et. al. \cite{lim2020dnn}
+
+Kim et. al. \cite{kim2020face}
+
+Pho et. al. \cite{pho2021radar}
+
+Challa et. al. \cite{challa2021face}
 
 \subsection{Multimodality of Data}
 
@@ -93,6 +119,6 @@ show how you plan to organize your work, identifying intermediate deliverables a
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % it is fine to change the bibliography style if you want
-\bibliographystyle{acm}
+\bibliographystyle{unsrt}
 \bibliography{interim}
 \end{document}
