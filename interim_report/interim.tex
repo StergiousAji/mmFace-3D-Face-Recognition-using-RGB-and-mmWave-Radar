@@ -128,13 +128,14 @@ Unlike traditional algorithms, CNNs learn to identify the necessary features for
 
 In conclusion, the use of CNNs in face recognition is justified by their ability to automatically learn and generalize from data, their efficiency in handling high-dimensional data, and their robustness against variations in input data. These characteristics make CNNs a powerful tool for developing accurate and efficient face recognition systems.
 
-
+\newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Proposed Approach}
 % state how you propose to solve the software development problem. Show that your proposed approach is feasible, but identify any risks.
 The following section delineates the planned approach to take on the Radar-based facial recognition problem. Each decision and step will be justified with a premonition of upcoming problems and intricacies that may occur during the project lifecycle.
 
 \subsection{Data Acquisition and Experiments}
+\label{approach:data_acquisition}
 Following a thorough research of the field, the next steps involve designing and conducting the data acquisition process necessary to train our proposed model with. These experiments require careful planning since the data collected here directly determines the effectiveness of the resulting model. As found in Section \ref{background:data_acquisition} in the Background, it is vital to compile pose variations of the face in order for the model to learn a comprehensive 3D scan of the individual's face. Furthermore, it imposes pose-invariance into the system as people would not always provide an exact frontal pose to a face recognition system in real-world use-cases. Most studies only focus on variations in the yaw axis since a person is less likely to tilt or pitch their head by a significant angle in comparison to the left and right rotation of the face. For this reason, we will also focus primarily on head rotation in the yaw axis, specifically capturing faces poses of $0^\circ$, and $30^\circ$ and $45^\circ$ to the left and right of the sensors indicated by positive and negative angles. 
 
 Since this experiment aims to explore the benefits of mmWave sensors in the context of face recognition, two different lighting conditions will also be incorporated in the data collection experiments. Namely, regular and dim lighting scenarios. We hypothesise that the mmWave face signatures would be invariant to the environmental lighting due to it using its own active illumination of the target face compared to the RGB camera. Therefore, if the system is able to achieve a higher accuracy using both modalities compared to using the RGB information, it would conclusively show that mmWaves offer robustness against varying lighting conditions.
@@ -149,6 +150,7 @@ In order to gather a wide variety of faces, we aim to gather 50 participants giv
 \subsection{Proposed Model and \textit{mmFace}}
 Following the research done in Section \ref{background:insightface} in the Background chapter, it is clear that the ArcFace model available in the InsightFace toolkit is the best choice for this project. It achieves state-of-the-art classification results, outperforming the previous bests such as Facebook's DeepFace \cite{taigman2014deepface} and Google's FaceNet \cite{schroff2015facenet}. This allows treating the handling of the RGB data with a black-box model and a focus on perfecting the Radar-based model we are naming \textit{mmFace}. Furthermore, this enables exploration into the various ways in fusing the two modalities as discussed in Section \ref{background:multimodal_data_fusion_techniques}. Figure \ref{fig:model_architecture} shows a high-level plan of the model architecture described here.
 
+% TODO: PUT RGB FACE IMAGE
 \begin{figure}[h!]
     \centering
     \includegraphics[width=1\textwidth]{images/model_architecture.png}
@@ -160,15 +162,41 @@ Our proposed model will be built using a CNN-based architecture since it works b
 
 As explained before, the data fusion techniques that will be explored are late-intermediate fusion and late, decision-level fusion. Purely intermediate feature-level fusion is not feasible due to the black-box treatment of the InsightFace model making it difficult to integrate features from both modalities in intermediary layers. However, a late feature-level fusion is possible combining the outputs of the last layers of each model to form an embedding combining both the RGB and mmFace features. Similarly, decision-level fusion will be explored since this involves mixing the predictions from the individual models. Early, data-level fusion would be the hardest to perform due to the dissimilarities between the two modalities in sampling rate and data format. The CRD maps must be synchronised and transformed into a depth image-like format before combining with the RGB images. Furthermore, this would require a whole new training cycle with the mmFace model which may be infeasible within the timeframe of the project. If time is available, then this will be looked at.
 
+CNN SPECIFICS??
+
 The dataset will be split by subjects into 80\%/10\%/10\% for training, validating and testing. This is due to the small size of the dataset of 50 subjects requiring a higher number of training samples for the mmFace model to learn effectively from. Following training, the testing phase will evaluate the distinctiveness of the output embeddings for distinct individuals. For accurate classifications, the individual faces must be spatial separable in the embedding space in order to discretely identify a person's face without ambiguity. t-SNE visualisations \cite{van2008visualizing} of the higher dimensional embeddings will also be employed to ensure this is the case to compare and contrast the attempting to classify the original data compared to with the output mappings. In addition, standard classification accuracies will be calculated to verify the identity recognition capabilities using the model against randomly selected ground truths. This will also allow comparisons with the results obtained from previous work with Radar-based 3D facial recognition.
 
 
 \subsection{Progress}
+\label{approach:progress}
+Thus far, work has been conducted providing confidence that completion is feasible. The data acquisition has begun successfully with the faces of 18 participants having been captured with the plan laid out in Section \ref{approach:data_acquisition}. We plan to accelerate this process in January in order to reach the required 50 participants with advertisements. The feasibility of InsightFace has also been evaluated with a short experimentation in recognising the faces of famous NBA basketball players. The model achieved high accuracies, trained with a variety of images sourced from the web. All work is being implemented in Python due to its wide array of powerful libraries useful for machine learning such as NumPy \cite{harris2020array} and PyTorch \cite{paszke2019pytorch}.
+
+Work has been conducted in transforming the data collected from the acquisition experiments into suitable formats for input into the proposed models. We are able to successfully transform the Radar bursts into a CRD map which can be plotted showing intensities of received waves in the Doppler bins in the x-axis and Range bins in the y-axis. A data sample of a single frame of subject's face can be observed in Figure \ref{fig:crd_plot}.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/CRD_plot.png}
+    \caption{CRD plot showing amplitudes of reflected waves detected by the three receiving channels of the Soli categorised into discrete Range-Doppler bins}
+    \label{fig:crd_plot}
+\end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Work Plan}
-show how you plan to organize your work, identifying intermediate deliverables and dates.
+% show how you plan to organize your work, identifying intermediate deliverables and dates.
+As the project involves a recently emerging research field of mmWave-based applications, a large amount of prerequisite knowledge is required before implementing a solution to the identified research problem of 3D face recognition. This research process will continue throughout the remaining project lifecycle since there are still hurdles to overcome. 
+
+In order to alleviate the effects of these hurdles, it is important to look ahead and postulate the main problems that can occur by delineating a thorough plan of the next steps. As stated in the Progress Section \ref{approach:progress}, the data acquisition process is planned to be accelerated in January in order to the gather the remaining 32 participants needed to reach our goal. Simultaneously, it is possible to implement and experiment with different Convolutional configurations of our proposed mmFace CNN that is most optimal with the CRD data format. This allows a sufficient amount of time to train, validate and test our model with the decently sized dataset we will collect. In addition, various different models will be trained with varyingly missing amounts of the dataset in order to evaluate the robustness of utilising both modalities over individually.
+
+This will be followed by an evaluation stage involving t-SNE visualisations and classification accuracy experiments in order to empirically gauge the final model's performances against models trained with different amounts of the data. The performance will also be compared with the previous work with mmWave-based face recognition models. The work plan delineated here can be visualised in Figure \ref{fig:gantt_chart} in the form of a Gantt chart.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{images/gantt_chart.pdf}
+    \caption{Gantt Chart showing work plan for next semester}
+    \label{fig:gantt_chart}
+\end{figure}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % it is fine to change the bibliography style if you want
