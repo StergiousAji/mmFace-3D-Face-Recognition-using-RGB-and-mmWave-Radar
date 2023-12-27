@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
+def by_experiment(path):
+    return int(path.split('\\')[6].split('-')[1].split('_')[0])
+
 # Range profile (aka preprocessed)
 def compute_rp_complex(chirp_raw, zpf = 1):
     n_rbins = chirp_raw.shape[0]
