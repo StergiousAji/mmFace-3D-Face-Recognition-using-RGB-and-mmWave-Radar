@@ -1,3 +1,4 @@
+import torch
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision.transforms import ToTensor
@@ -5,6 +6,7 @@ from numpy.random import permutation
 from utils import get_crd_data, by_experiment
 from tqdm import tqdm
 from glob import glob
+from more_itertools import chunked
 import numpy as np
 import json
 import os
@@ -81,15 +83,64 @@ class MMFaceDataset(Dataset):
         
         return data, subject
 
-def load_dataset(data_path, subjects=[0], num_frames=250, batch_size=32, seed=42, transform=ToTensor()):
+def load_dataset_DL(data_path, subjects=[0], num_frames=250, batch_size=32, seed=42, transform=ToTensor()):
     train_dataset = MMFaceDataset(data_path, "train", subjects, num_frames, transform)
     val_dataset = MMFaceDataset(data_path, "validation", subjects, num_frames, transform)
     test_dataset = MMFaceDataset(data_path, "test", subjects, num_frames, transform)
     
     np.random.seed(seed)
+    # DATA LOADER MAY BE TOO SLOW
     # _ Subjects x 15 Scenarios x 250 total frames
     train_loader = DataLoader(train_dataset, batch_size, sampler=SubsetRandomSampler(permutation(len(train_dataset))))
     val_loader = DataLoader(val_dataset, batch_size, sampler=SubsetRandomSampler(permutation(len(val_dataset))))
     test_loader = DataLoader(test_dataset, batch_size, sampler=SubsetRandomSampler(permutation(len(test_dataset))))
+
+
+    return train_loader, val_loader, test_loader
+
+def batched_idxs(seed, lengths, batch_size):
+    np.random.seed(seed)
+    train_idx = list(chunked(np.random.permutation(lengths[0]), batch_size))
+    val_idx = list(chunked(np.random.permutation(lengths[1]), batch_size))
+    test_idx = list(chunked(np.random.permutation(lengths[2]), batch_size))
+
+    return train_idx, val_idx, test_idx
+
+def load_dataset(data_path, subjects=[0], num_frames=250, batch_size=64, seed=42, device='cuda'):
+    if len(os.listdir(f"data/{num_frames}/train")) != len(subjects):
+        build_dataset(data_path, subjects, num_frames)
+    
+    train_dataset, val_dataset, test_dataset = None, None, None
+    train_labels, val_labels, test_labels = [], [], []
+
+    for subject in subjects:
+        subject_train = torch.einsum("fhwc->fchw", torch.tensor(np.load(f"data/{num_frames}/train/{subject}.npy"), device=device))
+        subject_val = torch.einsum("fhwc->fchw", torch.tensor(np.load(f"data/{num_frames}/validation/{subject}.npy"), device=device))
+        subject_test = torch.einsum("fhwc->fchw", torch.tensor(np.load(f"data/{num_frames}/test/{subject}.npy"), device=device))
+
+        if train_dataset is None:
+            train_dataset = subject_train
+            val_dataset = subject_val
+            test_dataset = subject_test
+        else:
+            train_dataset = torch.vstack((train_dataset, subject_train))
+            val_dataset = torch.vstack((val_dataset, subject_val))
+            test_dataset = torch.vstack((test_dataset, subject_test))
+        
+        train_labels.extend([subject]*len(subject_train))
+        val_labels.extend([subject]*len(subject_val))
+        test_labels.extend([subject]*len(subject_test))
+    
+    train_labels, val_labels, test_labels = torch.tensor(train_labels, device=device, dtype=torch.int64), torch.tensor(val_labels, device=device, dtype=torch.int64), torch.tensor(test_labels, device=device, dtype=torch.int64)
+    train_idx, val_idx, test_idx = batched_idxs(seed, [len(train_dataset), len(val_dataset), len(test_dataset)], batch_size)
+    
+    train_loader = [(train_dataset[batch], train_labels[batch]) for batch in train_idx]
+    val_loader = [(val_dataset[batch], val_labels[batch]) for batch in val_idx]
+    test_loader = [(test_dataset[batch], test_labels[batch]) for batch in test_idx]
+
+    print(f"Train: {train_dataset.shape}")
+    print(f"Validation: {val_dataset.shape}")
+    print(f"Test: {test_dataset.shape}")
+    print(f"Allocated: {torch.cuda.memory_allocated(0)/1024**3:.2f} GB")
 
     return train_loader, val_loader, test_loader
