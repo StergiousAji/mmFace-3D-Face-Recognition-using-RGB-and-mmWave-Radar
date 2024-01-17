@@ -49,6 +49,7 @@ venv.bak/
 data/
 model/
 models/
+scrap.ipynb
 
 # presentation #
 presentation/**/faces/
