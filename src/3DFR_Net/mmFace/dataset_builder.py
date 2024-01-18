@@ -59,15 +59,15 @@ def normalise(x):
     return (x - np.min(x)) / (np.max(x) - np.min(x))
 
 class MMFaceDataset(Dataset):
-    def __init__(self, data_path, type="train", subjects=[0], num_frames=250, transform=None):
-        if len(os.listdir(f"data/{num_frames}/{type}")) != len(subjects):
+    def __init__(self, data_path, split="train", subjects=[0], num_frames=250, transform=None):
+        if len(os.listdir(f"data/{num_frames}/{split}")) != len(subjects):
             build_dataset(data_path, subjects, num_frames)
         
-        self.type = type
+        self.split = split
         self.subjects = subjects
         self.num_frames = num_frames
         self.transform = transform
-        with open(f"data/{num_frames}/frame_counts_{type}.txt", 'r') as f:
+        with open(f"data/{num_frames}/frame_counts_{split}.txt", 'r') as f:
             self.frame_counts = [int(x) for x in f.read().splitlines()]
     
     def __len__(self):
@@ -77,19 +77,19 @@ class MMFaceDataset(Dataset):
          # Given an overall index, find the corresponding file index and subject
         _file_idx = lambda self, i, s=0: (s, i) if s >= len(self.frame_counts) or i < self.frame_counts[s] else _file_idx(self, i-self.frame_counts[s], s+1)
         subject, mod_idx = _file_idx(self, idx, 0)
-        data = np.load(f"data/{self.num_frames}/{self.type}/{subject}.npy")[mod_idx]
+        data = np.load(f"data/{self.num_frames}/{self.split}/{subject}.npy")[mod_idx]
         if self.transform:
             data = self.transform(data)
         
         return data, subject
 
+# NB: SLOW, ONLY USE WHEN DATASET TO BIG TO BE LOADED IN GPU
 def load_dataset_DL(data_path, subjects=[0], num_frames=250, batch_size=32, seed=42, transform=ToTensor()):
     train_dataset = MMFaceDataset(data_path, "train", subjects, num_frames, transform)
     val_dataset = MMFaceDataset(data_path, "validation", subjects, num_frames, transform)
     test_dataset = MMFaceDataset(data_path, "test", subjects, num_frames, transform)
     
     np.random.seed(seed)
-    # DATA LOADER MAY BE TOO SLOW
     # _ Subjects x 15 Scenarios x 250 total frames
     train_loader = DataLoader(train_dataset, batch_size, sampler=SubsetRandomSampler(permutation(len(train_dataset))))
     val_loader = DataLoader(val_dataset, batch_size, sampler=SubsetRandomSampler(permutation(len(val_dataset))))
@@ -106,7 +106,18 @@ def batched_idxs(seed, lengths, batch_size):
 
     return train_idx, val_idx, test_idx
 
-def load_dataset(data_path, subjects=[0], num_frames=250, batch_size=64, seed=42, device='cuda'):
+def load_experiments(num_frames, subject, experiments, split, device):
+    subject_data = torch.einsum("fhwc->fchw", torch.tensor(np.load(f"data/{num_frames}/{split}/{subject}.npy")))
+    exp_batch_size = len(subject_data) // 15
+    print(len(subject_data))
+    print(exp_batch_size)
+    batched = list(chunked(subject_data, exp_batch_size))
+    data = np.vstack([batched[e] for e in experiments])
+    print(data.shape)
+
+    return torch.tensor(data, device=device)
+
+def load_dataset(data_path, subjects=[0], experiments=list(range(15)), num_frames=250, batch_size=64, seed=42, device='cuda'):
     if len(os.listdir(f"data/{num_frames}/train")) != len(subjects):
         build_dataset(data_path, subjects, num_frames)
     
