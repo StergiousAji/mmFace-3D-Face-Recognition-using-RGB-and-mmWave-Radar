@@ -43,12 +43,12 @@ def config():
     
     print("Configured")
 
-def grab_frames():
+def grab_frames(save=True):
     # Set the number of frames to capture proportional to FPS. 
     frames = 10
-
+    if not save:
+        frames = 120
     # Height = Rows, Width = Columns
-    depth_frames_list = np.zeros((frames, 480, 640), np.float16)
     colour_frames_list = np.zeros((frames, 480, 640, 3), np.float16)
 
     # rs.align allows us to perform alignment of depth frames to others frames
@@ -62,17 +62,9 @@ def grab_frames():
             frames = pipeline.wait_for_frames()
 
             aligned_frames = align.process(frames)
-            depth_frame = aligned_frames.get_depth_frame()
             colour_frame = aligned_frames.get_color_frame()
-            if not depth_frame or not colour_frame:
-                continue
             
-            depth_image = np.asanyarray(depth_frame.data)
             colour_image = np.asanyarray(colour_frame.data)
-
-            depth_colourmap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_VIRIDIS)
-
-            depth_frames_list[i] = depth_image.astype(np.float16)
             # Reverse BGR to RGB
             colour_frames_list[i] = colour_image.astype(np.float16)[:,:,::-1]
 
@@ -80,14 +72,14 @@ def grab_frames():
             timestamps[i, 1] = time.time()
             print(f"\nFrame {i}\nDevice Time Difference: {frames.timestamp - timestamps[i-1, 0]}\nSystem Time Difference: {(time.time() - timestamps[i-1, 1])*1e3}")
 
-            cv2.imshow("RealSense Depth", depth_colourmap)
+            cv2.imshow("RealSense", colour_image)
             cv2.waitKey(1)
     finally:
-        pipeline.stop()
-        print("\nSaving frames...")
-        np.save(f"{SUBJECT_PATH}_depth.npy", depth_frames_list)
-        np.save(f"{SUBJECT_PATH}_colour.npy", colour_frames_list)
-        np.save(f"{SUBJECT_PATH}_timestamps.npy", timestamps)
+        if save:
+            pipeline.stop()
+            print("\nSaving frames...")
+            np.save(f"{SUBJECT_PATH}_colour.npy", colour_frames_list)
+            np.save(f"{SUBJECT_PATH}_timestamps.npy", timestamps)
 
 def server():
     localIP     = "127.0.0.1"
@@ -118,6 +110,8 @@ def server():
             hello_message = message
             print('case 2')
             config()
+            grab_frames(save=False)
+            time.sleep(1)
         # Listen for a ready message. Once received from both clients, the SOLI device begins grabbing frames, and so must the IRS    
         elif (message == b'soli ready' ):
             print('case 4')        
