@@ -11,22 +11,25 @@ import numpy as np
 import json
 import os
 
-def build_dataset(raw_path, subjects=[0], num_frames=250, train_split=0.8, test_split=0.1, seed=333):
+def build_dataset(raw_path, subjects=[0], num_frames=250, train_split=0.8, test_split=0.1, video=False, seed=333):
     np.random.seed(seed)
+    folder_name = f"3D-{num_frames}" if video else num_frames
     frame_counts = [[], [], []]
     val_split_end = train_split + test_split
     for subject in tqdm(subjects):
-        if not os.path.exists(f"data/{num_frames}/train/{subject}.npy"):
+        if not os.path.exists(f"data/{folder_name}/train/{subject}.npy"):
             train, val, test = [], [], []
             radar_paths = sorted(glob(rf"{raw_path}\{subject}\*_radar.json"), key=by_experiment)
             for rp in radar_paths:
                 with open(rp, 'r') as f:
                     # Extract reshaped ARD for each experiment (Frames x Range (H) x Doppler (W) x Channel)
-                    experiment_ard = np.einsum("fcrd->frdc", np.abs(get_crd_data(json.load(f), num_chirps_per_burst=16)[:num_frames]).astype(np.float32))
-                    frames = list(range(len(experiment_ard)))
+                    experiment_ard = np.abs(get_crd_data(json.load(f), num_chirps_per_burst=16)[:num_frames]).astype(np.float32)
 
-                    # Frames split for Train/Validation/Test after shuffle
+                    # Frames split for Train/Validation/Test
+                    frames = list(range(len(experiment_ard)))    
                     np.random.shuffle(frames)
+                    
+                    # TODO: FOR VIDEO, NEED TO CHUNK EVENLY THEN SHUFFLE
                     train_idx = frames[:int(len(frames)*train_split)]
                     val_idx = frames[int(len(frames)*train_split):int(len(frames)*(val_split_end))]
                     test_idx = frames[int(len(frames)*(val_split_end)):]
@@ -39,20 +42,20 @@ def build_dataset(raw_path, subjects=[0], num_frames=250, train_split=0.8, test_
             val = np.concatenate(val)
             test = np.concatenate(test)
 
-            np.save(f"data/{num_frames}/train/{subject}.npy", train)
-            np.save(f"data/{num_frames}/validation/{subject}.npy", val)
-            np.save(f"data/{num_frames}/test/{subject}.npy", test)
+            np.save(f"data/{folder_name}/train/{subject}.npy", train)
+            np.save(f"data/{folder_name}/validation/{subject}.npy", val)
+            np.save(f"data/{folder_name}/test/{subject}.npy", test)
             frame_counts[0].append(str(train.shape[0]))
             frame_counts[1].append(str(val.shape[0]))
             frame_counts[2].append(str(test.shape[0]))
     
     if len(frame_counts[0]) > 0:
-        new_line = '\n' if os.path.exists(f"data/{num_frames}/frame_counts_train.txt") else ''
-        with open(f"data/{num_frames}/frame_counts_train.txt", 'a') as f:
+        new_line = '\n' if os.path.exists(f"data/{folder_name}/frame_counts_train.txt") else ''
+        with open(f"data/{folder_name}/frame_counts_train.txt", 'a') as f:
             f.write(new_line + '\n'.join(frame_counts[0]))
-        with open(f"data/{num_frames}/frame_counts_validation.txt", 'a') as g:
+        with open(f"data/{folder_name}/frame_counts_validation.txt", 'a') as g:
             g.write(new_line + '\n'.join(frame_counts[1]))
-        with open(f"data/{num_frames}/frame_counts_test.txt", 'a') as h:
+        with open(f"data/{folder_name}/frame_counts_test.txt", 'a') as h:
             h.write(new_line + '\n'.join(frame_counts[2]))
 
 def normalise(x):
@@ -106,28 +109,26 @@ def batched_idxs(seed, lengths, batch_size):
 
     return train_idx, val_idx, test_idx
 
-def load_experiments(num_frames, subject, experiments, split, device):
-    subject_data = torch.einsum("fhwc->fchw", torch.tensor(np.load(f"data/{num_frames}/{split}/{subject}.npy")))
+def load_experiments(folder_name, subject, experiments, split, device):
+    subject_data = torch.tensor(np.load(f"data/{folder_name}/{split}/{subject}.npy"))
     exp_batch_size = len(subject_data) // 15
-    print(len(subject_data))
-    print(exp_batch_size)
     batched = list(chunked(subject_data, exp_batch_size))
     data = np.vstack([batched[e] for e in experiments])
-    print(data.shape)
 
     return torch.tensor(data, device=device)
 
-def load_dataset(data_path, subjects=[0], experiments=list(range(15)), num_frames=250, batch_size=64, seed=42, device='cuda'):
-    if len(os.listdir(f"data/{num_frames}/train")) != len(subjects):
-        build_dataset(data_path, subjects, num_frames)
+def load_dataset(data_path, subjects, experiments=list(range(15)), num_frames=250, batch_size=64, seed=42, device="cuda", video=False, frame_batch_size=16):
+    folder_name = f"3D-{num_frames}" if video else num_frames
+    if len(os.listdir(f"data/{folder_name}/train")) <= max(subjects):
+        build_dataset(data_path, subjects, num_frames, shuffle=not video)
     
     train_dataset, val_dataset, test_dataset = None, None, None
     train_labels, val_labels, test_labels = [], [], []
 
-    for subject in subjects:
-        subject_train = torch.einsum("fhwc->fchw", torch.tensor(np.load(f"data/{num_frames}/train/{subject}.npy"), device=device))
-        subject_val = torch.einsum("fhwc->fchw", torch.tensor(np.load(f"data/{num_frames}/validation/{subject}.npy"), device=device))
-        subject_test = torch.einsum("fhwc->fchw", torch.tensor(np.load(f"data/{num_frames}/test/{subject}.npy"), device=device))
+    for i, subject in enumerate(subjects):
+        subject_train = load_experiments(folder_name, subject, experiments, "train", device)
+        subject_val = load_experiments(folder_name, subject, experiments, "validation", device)
+        subject_test = load_experiments(folder_name, subject, experiments, "test", device)
 
         if train_dataset is None:
             train_dataset = subject_train
@@ -138,9 +139,9 @@ def load_dataset(data_path, subjects=[0], experiments=list(range(15)), num_frame
             val_dataset = torch.vstack((val_dataset, subject_val))
             test_dataset = torch.vstack((test_dataset, subject_test))
         
-        train_labels.extend([subject]*len(subject_train))
-        val_labels.extend([subject]*len(subject_val))
-        test_labels.extend([subject]*len(subject_test))
+        train_labels.extend([i]*len(subject_train))
+        val_labels.extend([i]*len(subject_val))
+        test_labels.extend([i]*len(subject_test))
     
     train_labels, val_labels, test_labels = torch.tensor(train_labels, device=device, dtype=torch.int64), torch.tensor(val_labels, device=device, dtype=torch.int64), torch.tensor(test_labels, device=device, dtype=torch.int64)
     train_idx, val_idx, test_idx = batched_idxs(seed, [len(train_dataset), len(val_dataset), len(test_dataset)], batch_size)

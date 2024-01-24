@@ -49,7 +49,7 @@ venv.bak/
 data/
 model/
 models/
-scrap.ipynb
+frontal_images/
 
 # presentation #
 presentation/**/faces/
