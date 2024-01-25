@@ -86,27 +86,24 @@ class MMFaceFE(nn.Module):
         x = self.conv4(x)
         x = self.maxpool(x)
         # Flatten vector before FC layers
-        x = x.reshape(-1, 128*8*2)
+        x = x.view(-1, 128*8*2)
         x = self.fc1(x)
         x = self.fc2(x)
 
         return x
 
 # mmFace Classifier: (512) -> (liveness?)
-class MMFaceClassifier(nn.Module):
+class MMFaceClassifier_Liveness(nn.Module):
     def __init__(self):
-        super(MMFaceClassifier, self).__init__()
-        self.fc1 = nn.Sequential(
-            nn.Linear(512, 32),
-            nn.ReLU()
+        super(MMFaceClassifier_Liveness, self).__init__()
+        self.fc = nn.Sequential(
+            nn.BatchNorm1d(512),
+            nn.ReLU(),
+            nn.Linear(512, 2)
         )
-        self.fc2 = nn.Linear(32, 2)
-    
-    def forward(self, x):
-        x = self.fc1(x)
-        x = self.fc2(x)
 
-        return x
+    def forward(self, x):
+        return self.fc(x)
 
 # InsightFace Feature Extraction: (480, 640, 3) [BGR] -> (512)
 def insightface_model(x, det_model, Face, rec_model):
@@ -119,12 +116,29 @@ def insightface_model(x, det_model, Face, rec_model):
     rec_model.get(x, face)
     return face.normed_embedding
 
-# InsightFace Classifier: (512) -> (subject?)
+# InsightFace Subject Classifier: (512) -> (subject?) OR (512) -> (liveness?)
 class InsightFaceClassifier(nn.Module):
     def __init__(self, num_classes):
         super(InsightFaceClassifier, self).__init__()
-        self.fc = nn.Linear(512, num_classes)
+        self.fc = nn.Sequential(
+            nn.BatchNorm1d(512),
+            nn.ReLU(),
+            nn.Linear(512, num_classes)
+        )
     
+    def forward(self, x):
+        return self.fc(x)
+
+# Combined Classifier
+class IntermediateFusionClassifier(nn.Module):
+    def __init__(self, in_features, num_classes):
+        super(IntermediateFusionClassifier, self).__init__()
+        self.fc1 = nn.Sequential(
+            nn.BatchNorm1d(in_features),
+            nn.ReLU(),
+            nn.Linear(in_features, num_classes)
+        )
+
     def forward(self, x):
         return self.fc(x)
 

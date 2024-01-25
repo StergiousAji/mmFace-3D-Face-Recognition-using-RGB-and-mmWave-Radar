@@ -11,6 +11,8 @@ import numpy as np
 import json
 import os
 
+# RADAR DATASET
+
 def build_dataset(raw_path, subjects=[0], num_frames=250, train_split=0.8, test_split=0.1, video=False, seed=333):
     np.random.seed(seed)
     folder_name = f"3D-{num_frames}" if video else num_frames
@@ -58,6 +60,7 @@ def build_dataset(raw_path, subjects=[0], num_frames=250, train_split=0.8, test_
         with open(f"data/{folder_name}/frame_counts_test.txt", 'a') as h:
             h.write(new_line + '\n'.join(frame_counts[2]))
 
+
 def normalise(x):
     return (x - np.min(x)) / (np.max(x) - np.min(x))
 
@@ -101,11 +104,12 @@ def load_dataset_DL(data_path, subjects=[0], num_frames=250, batch_size=32, seed
 
     return train_loader, val_loader, test_loader
 
+
 def batched_idxs(seed, lengths, batch_size):
     np.random.seed(seed)
-    train_idx = list(chunked(np.random.permutation(lengths[0]), batch_size))
-    val_idx = list(chunked(np.random.permutation(lengths[1]), batch_size))
-    test_idx = list(chunked(np.random.permutation(lengths[2]), batch_size))
+    train_idx = list(chunked(permutation(lengths[0]), batch_size))
+    val_idx = list(chunked(permutation(lengths[1]), batch_size))
+    test_idx = list(chunked(permutation(lengths[2]), batch_size))
 
     return train_idx, val_idx, test_idx
 
@@ -154,5 +158,98 @@ def load_dataset(data_path, subjects, experiments=list(range(15)), num_frames=25
     print(f"Validation: {val_dataset.shape}")
     print(f"Test: {test_dataset.shape}")
     print(f"Allocated: {torch.cuda.memory_allocated(0)/1024**3:.2f} GB")
+
+    return train_loader, val_loader, test_loader
+
+
+
+# RGB EMBEDDING DATASET
+
+# TODO: REDO THIS CURRENTLY DOESN'T DISTRIBUTE EXPERIMENTS EVENLY. SAVE LIST OF LISTS ORDERED BY EXPERIMENTS FOR EACH SUBJECT.
+def process_rgb(raw_path, subjects, det_model, rec_model, Face):
+    undetected = []
+
+    for subject in subjects:
+        embs_subject_path = f"data/InsightFace_embs/embs_{subject}.npy"
+        if not os.path.exists(embs_subject_path):
+            subject_embeddings = []
+            print(f"Subject: {subject}")
+
+            for img_path in tqdm(sorted(glob(rf"{raw_path}\{subject}\*_colour.npy"), key=by_experiment)):
+                for frame, img in enumerate(np.load(img_path).astype(np.float32)):
+                    # Reformat to BGR for OpenCV
+                    img = img[..., ::-1]
+                    bboxes, kpss = det_model.detect(img, max_num=0, metric="default")
+                    if len(bboxes) != 1:
+                        undetected.append((img_path.split('\\')[-1], frame))
+                        continue
+                    face = Face(bbox=bboxes[0, :4], kps=kpss[0], det_score=bboxes[0, 4])
+                    rec_model.get(img, face)
+                    subject_embeddings.append(face.normed_embedding)
+
+            subject_embeddings = np.stack(subject_embeddings, axis=0)
+            np.save(embs_subject_path, subject_embeddings)
+    
+    if len(undetected) > 0:
+        with open('data/InsightFace_embs/undetected.json', 'a', encoding='utf-8') as f:
+            json.dump(undetected, f, ensure_ascii=False, indent=4)
+
+
+class RGBEmbsDataset(Dataset):
+    def __init__(self, embs, subject_idxs, split):
+        self.embs = embs
+        self.labels = subject_idxs
+        self.split = split
+
+    def __len__(self):
+        return len(self.embs)
+    
+    def __getitem__(self, idx):
+        return self.embs[idx], self.labels[idx]
+
+
+def load_rgb_embs(subjects=[0], batch_size=64, device="cuda", train_split=0.6, test_split=0.2, seed=42):
+    np.random.seed(seed)
+    train_embs, val_embs, test_embs = [], [], []
+    train_labels, val_labels, test_labels = [], [], []
+
+    val_split_end = train_split + test_split
+    split_data = lambda data: {"train": data[:(int(len(data)*train_split))], 
+                               "validation": data[int(len(data)*train_split):int(len(data)*(val_split_end))],
+                               "test": data[int(len(data)*val_split_end):]}
+    
+    for i, subject in enumerate(subjects):
+        subject_embs = np.load(f"data/InsightFace_embs/embs_{subject}.npy")
+        subject_embs = subject_embs[permutation(list(range(len(subject_embs))))]
+        subject_labels = [i]*len(subject_embs)
+
+        train_embs.append(split_data(subject_embs)["train"])
+        train_labels.extend(split_data(subject_labels)["train"])
+        val_embs.append(split_data(subject_embs)["validation"])
+        val_labels.extend(split_data(subject_labels)["validation"])
+        test_embs.append(split_data(subject_embs)["test"])
+        test_labels.extend(split_data(subject_labels)["test"])
+    
+    train_embs = torch.tensor(np.concatenate(train_embs), device=device, dtype=torch.float32)
+    val_embs = torch.tensor(np.concatenate(val_embs), device=device, dtype=torch.float32)
+    test_embs = torch.tensor(np.concatenate(test_embs), device=device, dtype=torch.float32)
+
+    train_labels = torch.tensor(train_labels, device=device)
+    val_labels = torch.tensor(val_labels, device=device)
+    test_labels = torch.tensor(test_labels, device=device)
+
+    print(f"Train: {train_embs.shape}")
+    print(f"Validation: {val_embs.shape}")
+    print(f"Test: {test_embs.shape}")
+    print(f"Allocated: {torch.cuda.memory_allocated(0)/1024**3:.2f} GB")
+
+    train_dataset = RGBEmbsDataset(train_embs, train_labels, "train")
+    val_dataset = RGBEmbsDataset(val_embs, val_labels, "validation")
+    test_dataset = RGBEmbsDataset(test_embs, test_labels, "test")
+    
+    # _ Subjects x 15 Scenarios x 10 total frames
+    train_loader = DataLoader(train_dataset, batch_size, sampler=SubsetRandomSampler(permutation(len(train_dataset))))
+    val_loader = DataLoader(val_dataset, batch_size, sampler=SubsetRandomSampler(permutation(len(val_dataset))))
+    test_loader = DataLoader(test_dataset, batch_size, sampler=SubsetRandomSampler(permutation(len(test_dataset))))
 
     return train_loader, val_loader, test_loader

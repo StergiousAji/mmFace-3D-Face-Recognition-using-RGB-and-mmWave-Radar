@@ -1,9 +1,30 @@
+import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
 def by_experiment(path):
     return int(path.split('\\')[6].split('-')[1].split('_')[0])
+
+def load_model(name, model, optimiser):
+    epoch = 0
+    loss_history, train_acc, val_acc = [], [], []
+    try:
+        checkpoint = torch.load(f"models/{name}")
+        model.load_state_dict(checkpoint["model_state_dict"])
+        optimiser.load_state_dict(checkpoint["optimiser_state_dict"])
+        epoch = checkpoint["epoch"]
+        loss_history = checkpoint["loss_history"]
+        train_acc = checkpoint["train_acc"]
+        val_acc = checkpoint["val_acc"]
+    except Exception as ex:
+        print(ex)
+    
+    return epoch, loss_history, train_acc, val_acc
+
+def load_history(model_path):
+    checkpoint = torch.load(model_path)
+    return checkpoint["loss_history"], checkpoint["train_acc"], checkpoint["val_acc"]
 
 # Range profile (aka preprocessed)
 def compute_rp_complex(chirp_raw, zpf = 1):
