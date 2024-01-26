@@ -111,7 +111,7 @@ def server():
             print('case 2')
             config()
             grab_frames(save=False)
-            time.sleep(1)
+            time.sleep(0.5)
         # Listen for a ready message. Once received from both clients, the SOLI device begins grabbing frames, and so must the IRS    
         elif (message == b'soli ready' ):
             print('case 4')        

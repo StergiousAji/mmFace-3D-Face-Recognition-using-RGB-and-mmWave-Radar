@@ -124,7 +124,7 @@ def load_experiments(folder_name, subject, experiments, split, device):
 def load_dataset(data_path, subjects, experiments=list(range(15)), num_frames=250, batch_size=64, seed=42, device="cuda", video=False, frame_batch_size=16):
     folder_name = f"3D-{num_frames}" if video else num_frames
     if len(os.listdir(f"data/{folder_name}/train")) <= max(subjects):
-        build_dataset(data_path, subjects, num_frames, shuffle=not video)
+        build_dataset(data_path, subjects, num_frames)
     
     train_dataset, val_dataset, test_dataset = None, None, None
     train_labels, val_labels, test_labels = [], [], []
