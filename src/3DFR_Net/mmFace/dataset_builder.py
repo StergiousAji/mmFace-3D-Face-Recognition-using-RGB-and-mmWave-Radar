@@ -195,17 +195,17 @@ def process_rgb(raw_path, subjects, det_model, rec_model, Face):
             json.dump(undetected, f, ensure_ascii=False, indent=4)
 
 
-class RGBEmbsDataset(Dataset):
-    def __init__(self, embs, subject_idxs, split):
-        self.embs = embs
-        self.labels = subject_idxs
+class GenericDataset(Dataset):
+    def __init__(self, data, labels, split):
+        self.data = data
+        self.labels = labels
         self.split = split
 
     def __len__(self):
-        return len(self.embs)
+        return len(self.data)
     
     def __getitem__(self, idx):
-        return self.embs[idx], self.labels[idx]
+        return self.data[idx], self.labels[idx]
 
 
 def load_rgb_embs(subjects=[0], batch_size=64, device="cuda", train_split=0.6, test_split=0.2, seed=42):
@@ -234,18 +234,14 @@ def load_rgb_embs(subjects=[0], batch_size=64, device="cuda", train_split=0.6, t
     val_embs = torch.tensor(np.concatenate(val_embs), device=device, dtype=torch.float32)
     test_embs = torch.tensor(np.concatenate(test_embs), device=device, dtype=torch.float32)
 
-    train_labels = torch.tensor(train_labels, device=device)
-    val_labels = torch.tensor(val_labels, device=device)
-    test_labels = torch.tensor(test_labels, device=device)
-
     print(f"Train: {train_embs.shape}")
     print(f"Validation: {val_embs.shape}")
     print(f"Test: {test_embs.shape}")
     print(f"Allocated: {torch.cuda.memory_allocated(0)/1024**3:.2f} GB")
 
-    train_dataset = RGBEmbsDataset(train_embs, train_labels, "train")
-    val_dataset = RGBEmbsDataset(val_embs, val_labels, "validation")
-    test_dataset = RGBEmbsDataset(test_embs, test_labels, "test")
+    train_dataset = GenericDataset(train_embs, torch.tensor(train_labels, device=device), "train")
+    val_dataset = GenericDataset(val_embs, torch.tensor(val_labels, device=device), "validation")
+    test_dataset = GenericDataset(test_embs, torch.tensor(test_labels, device=device), "test")
     
     # _ Subjects x 15 Scenarios x 10 total frames
     train_loader = DataLoader(train_dataset, batch_size, sampler=SubsetRandomSampler(permutation(len(train_dataset))))
