@@ -165,34 +165,34 @@ def load_dataset(data_path, subjects, experiments=list(range(15)), num_frames=25
 
 # RGB EMBEDDING DATASET
 
-# TODO: REDO THIS CURRENTLY DOESN'T DISTRIBUTE EXPERIMENTS EVENLY. SAVE LIST OF LISTS ORDERED BY EXPERIMENTS FOR EACH SUBJECT.
-def process_rgb(raw_path, subjects, det_model, rec_model, Face):
+def process_rgb(raw_path, subjects, name, num_experiments=15):
+    experiments = np.full((len(subjects), num_experiments, 10, 512), np.nan)
     undetected = []
 
-    for subject in subjects:
-        embs_subject_path = f"data/InsightFace_embs/embs_{subject}.npy"
-        if not os.path.exists(embs_subject_path):
-            subject_embeddings = []
-            print(f"Subject: {subject}")
-
-            for img_path in tqdm(sorted(glob(rf"{raw_path}\{subject}\*_colour.npy"), key=by_experiment)):
-                for frame, img in enumerate(np.load(img_path).astype(np.float32)):
-                    # Reformat to BGR for OpenCV
-                    img = img[..., ::-1]
-                    bboxes, kpss = det_model.detect(img, max_num=0, metric="default")
-                    if len(bboxes) != 1:
-                        undetected.append((img_path.split('\\')[-1], frame))
-                        continue
-                    face = Face(bbox=bboxes[0, :4], kps=kpss[0], det_score=bboxes[0, 4])
-                    rec_model.get(img, face)
-                    subject_embeddings.append(face.normed_embedding)
-
-            subject_embeddings = np.stack(subject_embeddings, axis=0)
-            np.save(embs_subject_path, subject_embeddings)
+    for sub, subject in enumerate(tqdm(subjects)):
+        for img_path in sorted(glob(rf"{raw_path}\{subject}\*_colour.npy"), key=by_experiment):
+            exp = by_experiment(img_path)
+            experiment_embs = np.full((10, 512), np.nan)
+            for frame, img in enumerate(np.load(img_path).astype(np.float32)):
+                # Reformat to BGR for OpenCV
+                img = img[..., ::-1]
+                bboxes, kpss = det_model.detect(img, max_num=0, metric="default")
+                if len(bboxes) != 1:
+                    undetected.append((img_path.split('\\')[-1], frame))
+                    continue
+                face = Face(bbox=bboxes[0, :4], kps=kpss[0], det_score=bboxes[0, 4])
+                rec_model.get(img, face)
+                experiment_embs[frame] = face.normed_embedding
+            
+            experiments[sub, exp] = np.array(experiment_embs)
+    
+    np.save(f"data/InsightFace_embs/{name}_insightface_embs.npy", np.array(experiments))
+    print(np.array(experiments).shape)
     
     if len(undetected) > 0:
         with open('data/InsightFace_embs/undetected.json', 'a', encoding='utf-8') as f:
             json.dump(undetected, f, ensure_ascii=False, indent=4)
+
 
 
 class GenericDataset(Dataset):
