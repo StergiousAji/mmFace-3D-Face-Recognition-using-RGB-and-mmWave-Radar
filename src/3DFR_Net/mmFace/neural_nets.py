@@ -144,50 +144,6 @@ class IntermediateFusionClassifier(nn.Module):
         return self.fc(x)
 
 # HYBRID: (Radar (32, 16, 3), RGB Embedding (512)) -> (subject?, liveness?)
-# class MMFaceHybrid(nn.Module):
-#     def __init__(self, num_subjects):
-#         super(MMFaceHybrid, self).__init__()
-#         self.conv1 = nn.Sequential(
-#             nn.Conv2d(3, 16, kernel_size=3, stride=1),
-#             nn.BatchNorm2d(16),
-#             nn.ReLU()
-#         )
-#         self.conv2 = nn.Sequential(
-#             nn.Conv2d(16, 32, kernel_size=3, stride=1),
-#             nn.BatchNorm2d(32),
-#             nn.ReLU()
-#         )
-#         self.conv3 = nn.Sequential(
-#             nn.Conv2d(32, 64, kernel_size=3, stride=1),
-#             nn.BatchNorm2d(64),
-#             nn.ReLU()
-#         )
-#         self.conv4 = nn.Sequential(
-#             nn.Conv2d(64, 128, kernel_size=3, stride=1),
-#             nn.BatchNorm2d(128),
-#             nn.ReLU()
-#         )
-#         self.maxpool =  nn.MaxPool2d(kernel_size=3)
-#         self.flatten = nn.Flatten()
-#         self.fc1 = nn.Sequential(
-#             nn.Linear(128*8*2, 1024),
-#             nn.BatchNorm2d(1024),
-#             nn.ReLU()
-#         )
-#         self.fc2 = nn.Sequential(
-#             nn.Linear(1024, 512),
-#             nn.BatchNorm2d(512),
-#             nn.ReLU()
-#         )
-
-#         # Hybrid: mmFace + InsightFace2D Features
-#         self.fc_hybrid1 = nn.Sequential(
-#             nn.Linear(2*512, 64),
-#             nn.BatchNorm1d(64),
-#             nn.ReLU()
-#         )
-#         self.fc_subject = nn.Linear(64, num_subjects)
-#         self.fc_liveness = nn.Linear(64, 2)
 class MMFaceHybrid(nn.Module):
     def __init__(self, num_subjects):
         super(MMFaceHybrid, self).__init__()
@@ -198,24 +154,29 @@ class MMFaceHybrid(nn.Module):
         )
         self.conv2 = nn.Sequential(
             nn.Conv2d(16, 32, kernel_size=3, stride=1),
+            nn.BatchNorm2d(32),
             nn.ReLU()
         )
         self.conv3 = nn.Sequential(
             nn.Conv2d(32, 64, kernel_size=3, stride=1),
+            nn.BatchNorm2d(64),
             nn.ReLU()
         )
         self.conv4 = nn.Sequential(
             nn.Conv2d(64, 128, kernel_size=3, stride=1),
+            nn.BatchNorm2d(128),
             nn.ReLU()
         )
         self.maxpool =  nn.MaxPool2d(kernel_size=3)
         self.flatten = nn.Flatten()
         self.fc1 = nn.Sequential(
             nn.Linear(128*8*2, 1024),
+            nn.BatchNorm1d(1024),
             nn.ReLU()
         )
         self.fc2 = nn.Sequential(
             nn.Linear(1024, 512),
+            nn.BatchNorm1d(512),
             nn.ReLU()
         )
 
@@ -227,6 +188,47 @@ class MMFaceHybrid(nn.Module):
         )
         self.fc_subject = nn.Linear(64, num_subjects)
         self.fc_liveness = nn.Linear(64, 2)
+    
+
+# class MMFaceHybrid(nn.Module):
+#     def __init__(self, num_subjects):
+#         super(MMFaceHybrid, self).__init__()
+#         self.conv1 = nn.Sequential(
+#             nn.Conv2d(3, 16, kernel_size=3, stride=1),
+#             nn.BatchNorm2d(16),
+#             nn.ReLU()
+#         )
+#         self.conv2 = nn.Sequential(
+#             nn.Conv2d(16, 32, kernel_size=3, stride=1),
+#             nn.ReLU()
+#         )
+#         self.conv3 = nn.Sequential(
+#             nn.Conv2d(32, 64, kernel_size=3, stride=1),
+#             nn.ReLU()
+#         )
+#         self.conv4 = nn.Sequential(
+#             nn.Conv2d(64, 128, kernel_size=3, stride=1),
+#             nn.ReLU()
+#         )
+#         self.maxpool =  nn.MaxPool2d(kernel_size=3)
+#         self.flatten = nn.Flatten()
+#         self.fc1 = nn.Sequential(
+#             nn.Linear(128*8*2, 1024),
+#             nn.ReLU()
+#         )
+#         self.fc2 = nn.Sequential(
+#             nn.Linear(1024, 512),
+#             nn.ReLU()
+#         )
+
+#         # Hybrid: mmFace + InsightFace2D Features
+#         self.fc_hybrid1 = nn.Sequential(
+#             nn.Linear(2*512, 64),
+#             nn.BatchNorm1d(64),
+#             nn.ReLU()
+#         )
+#         self.fc_subject = nn.Linear(64, num_subjects)
+#         self.fc_liveness = nn.Linear(64, 2)
     
     def forward(self, x1, x2):
         x = self.conv1(x1)
@@ -245,55 +247,3 @@ class MMFaceHybrid(nn.Module):
         y2 = self.fc_liveness(x)
 
         return y1, y2
-
-# class MMFace3D(nn.Module):
-#     def __init__(self, num_classes=50):
-#         super(MMFace3D, self).__init__()
-#         self.conv1 = nn.Sequential(
-#             nn.Conv3d(3, 64, kernel_size=3, stride=2, padding=1),
-#             nn.BatchNorm3d(64),
-#             nn.ReLU()
-#         )
-#         self.conv2 = nn.Sequential(
-#             nn.Conv3d(64, 128, kernel_size=3, stride=2, padding=1),
-#             nn.BatchNorm3d(128),
-#             nn.ReLU()
-#         )
-#         self.conv3 = nn.Sequential(
-#             nn.Conv3d(128, 256, kernel_size=3, stride=2, padding=1),
-#             nn.BatchNorm3d(256),
-#             nn.ReLU()
-#         )
-#         self.conv4 = nn.Sequential(
-#             nn.Conv3d(256, 512, kernel_size=3, stride=2, padding=1),
-#             nn.BatchNorm3d(512),
-#             nn.ReLU()
-#         )
-#         self.maxpool = nn.MaxPool2d()
-#         self.fc1 = nn.Linear(512, num_classes)
-    
-#     def forward(self, x):
-#         print(x.shape)
-#         x = self.conv1(x)
-#         print(x.shape)
-#         x = self.maxpool(x)
-#         print(x.shape)
-#         x = self.conv2(x)
-#         print(x.shape)
-#         x = self.conv3(x)
-#         print(x.shape)
-#         x = self.conv4(x)
-#         print(x.shape)
-#         x = x.view(x.size(0), -1)
-#         x = self.fc1(x)
-#         print(x.shape)
-
-        
-#         # x = self.conv1(x)
-#         # x = self.conv2(x)
-#         # x = self.conv3(x)
-#         # x = self.conv4(x)
-#         # x = x.view(x.size(0), -1)
-#         # x = self.fc1(x)
-    
-#         return x
