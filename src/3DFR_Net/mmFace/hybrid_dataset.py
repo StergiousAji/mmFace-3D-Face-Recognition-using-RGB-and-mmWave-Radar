@@ -108,25 +108,18 @@ def build_dataset(raw_path, num_subjects, num_experiments=15, train_split=22/28,
 
 
 class HybridDataset(Dataset):
-    def __init__(self, radar_data, rgb_embs, subject_labels, liveness_labels, split, transform=None):
+    def __init__(self, radar_data, rgb_embs, subject_labels, liveness_labels, split):
         self.radar_data = radar_data
         self.rgb_embs = rgb_embs
         self.subject_labels = subject_labels
         self.liveness_labels = liveness_labels
         self.split = split
-        self.transform = transform
 
     def __len__(self):
         return len(self.radar_data)
     
     def __getitem__(self, idx):
-        radar = self.radar_data[idx]
-        rgb_emb = self.rgb_embs[idx]
-        if self.transform:
-            radar = self.transform(radar)
-            rgb_emb = self.transform(rgb_emb)
-
-        return radar, rgb_emb, self.subject_labels[idx], self.liveness_labels[idx]
+        return self.radar_data[idx], self.rgb_embs[idx], self.subject_labels[idx], self.liveness_labels[idx]
 
 
 def load_dataset(raw_path, num_subjects, batch_size=128, device="cuda", seed=24):
@@ -187,7 +180,7 @@ def build_dataset_subject(raw_path, num_subjects, num_experiments=15):
     fake_rgb = np.load("data/InsightFace_embs/fake_insightface_embs.npy")
 
     for subject in tqdm(subjects):
-        num_frames = 250 if subject < 90 else 74
+        num_frames = 15 if subject < 90 else 74
         experiments = range(num_experiments) if subject < 90 else [0, 5, 10]
         sub = subject if subject < 90 else int(str(subject)[1:]) + num_subjects
         for experiment in experiments:
@@ -197,7 +190,7 @@ def build_dataset_subject(raw_path, num_subjects, num_experiments=15):
                 print(subject, experiment)
                 continue
 
-            exp_ard = get_ard(raw_path, subject, experiment, num_frames)[:15]
+            exp_ard = get_ard(raw_path, subject, experiment, num_frames)
 
             # Duplicate embeddings until n frames to match size of ARD dataset
             rgb_emb = np.tile(rgb_emb, (len(exp_ard)//len(rgb_emb) + 1, 1))[:len(exp_ard)]
@@ -219,7 +212,7 @@ def build_dataset_subject(raw_path, num_subjects, num_experiments=15):
         pickle.dump(data, f)
 
 
-def load_dataset_subject(raw_path, num_subjects, batch_size=64, train_split=17/21, test_split=2/21, device="cuda", seed=54):
+def load_dataset_subject(raw_path, num_subjects, batch_size=128, train_split=17/21, test_split=2/21, device="cuda", seed=54):
     if not os.path.exists("data/hybrid-by_subject/dataset.pickle"):
         build_dataset_subject(raw_path, num_subjects)
 
@@ -359,19 +352,104 @@ def build_aug_dataset(path, num_subjects, num_experiments=15, seed=38):
 
     print(data["radar"][0].shape, data["rgb_embs"][0].shape)
 
-    with open("data/hybrid-augmented-by_subject/dataset.pickle", 'wb') as f:
+    with open("data/hybrid-augmented/dataset.pickle", 'wb') as f:
         pickle.dump(data, f)
     
     if len(undetected_faces) > 0:
-        with open('data/hybrid-augmented-by_subject/undetected_faces.json', 'a', encoding='utf-8') as g:
+        with open('data/hybrid-augmented/undetected_faces.json', 'a', encoding='utf-8') as g:
             json.dump(list(undetected_faces), g, ensure_ascii=False, indent=4)
 
 
-def load_aug_dataset_subject(path, num_subjects, batch_size=64, train_split=17/21, test_split=2/21, device="cuda", seed=54):
-    if not os.path.exists("data/hybrid-augmented-by_subject/dataset.pickle"):
+def load_aug_dataset(path, num_subjects, batch_size=128, train_split=0.8, test_split=0.1, device="cuda", seed=54):
+    if not os.path.exists("data/hybrid-augmented/dataset.pickle"):
         build_aug_dataset(path, num_subjects)
 
-    with open("data/hybrid-augmented-by_subject/dataset.pickle", 'rb') as f:
+    np.random.seed(seed)
+    with open("data/hybrid-augmented/dataset.pickle", 'rb') as f:
+        data = pickle.load(f)
+    
+    # List of concat data grouped by subject (REAL: 15 frames per exp, FAKE: 74 frames per exp)
+    data["radar"] = np.array(list(data["radar"].values()), dtype=object)
+    data["rgb_embs"] = np.array(list(data["rgb_embs"].values()), dtype=object)
+
+    val_split_end = train_split + test_split
+
+    train_radar, val_radar, test_radar = [], [], []
+    train_rgb, val_rgb, test_rgb = [], [], []
+
+    train_labels_s, val_labels_s, test_labels_s = [], [], []
+    train_labels_l, val_labels_l, test_labels_l = [], [], []
+
+    for sub in range(len(data["radar"])):
+        frames = 15 if sub < num_subjects else 74
+        sub_label = sub if sub < num_subjects else sub - num_subjects
+        live = 0 if sub < num_subjects else 1
+        for i in range(0, len(data["radar"][sub]), frames):
+            shuffled_idxs = np.random.permutation(frames)
+            radar_exp = data["radar"][sub][i:i+frames][shuffled_idxs]
+            rgb_exp = data["rgb_embs"][sub][i:i+frames][shuffled_idxs]
+
+            radar_exp_train = radar_exp[:int(train_split*frames)]
+            radar_exp_val = radar_exp[int(train_split*frames):int(val_split_end*frames)]
+            radar_exp_test = radar_exp[int(val_split_end*frames):]
+
+            train_radar.append(radar_exp_train)
+            val_radar.append(radar_exp_val)
+            test_radar.append(radar_exp_test)
+
+            train_rgb.append(rgb_exp[:int(train_split*frames)])
+            val_rgb.append(rgb_exp[int(train_split*frames):int(val_split_end*frames)])
+            test_rgb.append(rgb_exp[int(val_split_end*frames):])
+
+            train_labels_s.append([sub_label]*len(radar_exp_train))
+            val_labels_s.append([sub_label]*len(radar_exp_val))
+            test_labels_s.append([sub_label]*len(radar_exp_test))
+
+            train_labels_l.append([live]*len(radar_exp_train))
+            val_labels_l.append([live]*len(radar_exp_val))
+            test_labels_l.append([live]*len(radar_exp_test))
+
+
+    train_radar = torch.tensor(np.concatenate(train_radar), device=device)
+    val_radar = torch.tensor(np.concatenate(val_radar), device=device)
+    test_radar = torch.tensor(np.concatenate(test_radar), device=device)
+
+    train_rgb = torch.tensor(np.concatenate(train_rgb), device=device, dtype=torch.float32)
+    val_rgb = torch.tensor(np.concatenate(val_rgb), device=device, dtype=torch.float32)
+    test_rgb = torch.tensor(np.concatenate(test_rgb), device=device, dtype=torch.float32)
+
+    train_labels_s = torch.tensor(np.concatenate(train_labels_s), device=device, dtype=torch.int64)
+    val_labels_s = torch.tensor(np.concatenate(val_labels_s), device=device, dtype=torch.int64)
+    test_labels_s = torch.tensor(np.concatenate(test_labels_s), device=device, dtype=torch.int64)
+
+    train_labels_l = torch.tensor(np.concatenate(train_labels_l), device=device, dtype=torch.int64)
+    val_labels_l = torch.tensor(np.concatenate(val_labels_l), device=device, dtype=torch.int64)
+    test_labels_l = torch.tensor(np.concatenate(test_labels_l), device=device, dtype=torch.int64)
+
+    print(f"Train (Radar): {train_radar.shape}")
+    print(f"Train (RGB Embeddings): {train_rgb.shape}")
+    print(f"Validation (Radar): {val_radar.shape}")
+    print(f"Validation (RGB Embeddings): {val_rgb.shape}")
+    print(f"Test (Radar): {test_radar.shape}")
+    print(f"Test (RGB Embeddings): {test_rgb.shape}")
+    print(f"Allocated: {torch.cuda.memory_allocated(0)/1024**3:.2f} GB")
+
+    train_dataset = HybridDataset(train_radar, train_rgb, train_labels_s, train_labels_l, "train")
+    val_dataset = HybridDataset(val_radar, val_rgb, val_labels_s, val_labels_l, "validation")
+    test_dataset = HybridDataset(test_radar, test_rgb, test_labels_s, test_labels_l, "test")
+
+    train_loader = DataLoader(train_dataset, batch_size, sampler=SubsetRandomSampler(np.random.permutation(len(train_dataset))))
+    val_loader = DataLoader(val_dataset, batch_size, sampler=SubsetRandomSampler(np.random.permutation(len(val_dataset))))
+    test_loader = DataLoader(test_dataset, batch_size, sampler=SubsetRandomSampler(np.random.permutation(len(test_dataset))))
+
+    return train_loader, val_loader, test_loader
+
+
+def load_aug_dataset_subject(path, num_subjects, batch_size=128, train_split=17/21, test_split=2/21, device="cuda", seed=54):
+    if not os.path.exists("data/hybrid-augmented/dataset.pickle"):
+        build_aug_dataset(path, num_subjects)
+
+    with open("data/hybrid-augmented/dataset.pickle", 'rb') as f:
         data = pickle.load(f)
     
     data["radar"] = np.array(list(data["radar"].values()), dtype=object)
