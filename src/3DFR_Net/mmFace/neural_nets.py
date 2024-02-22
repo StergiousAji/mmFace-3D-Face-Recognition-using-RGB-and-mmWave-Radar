@@ -1,7 +1,108 @@
 import torch
 import torch.nn as nn
 import numpy as np
+
+
+# FEATURE FUSIONS
+def concatenate(x1, x2):
+    y = torch.concat((x1, x2), axis=1)
+    return y, y.shape[1]
+
+def add(x1, x2):
+    return x1 + x2, x1.shape[1]
+
+def multiply(x1, x2):
+    return x1*x2, x1.shape[1]
+
+def pairwise_dot_avg(x1, x2):
+    y = torch.stack(([torch.mean(x1[i, None].T @ x2[i, None], axis=0) for i in range(len(x1))]))
+    return y, y.shape[1]
+
+def pairwise_dot_max(x1, x2):
+    y = torch.stack(([torch.max(x1[i, None].T @ x2[i, None], axis=0)[0] for i in range(len(x1))]))
+    return y, y.shape[1]
+
+def pairwise_dot_flatten(x1, x2):
+    y = torch.stack(([torch.flatten(x1[i, None].T @ x2[i, None]) for i in range(len(x1))]))
+    return y, y.shape[1]
+
+def multihead_attention(x1, x2):
+    pass
+
+
+# HYBRID: (Radar (32, 16, 3), RGB Embedding (512)) -> (subject?, liveness?)
+class MMFaceHybrid(nn.Module):
+    def __init__(self, num_subjects, fuse=concatenate):
+        super(MMFaceHybrid, self).__init__()
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(3, 16, kernel_size=3, stride=1),
+            nn.BatchNorm2d(16),
+            nn.ReLU()
+        )
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(16, 32, kernel_size=3, stride=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU()
+        )
+        self.conv3 = nn.Sequential(
+            nn.Conv2d(32, 64, kernel_size=3, stride=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU()
+        )
+        self.conv4 = nn.Sequential(
+            nn.Conv2d(64, 128, kernel_size=3, stride=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU()
+        )
+        self.maxpool =  nn.MaxPool2d(kernel_size=3)
+        self.flatten = nn.Flatten()
+        self.fc1 = nn.Sequential(
+            nn.Linear(128*8*2, 1024),
+            nn.BatchNorm1d(1024),
+            nn.ReLU()
+        )
+        self.fc2 = nn.Sequential(
+            nn.Linear(1024, 512),
+            nn.BatchNorm1d(512),
+            nn.ReLU()
+        )
+        self.fuse = fuse
+        _, self.fused_dims = fuse(torch.zeros((1, 512)), torch.zeros((1, 512)))
+        # Hybrid: mmFace + InsightFace2D Features
+        self.fc_hybrid1 = nn.Sequential(
+            nn.Linear(self.fused_dims, 64),
+            nn.BatchNorm1d(64),
+            nn.ReLU()
+        )
+        self.fc_subject = nn.Linear(64, num_subjects)
+        self.fc_liveness = nn.Linear(64, 2)
     
+    def forward(self, x1, x2):
+        # If only RGB data passed, skip to fusion
+        if torch.count_nonzero(x1) > 0:
+            x1 = self.conv1(x1)
+            x1 = self.conv2(x1)
+            x1 = self.conv3(x1)
+            x1 = self.conv4(x1)
+            x1 = self.maxpool(x1)
+            # Flatten vector before FC layers
+            x1 = self.flatten(x1)
+            x1 = self.fc1(x1)
+            x1 = self.fc2(x1)
+
+        x, _ = self.fuse(x1, x2)
+        x = self.fc_hybrid1(x)
+        y1 = self.fc_subject(x)
+        y2 = self.fc_liveness(x)
+
+        return y1, y2
+
+
+
+
+
+
+
 class MMFace(nn.Module):
     def __init__(self, num_classes=50):
         super(MMFace, self).__init__()
@@ -142,67 +243,3 @@ class IntermediateFusionClassifier(nn.Module):
 
     def forward(self, x):
         return self.fc(x)
-
-# HYBRID: (Radar (32, 16, 3), RGB Embedding (512)) -> (subject?, liveness?)
-class MMFaceHybrid(nn.Module):
-    def __init__(self, num_subjects):
-        super(MMFaceHybrid, self).__init__()
-        self.conv1 = nn.Sequential(
-            nn.Conv2d(3, 16, kernel_size=3, stride=1),
-            nn.BatchNorm2d(16),
-            nn.ReLU()
-        )
-        self.conv2 = nn.Sequential(
-            nn.Conv2d(16, 32, kernel_size=3, stride=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU()
-        )
-        self.conv3 = nn.Sequential(
-            nn.Conv2d(32, 64, kernel_size=3, stride=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU()
-        )
-        self.conv4 = nn.Sequential(
-            nn.Conv2d(64, 128, kernel_size=3, stride=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU()
-        )
-        self.maxpool =  nn.MaxPool2d(kernel_size=3)
-        self.flatten = nn.Flatten()
-        self.fc1 = nn.Sequential(
-            nn.Linear(128*8*2, 1024),
-            nn.BatchNorm1d(1024),
-            nn.ReLU()
-        )
-        self.fc2 = nn.Sequential(
-            nn.Linear(1024, 512),
-            nn.BatchNorm1d(512),
-            nn.ReLU()
-        )
-
-        # Hybrid: mmFace + InsightFace2D Features
-        self.fc_hybrid1 = nn.Sequential(
-            nn.Linear(2*512, 64),
-            nn.BatchNorm1d(64),
-            nn.ReLU()
-        )
-        self.fc_subject = nn.Linear(64, num_subjects)
-        self.fc_liveness = nn.Linear(64, 2)
-    
-    def forward(self, x1, x2):
-        x = self.conv1(x1)
-        x = self.conv2(x)
-        x = self.conv3(x)
-        x = self.conv4(x)
-        x = self.maxpool(x)
-        # Flatten vector before FC layers
-        x = self.flatten(x)
-        x = self.fc1(x)
-        x = self.fc2(x)
-
-        x = torch.concat((x, x2), axis=1)
-        x = self.fc_hybrid1(x)
-        y1 = self.fc_subject(x)
-        y2 = self.fc_liveness(x)
-
-        return y1, y2
