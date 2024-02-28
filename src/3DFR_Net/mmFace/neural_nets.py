@@ -27,7 +27,7 @@ def pairwise_dot_flatten(x1, x2):
     return y, y.shape[1]
 
 def multihead_attention(x1, x2):
-    pass
+    return None, torch.concat((x1, x2), axis=1).shape[1]
 
 
 # HYBRID: (Radar (32, 16, 3), RGB Embedding (512)) -> (subject?, liveness?)
@@ -68,6 +68,10 @@ class MMFaceHybrid(nn.Module):
         )
         self.fuse = fuse
         _, self.fused_dims = fuse(torch.zeros((1, 512)), torch.zeros((1, 512)))
+
+        if fuse == multihead_attention:
+            self.fuse = nn.MultiheadAttention(512, num_heads=8, batch_first=True)
+        
         # Hybrid: mmFace + InsightFace2D Features
         self.fc_hybrid1 = nn.Sequential(
             nn.Linear(self.fused_dims, 64),
@@ -90,14 +94,18 @@ class MMFaceHybrid(nn.Module):
             x1 = self.fc1(x1)
             x1 = self.fc2(x1)
 
-        x, _ = self.fuse(x1, x2)
+        if isinstance(self.fuse, nn.MultiheadAttention):
+            x = torch.stack((x1, x2), dim=1)
+            x, _ = self.fuse(x, x, x)
+            x = x.reshape(x.size(0), self.fused_dims)
+        else:
+            x, _ = self.fuse(x1, x2)
+
         x = self.fc_hybrid1(x)
         y1 = self.fc_subject(x)
         y2 = self.fc_liveness(x)
 
         return y1, y2
-
-
 
 
 
