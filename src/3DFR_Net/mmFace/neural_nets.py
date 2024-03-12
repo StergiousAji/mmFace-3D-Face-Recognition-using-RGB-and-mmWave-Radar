@@ -110,7 +110,6 @@ class MMFaceHybrid(nn.Module):
 
 
 
-
 class MMFace(nn.Module):
     def __init__(self, num_classes=50):
         super(MMFace, self).__init__()

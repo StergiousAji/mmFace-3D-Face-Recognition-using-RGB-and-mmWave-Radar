@@ -51,6 +51,9 @@ model/
 models/
 frontal_images/
 
+# dissertation #
+*_template.tex
+
 # presentation #
 presentation/**/faces/
 
