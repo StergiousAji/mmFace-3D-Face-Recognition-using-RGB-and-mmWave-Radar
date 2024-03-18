@@ -1,0 +1,241 @@
+name: "mmFaceHybrid"
+layer {
+  name: "crd_input"
+  type: "Input"
+  top: "crd_input"
+  input_param { shape: { dim: 1 dim: 3 dim: 16 dim: 32 } }
+}
+
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "crd_input"
+  top: "conv1"
+  convolution_param {
+    num_output: 16
+    kernel_size: 3
+    padding: 0
+    stride: 1
+  }
+}
+
+layer {
+  name: "bn1"
+  type: "BatchNorm"
+  bottom: "conv1"
+  top: "conv1"
+}
+
+layer {
+  name: "relu1"
+  type: "ReLU"
+  bottom: "conv1"
+  top: "conv1"
+}
+
+layer {
+  name: "conv2"
+  type: "Convolution"
+  bottom: "conv1"
+  top: "conv2"
+  convolution_param {
+    num_output: 32
+    kernel_size: 3
+    stride: 1
+  }
+}
+
+layer {
+  name: "bn2"
+  type: "BatchNorm"
+  bottom: "conv2"
+  top: "conv2"
+}
+
+layer {
+  name: "relu2"
+  type: "ReLU"
+  bottom: "conv2"
+  top: "conv2"
+}
+
+layer {
+  name: "conv3"
+  type: "Convolution"
+  bottom: "conv2"
+  top: "conv3"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 1
+  }
+}
+
+layer {
+  name: "bn3"
+  type: "BatchNorm"
+  bottom: "conv3"
+  top: "conv3"
+}
+
+layer {
+  name: "relu3"
+  type: "ReLU"
+  bottom: "conv3"
+  top: "conv3"
+}
+
+layer {
+  name: "conv4"
+  type: "Convolution"
+  bottom: "conv3"
+  top: "conv4"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+  }
+}
+
+layer {
+  name: "bn4"
+  type: "BatchNorm"
+  bottom: "conv4"
+  top: "conv4"
+}
+
+layer {
+  name: "relu4"
+  type: "ReLU"
+  bottom: "conv4"
+  top: "conv4"
+}
+
+layer {
+  name: "maxpool"
+  type: "Pooling"
+  bottom: "conv4"
+  top: "maxpool"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+  }
+}
+
+layer {
+  name: "flatten"
+  type: "Flatten"
+  bottom: "maxpool"
+  top: "flatten"
+}
+
+layer {
+  name: "fc1"
+  type: "InnerProduct"
+  bottom: "flatten"
+  top: "fc1"
+  inner_product_param {
+    num_output: 1024
+  }
+}
+
+layer {
+  name: "bn_fc1"
+  type: "BatchNorm"
+  bottom: "fc1"
+  top: "fc1"
+}
+
+layer {
+  name: "relu_fc1"
+  type: "ReLU"
+  bottom: "fc1"
+  top: "fc1"
+}
+
+layer {
+  name: "fc2"
+  type: "InnerProduct"
+  bottom: "fc1"
+  top: "fc2"
+  inner_product_param {
+    num_output: 512
+  }
+}
+
+layer {
+  name: "bn_fc2"
+  type: "BatchNorm"
+  bottom: "fc2"
+  top: "fc2"
+}
+
+layer {
+  name: "relu_fc2"
+  type: "ReLU"
+  bottom: "fc2"
+  top: "fc2"
+}
+
+layer {
+  name: "insightface_rgb_emb"
+  type: "Input"
+  top: "insightface_rgb_emb"
+  input_param { shape: { dim: 1 dim: 512 dim: 1 dim: 1 } }
+}
+
+layer {
+  name: "fuse"
+  type: "Concat"
+  bottom: "fc2"
+  bottom: "insightface_rgb_emb"
+  concat_param {
+    num_output: 1024
+  }
+}
+
+layer {
+  name: "fc_hybrid1"
+  type: "InnerProduct"
+  bottom: "fuse"
+  top: "fc_hybrid1"
+  inner_product_param {
+    num_output: 64
+  }
+}
+
+layer {
+  name: "bn_fc_hybrid1"
+  type: "BatchNorm"
+  bottom: "fc_hybrid1"
+  top: "fc_hybrid1"
+}
+
+layer {
+  name: "relu_fc_hybrid1"
+  type: "ReLU"
+  bottom: "fc_hybrid1"
+  top: "fc_hybrid1"
+}
+
+layer {
+  name: "fc_subject"
+  type: "InnerProduct"
+  bottom: "fc_hybrid1"
+  top: "fc_subject"
+  top: "subject"
+  inner_product_param {
+    num_output: 21
+  }
+}
+
+layer {
+  name: "fc_liveness"
+  type: "InnerProduct"
+  bottom: "fc_hybrid1"
+  top: "fc_liveness"
+  top: "liveness"
+  inner_product_param {
+    num_output: 2
+  }
+}

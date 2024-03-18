@@ -1,16 +1,19 @@
 \documentclass{mpaper}
 
+\usepackage{multirow}
+\usepackage{booktabs}
+
 \begin{document}
 
-\title{mmFace: 3D Face Recognition using RGB and Millimetre
-Wave Radar}
+\title{mmFace: 3D Face Recognition with RGB and Millimetre Wave Radar}
 \author{Stergious Aji}
 \matricnum{2546916A}
 
 \maketitle
 
 \begin{abstract}
-% According to Simon Peyton Jones, an abstract should address four key questions. First, what is the problem that this paper tackles? Second, why is this an interesting problem? Third, what is the solution this paper proposes? Finally, why is the proposed solution a good one?
+    TODO
+    % According to Simon Peyton Jones, an abstract should address four key questions. First, what is the problem that this paper tackles? Second, why is this an interesting problem? Third, what is the solution this paper proposes? Finally, why is the proposed solution a good one?
 
 
 \end{abstract}
@@ -27,13 +30,34 @@ Wave Radar}
 % \end{enumerate}
 
 \section{Introduction}
+Facial recognition technology is a key area of research within the field of computer vision, with widespread applications across areas such as security surveillance, forensic analysis, and human-computer interaction. Its most prominent use case lies in biometric authentication, allowing individuals access to their personal devices or restricted areas. This enables a non-invasive, hands-free approach to identity verification, removing the need to recall passwords. Furthermore, facial biometrics are naturally more accessible than other forms such as fingerprints, iris, or palm prints \cite{zhou20183d}.
+
+Since its inception in the 1960s, facial recognition systems have evolved drastically. The pioneering work by Bledsoe \cite{bledsoe1966model} first distinguished faces by comparing distances of manually annotated landmark features such as the nose, eyes, and mouth. In more recent years, the advent of deep learning has enhanced the performance and efficiency of human face classification, benefitting from the vast online repositories of face images.  Nevertheless, these systems primarily rely on images captured by RGB cameras, making them susceptible to variations in lighting and pose \cite{xu2004depth}. By incorporating depth data, which draws attention to the geometric details of the face alone, the effect of such environmental factors can be mitigated. Moreover, the transition to three-dimensional face recognition not only improves accuracy, but also enhances the security of biometric systems against spoofing \cite{wen2015face}.
 
 
 \subsection{Motivation}
+The popularity of 3D face recognition is on the rise, evidenced by its adoption in smartphones with the likes of Apple and their Face ID \cite{apple-faceid} technology. This growing demand has pushed the commercialisation of depth-sensing technology to smaller form factors, enabling it to operate efficiently in real-time on mobile devices \cite{soumya2023recent}. Face ID, in particular, has achieved a level of security that allows its integration into services like Apple Pay. However, the use of costly proprietary hardware and restrictive patents by Apple make it harder for smaller companies to adopt an equally compact and secure face recognition system.
+
+Depth cameras used in this context typically employ an active face acquisition method. This is where non-visible light is projected onto the face and reflected back, allowing sensors to measure and map facial features. The most common approach involves lidar cameras, emitting waves in the near-infrared spectrum, due to their ability to capture a dense 3D map of the subject's face \cite{wang2020evolution}. However, its weakness in penetrating materials such as clothing and hair is a notable limitation. In contrast, millimetre radar waves (mmWaves) can penetrate such materials to directly reach the dermal layer of the skin \cite{vizard2006advances}, potentially offering better performance in scenarios involving facial hair, or even within challenging environmental conditions such as rain or fog.
+
+Research into the efficacy of radar waves for 3D face recognition is relatively sparse, but recent studies show positive results \cite{hof2020face, lim2020dnn,kim2020face, pho2021radar,challa2021face}. Radar sensors are generally more cost-effective, both in terms of acquisition and computation, as they consume less power compared to NIR-based sensors. However, it is important to note the trade-off, as mmWaves tend to yield a sparser representation meaning a lower accuracy in comparison. This could impact recognition performance where precision in detecting and mapping facial features is paramount. This project aims to therefore explore counter-balancing this limitation with the information gained from colour images, potentially paving the way for more resilient and versatile systems. 
 
 
 \subsection{Research Aims}
+This project aims to explore the effectiveness of using RGB cameras in conjunction with mmWave radar sensors for 3D facial recognition. Since there are no appropriate datasets available for this purpose, we will be required to collate this data ourselves. We plan to use the Intel RealSense L515 RGB-D camera \cite{intel-l515} for photographing an individual's face. Meanwhile, the Google Soli 60 GHz radar sensor \cite{lien2016soli} will be employed to gather depth information by transmitting and measuring millimetre waves reflected from the target.
 
+Given the necessity of data collection, our goal is to gather facial data from approximately 50 participants. This number is expected to be sufficient for both training and evaluating our proposed model within the limited timeframe. We aim to obtain face data under various conditions including diverse poses, lighting environments, and common occlusion scenarios. The objective is to empirically validate the benefits of utilising mmWave technology in this context. We hypothesise that this approach would yield a system that is invariant to pose, lighting, and occlusion compared to using RGB or depth information alone.
+
+Next, we plan to develop a novel face recognition model using a deep Convolutional Neural Network. This model will be trained on the captured data in order to learn facial features from both the RGB and depth characteristics acquired from the Soli sensor. We also intend to investigate different techniques in fusing these two modalities, aiming to pinpoint the most effective strategy that provides rich and distinctive representations, for accurate face classification performance. The model's effectiveness will be benchmarked against prior radar-based facial recognition systems, as well as, a comparison to solely using RGB data.
+
+\begin{enumerate}
+    \item Explore the feasibility of using RGB cameras in conjunction with mmWave radar sensors for 3D facial recognition.
+    \item Collate a face dataset of colour images and mmWave signatures from a diverse array of 150 participants. The Intel Realsense L515 \cite{intel-l515} and the Google Soli chip \cite{lien2016soli} will be employed to accomplish this. This data will be obtained under various conditions including diverse poses, lighting environments and common occlusion scenarios.
+    \item Empirically test the hypothesis that incorporating the depth information from the mmWave face signatures yields a more robust system, invariant to pose, lighting, occlusion, and spoofing.
+    \item Develop a novel face recognition model that can be trained on both modalities simultaneously. This model should be able to classify a given face as well as identify if it is live or fake.
+    \item Investigate various feature fusion methods to determine the optimal approach for integrating the RGB and mmWave facial features. This aims to yield richer, more distinctive representations for better face classification performance.
+    \item Investigate the proposed model's effectiveness at classifying unseen faces and identifying their liveness compared to solely using RGB data.
+\end{enumerate}
 
 
 \section{Background}
@@ -47,6 +71,49 @@ Wave Radar}
 
 
 \section{Evaluation}
+
+\subsection{Results}
+% TODO: TABLE
+% \begin{table}[htbp]
+%     \centering
+    
+%     \begin{tabular}{lcccc}
+%       \toprule
+%       \multirow{2}{*}{\textbf{Feature Fusion}} & \multicolumn{2}{c}{\textbf{Subject}} & \multicolumn{2}{c}{\textbf{Liveness}} \\
+%       \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+%        & \textbf{Accuracy} & \textbf{F1 Score} & \textbf{Accuracy} & \textbf{F1 Score} \\
+%       \midrule
+%       Concatenate & 83.70\% & 0.8347 & 99.60\% & 0.9932 \\
+%       Add & 62.97\% & 0.6291 & 99.20\% & 0.9911 \\
+%       Multiply & 87.10\% & 0.8543 & 96.66\% & 0.9481 \\
+%       Pairwise Dot Average & 88.83\% & 0.8464 & 80.81\% & 0.7699 \\
+%       Pairwise Dot Max & 82.70\% & 0.7905 & 72.84\% & 0.6962 \\
+%       Pairwise Dot Flatten & 86.66\% & 0.8480 & 94.74\% & 0.9270 \\
+%       Multi-Head Attention & 86.28\% & 0.7984 & 96.41\% & 0.8922 \\
+%       \bottomrule
+%     \end{tabular}
+%     \caption{Results of Feature Fusion Techniques}
+%     \label{tab:results}
+%   \end{table}
+
+%   \begin{table}[htbp]
+%     \centering
+%     \begin{tabular}{lcc}
+%         \toprule
+%         \textbf{Feature Fusion}   & \textbf{Macro-Averaged AUC} & \textbf{KL Divergence} \\
+%         \midrule
+%         Concatenate          & 0.7427                      & 0.9501                 \\
+%         Add                  & 0.6672                      & 1.2934                 \\
+%         Multiply             & 0.7282                      & 0.5468                 \\
+%         Pairwise Dot Average & 0.9204                      & 0.2155                 \\
+%         Pairwise Dot Max     & 0.8511                      & 0.2394                 \\
+%         Pairwise Dot Flatten & 0.8562                      & 0.3653                 \\
+%         Multi-Head Attention & 0.8229                      & 0.4775                 \\
+%         \bottomrule
+%     \end{tabular}
+%     \caption{Performance Metrics for Feature Fusion Techniques}
+%     \label{tab:metrics}
+% \end{table}
 
 
 

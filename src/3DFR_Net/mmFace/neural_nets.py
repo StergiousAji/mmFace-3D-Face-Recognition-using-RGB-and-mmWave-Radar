@@ -29,8 +29,15 @@ def pairwise_dot_flatten(x1, x2):
 def multihead_attention(x1, x2):
     return None, torch.concat((x1, x2), axis=1).shape[1]
 
+# MODAL CHOICE
+def rgb_only(_, x2):
+    return x2, x2.shape[1]
 
-# HYBRID: (Radar (32, 16, 3), RGB Embedding (512)) -> (subject?, liveness?)
+def radar_only(x1, _):
+    return x1, x1.shape[1]
+
+
+# mmFace-Hybrid: {Radar (32, 16, 3), RGB Embedding (512)} -> {subject?, liveness?}
 class MMFaceHybrid(nn.Module):
     def __init__(self, num_subjects, fuse=concatenate):
         super(MMFaceHybrid, self).__init__()
