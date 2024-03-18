@@ -2,99 +2,118 @@
     "CONCATENATE": {
         "SUBJECT": {
             "Accuracy": 83.7008,
-            "Coverage": 99.7194,
             "Micro-Averaged F1 Score": 0.8347
         },
         "LIVENESS": {
             "Accuracy": 99.6013,
-            "Coverage": 99.7194,
             "Micro-Averaged F1 Score": 0.9932
         },
+        "Coverage": 99.7194,
         "Macro-Averaged AUC": 0.7427,
         "KL Divergence": 0.9501
     },
     "ADD": {
         "SUBJECT": {
             "Accuracy": 62.9682,
-            "Coverage": 99.9065,
             "Micro-Averaged F1 Score": 0.6291
         },
         "LIVENESS": {
             "Accuracy": 99.2041,
-            "Coverage": 99.9065,
             "Micro-Averaged F1 Score": 0.9911
         },
+        "Coverage": 99.9065,
         "Macro-Averaged AUC": 0.6672,
         "KL Divergence": 1.2934
     },
     "MULTIPLY": {
         "SUBJECT": {
             "Accuracy": 87.1006,
-            "Coverage": 98.0823,
             "Micro-Averaged F1 Score": 0.8543
         },
         "LIVENESS": {
             "Accuracy": 96.6619,
-            "Coverage": 98.0823,
             "Micro-Averaged F1 Score": 0.9481
         },
+        "Coverage": 98.0823,
         "Macro-Averaged AUC": 0.7282,
         "KL Divergence": 0.5468
     },
     "PAIRWISE DOT AVERAGE": {
         "SUBJECT": {
             "Accuracy": 88.8316,
-            "Coverage": 95.2760,
             "Micro-Averaged F1 Score": 0.8464
         },
         "LIVENESS": {
             "Accuracy": 80.8051,
-            "Coverage": 95.2760,
             "Micro-Averaged F1 Score": 0.7699
         },
+        "Coverage": 95.2760,
         "Macro-Averaged AUC": 0.9204,
         "KL Divergence": 0.2155
     },
     "PAIRWISE DOT MAX": {
         "SUBJECT": {
             "Accuracy": 82.7012,
-            "Coverage": 95.5800,
             "Micro-Averaged F1 Score": 0.7905
         },
         "LIVENESS": {
             "Accuracy": 72.8407,
-            "Coverage": 95.5800,
             "Micro-Averaged F1 Score": 0.6962
         },
+        "Coverage": 95.5800,
         "Macro-Averaged AUC": 0.8511,
         "KL Divergence": 0.2394
     },
     "PAIRWISE DOT FLATTEN": {
         "SUBJECT": {
             "Accuracy": 86.6635,
-            "Coverage": 97.8485,
             "Micro-Averaged F1 Score": 0.8480
         },
         "LIVENESS": {
             "Accuracy": 94.7419,
-            "Coverage": 97.8485,
             "Micro-Averaged F1 Score": 0.9270
         },
+        "Coverage": 97.8485,
         "Macro-Averaged AUC": 0.8562,
         "KL Divergence": 0.3653
     },
     "MULTI-HEAD ATTENTION": {
         "SUBJECT": {
             "Accuracy": 86.2775,
-            "Coverage": 92.5398,
             "Micro-Averaged F1 Score": 0.7984
         },
         "LIVENESS": {
             "Accuracy": 96.4114,
-            "Coverage": 92.5398,
             "Micro-Averaged F1 Score": 0.8922
         },
+        "Coverage": 92.5398,
         "Macro-Averaged AUC": 0.8229,
         "KL Divergence": 0.4775
+    },
+    "RADAR": {
+        "SUBJECT": {
+            "Accuracy": 38.2250,
+            "Micro-Averaged F1 Score": 0.3052
+        },
+        "LIVENESS": {
+            "Accuracy": 96.6315,
+            "Micro-Averaged F1 Score": 0.7715
+        },
+        "Coverage": 79.8410,
+        "Macro-Averaged AUC": 0.5377,
+        "KL Divergence": 2.0042
+    },
+    "RGB": {
+        "SUBJECT": {
+            "Accuracy": 85.4881,
+            "Micro-Averaged F1 Score": 0.8335
+        },
+        "LIVENESS": {
+            "Accuracy": 69.3212,
+            "Micro-Averaged F1 Score": 0.6759
+        },
+        "Coverage": 97.4977,
+        "Macro-Averaged AUC": 0.9117,
+        "KL Divergence": 0.1948
     }
 }

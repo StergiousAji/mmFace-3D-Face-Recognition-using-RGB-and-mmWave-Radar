@@ -50,9 +50,11 @@ Given the necessity of data collection, our goal is to gather facial data from a
 
 Next, we plan to develop a novel face recognition model using a deep Convolutional Neural Network. This model will be trained on the captured data in order to learn facial features from both the RGB and depth characteristics acquired from the Soli sensor. We also intend to investigate different techniques in fusing these two modalities, aiming to pinpoint the most effective strategy that provides rich and distinctive representations, for accurate face classification performance. The model's effectiveness will be benchmarked against prior radar-based facial recognition systems, as well as, a comparison to solely using RGB data.
 
+The main research aims for this project are summarised and listed below:
+
 \begin{enumerate}
     \item Explore the feasibility of using RGB cameras in conjunction with mmWave radar sensors for 3D facial recognition.
-    \item Collate a face dataset of colour images and mmWave signatures from a diverse array of 150 participants. The Intel Realsense L515 \cite{intel-l515} and the Google Soli chip \cite{lien2016soli} will be employed to accomplish this. This data will be obtained under various conditions including diverse poses, lighting environments and common occlusion scenarios.
+    \item Collate a face dataset of colour images and mmWave signatures from a diverse array of 50 participants. The Intel Realsense L515 \cite{intel-l515} and the Google Soli chip \cite{lien2016soli} will be employed to accomplish this. This data will be obtained under various conditions including diverse poses, lighting environments and common occlusion scenarios.
     \item Empirically test the hypothesis that incorporating the depth information from the mmWave face signatures yields a more robust system, invariant to pose, lighting, occlusion, and spoofing.
     \item Develop a novel face recognition model that can be trained on both modalities simultaneously. This model should be able to classify a given face as well as identify if it is live or fake.
     \item Investigate various feature fusion methods to determine the optimal approach for integrating the RGB and mmWave facial features. This aims to yield richer, more distinctive representations for better face classification performance.
