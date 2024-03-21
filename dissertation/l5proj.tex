@@ -1,7 +1,9 @@
 \documentclass{mpaper}
 
+\usepackage{graphicx}
 \usepackage{multirow}
 \usepackage{booktabs}
+\usepackage[format=plain, labelfont={bf},textfont=it,tableposition=above]{caption}
 
 \begin{document}
 
@@ -32,7 +34,8 @@
 \section{Introduction}
 Facial recognition technology is a key area of research within the field of computer vision, with widespread applications across areas such as security surveillance, forensic analysis, and human-computer interaction. Its most prominent use case lies in biometric authentication, allowing individuals access to their personal devices or restricted areas. This enables a non-invasive, hands-free approach to identity verification, removing the need to recall passwords. Furthermore, facial biometrics are naturally more accessible than other forms such as fingerprints, iris, or palm prints \cite{zhou20183d}.
 
-Since its inception in the 1960s, facial recognition systems have evolved drastically. The pioneering work by Bledsoe \cite{bledsoe1966model} first distinguished faces by comparing distances of manually annotated landmark features such as the nose, eyes, and mouth. In more recent years, the advent of deep learning has enhanced the performance and efficiency of human face classification, benefitting from the vast online repositories of face images.  Nevertheless, these systems primarily rely on images captured by RGB cameras, making them susceptible to variations in lighting and pose \cite{xu2004depth}. By incorporating depth data, which draws attention to the geometric details of the face alone, the effect of such environmental factors can be mitigated. Moreover, the transition to three-dimensional face recognition not only improves accuracy, but also enhances the security of biometric systems against spoofing \cite{wen2015face}.
+Since its inception in the 1960s, facial recognition systems have evolved drastically. The pioneering work by Bledsoe \cite{bledsoe1966model} first distinguished faces by comparing distances of manually annotated landmark features such as the nose, eyes, and mouth. In more recent years, the advent of deep learning has enhanced the performance and efficiency of human face classification, benefitting from the vast online repositories of face images.  Nevertheless, these systems primarily rely on images captured by RGB cameras, making them susceptible to variations in lighting and pose \cite{xu2004depth}. By incorporating depth data, which draws attention to the geometric details of the face, the effect of such environmental factors can be mitigated. Moreover, the transition to three-dimensional face recognition not only improves accuracy, but also enhances the security of biometric systems against spoofing attacks \cite{wen2015face}.
+
 
 
 \subsection{Motivation}
@@ -83,6 +86,39 @@ The research in this area exclusively focuses on utilising data from radar senso
 
 \section{Methodology}
 
+\subsection{Data Acquisition}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.35\textwidth]{diagrams/equipment.pdf}
+    \vspace{0.2cm}
+    \caption{Equipment: Intel Realsense L515 RGB-D Camera (Left) and the Google's Soli 60 GHz radar sensor (right)}
+    \label{fig:equipment}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.3\textwidth, height=12.5cm]{diagrams/experiment_setup.pdf}
+    \caption{Experiment Setup}
+    \label{fig:experiment_setup}
+\end{figure}
+
+
+\subsection{mmFace}
+
+\begin{figure*}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{diagrams/model_workflow.png}
+    \caption{Workflow Diagram}
+    \label{fig:model_workflow}
+\end{figure*}
+
+\begin{figure*}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{diagrams/model_architecture.png}
+    \caption{Architecture Diagram}
+    \label{fig:model_architecture}
+\end{figure*}
 
 
 \section{Evaluation}
@@ -139,8 +175,8 @@ The research in this area exclusively focuses on utilising data from radar senso
 \subsection{Future Work}
 
 
-% {\bf Acknowledgments.}
-% This is optional; it is a location for you to thank people, most probably your family and your supervisor.
+{\bf Acknowledgments.}
+This is optional; it is a location for you to thank people, most probably your family and your supervisor.
 
 
 \bibliographystyle{unsrt}
