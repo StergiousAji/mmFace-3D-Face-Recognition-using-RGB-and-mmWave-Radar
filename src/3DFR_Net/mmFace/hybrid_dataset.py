@@ -531,19 +531,14 @@ def build_aug_dataset_exp(path, num_subjects, num_experiments=15, seed=38):
 
                 data["radar"][sub].append(ard)
                 data["rgb_embs"][sub].append(rgb_emb)
-                data["experiments"][sub].append(experiment)
+                data["experiments"][sub].append([experiment for _ in range(num_frames)])
         
         data["radar"][sub] = np.concatenate(data["radar"][sub])
-        data["rgb_embs"][sub] = np.concatenate(data["rgb_embs"][sub])
-        data["experiments"][sub] = np.array(data["experiments"][sub])
-        print(data["experiments"][sub])
 
         shuffled = np.random.permutation(len(data["radar"][sub]))
-
         data["radar"][sub] = data["radar"][sub][shuffled]
-        data["rgb_embs"][sub] = data["rgb_embs"][sub][shuffled]
-        data["experiments"][sub] = data["experiments"][sub][shuffled]
-        print(data["experiments"][sub])
+        data["rgb_embs"][sub] = np.concatenate(data["rgb_embs"][sub])[shuffled]
+        data["experiments"][sub] = np.concatenate(data["experiments"][sub])[shuffled]
 
 
     print(data["radar"][0].shape, data["rgb_embs"][0].shape, data["experiments"][0].shape)
@@ -560,7 +555,7 @@ def load_aug_dataset_subject_exp(path, num_subjects, batch_size=128, train_split
     if not os.path.exists("data/hybrid-augmented-exp/dataset.pickle"):
         build_aug_dataset_exp(path, num_subjects)
 
-    with open("data/hybrid-augmented/dataset.pickle", 'rb') as f:
+    with open("data/hybrid-augmented-exp/dataset.pickle", 'rb') as f:
         data = pickle.load(f)
     
     data["radar"] = np.array(list(data["radar"].values()), dtype=object)
@@ -595,7 +590,6 @@ def load_aug_dataset_subject_exp(path, num_subjects, batch_size=128, train_split
 
     train_labels_l = torch.tensor(np.concatenate([[1 if sub < num_subjects else 0]*len(data["radar"][sub]) for sub in train_idx]), device=device, dtype=torch.int64)
     test_labels_l = torch.tensor(np.concatenate([[1 if sub < num_subjects else 0]*len(data["radar"][sub]) for sub in test_idx]), device=device, dtype=torch.int64)
-
 
     print(f"Train (Radar): {train_radar.shape}")
     print(f"Train (RGB Embeddings): {train_rgb.shape}")

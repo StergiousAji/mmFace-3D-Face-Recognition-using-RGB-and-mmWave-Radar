@@ -51,7 +51,9 @@ Depth cameras, used in this context, typically employ an active form of acquisit
 Research into the efficacy of radar waves for 3D face recognition remains relatively limited, although recent studies indicate promising outcomes \cite{hof2020face, lim2020dnn,kim2020face, pho2021radar, challa2021face}. Radar sensors typically offer greater cost efficiency in terms of both acquisition and computation, as they consume less power compared to sensors NIR-based systems. Nevertheless, it is crucial to acknowledge the trade-off, as mmWaves often result in a sparser representation. This could impact recognition accuracy, where precision in detecting and mapping of facial features is paramount. Thus, we aim to address this limitation by integrating information from colour images, potentially paving the way for more resilient and versatile systems.
 
 
-\subsection{Research Aims}
+\subsection{Research Contributions}
+TODO CHANGE
+
 Our work explores the effectiveness of using RGB cameras in conjunction with mmWave radar sensors for 3D facial recognition. Since there are no appropriate datasets available for this purpose, we have collated this data ourselves. We use the Intel RealSense L515 RGB-D camera \cite{intel-l515} for photographing an individual's face. Meanwhile, the Google Soli \qty{60}{\GHz} radar sensor \cite{lien2016soli} is employed to gather depth information by transmitting and measuring millimetre waves reflected from the target.
 
 We initially planned to gather face data from approximately \num{50} participants, however, only \num{21} participants came forward within the limited timeframe. We obtained face data under various conditions including diverse poses, lighting environments, and common occlusion scenarios. This approach yielded a system that is invariant to environmental conditions in comparison to RGB-only systems.
