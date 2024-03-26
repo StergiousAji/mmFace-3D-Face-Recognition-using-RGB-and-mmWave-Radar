@@ -54,21 +54,19 @@ Research into the efficacy of radar waves for 3D face recognition remains relati
 \subsection{Research Contributions}
 TODO CHANGE
 
-Our work explores the effectiveness of using RGB cameras in conjunction with mmWave radar sensors for 3D facial recognition. Since there are no appropriate datasets available for this purpose, we have collated this data ourselves. We use the Intel RealSense L515 RGB-D camera \cite{intel-l515} for photographing an individual's face. Meanwhile, the Google Soli \qty{60}{\GHz} radar sensor \cite{lien2016soli} is employed to gather depth information by transmitting and measuring millimetre waves reflected from the target.
+Our work explores the efficacy of using RGB cameras in conjunction with mmWave radar sensors for 3D facial recognition. Since there are no appropriate datasets available for this purpose, we have collated this data ourselves. We use the Intel RealSense L515 RGB-D camera \cite{intel-l515} for photographing individuals' faces. Meanwhile, the Google Soli \qty{60}{\GHz} radar sensor \cite{lien2016soli} is employed to gather depth information by transmitting and measuring millimetre waves reflected from the target.
 
 We initially planned to gather face data from approximately \num{50} participants, however, only \num{21} participants came forward within the limited timeframe. We obtained face data under various conditions including diverse poses, lighting environments, and common occlusion scenarios. This approach yielded a system that is invariant to environmental conditions in comparison to RGB-only systems.
 
-We developed a novel face recognition model using a deep convolutional neural network. This model was trained on the captured data in order to learn facial features from both the RGB and depth characteristics acquired from the Soli sensor, simultaneously. We investigated different techniques in fusing these two modalities, aiming to pinpoint the most effective strategy that provides rich and distinctive representations, for clean identity separation. The model's effectiveness is benchmarked against prior radar-based facial recognition systems, as well as, a comparison to solely using RGB data.
+We developed a novel face recognition model using a deep convolutional neural network. This model was trained on the captured data in order to learn facial features from both the RGB and depth characteristics acquired from the Soli sensor, simultaneously. We investigated different techniques in fusing these two modalities, aiming to pinpoint the most effective strategy that provides rich and distinctive representations, for clean identity separation. The model's effectiveness is benchmarked against prior radar-based facial recognition systems, as well as, a comparison to using each modality by themselves.
 
 The main contributions of this paper are listed below:
 
 \begin{enumerate}
-    \item Explore the feasibility of using RGB cameras in conjunction with mmWave radar sensors for 3D facial recognition.
-    \item Collated a face dataset of colour images and mmWave signatures from a diverse array of 21 participants. The Intel Realsense L515 \cite{intel-l515} and the Google Soli chip \cite{lien2016soli} will be employed to accomplish this. This data will be obtained under various conditions including diverse poses, lighting environments and common occlusion scenarios.
-    \item Empirically test the hypothesis that incorporating the depth information from the mmWave face signatures yields a more robust system, invariant to pose, lighting, occlusion, and spoofing.
-    \item Develop a novel face recognition model that can be trained on both modalities simultaneously. This model should be able to classify a given face as well as identify if it is live or fake. OPEN SOURCE GITHUB
-    \item Investigate various feature fusion methods to determine the optimal approach for integrating the RGB and mmWave facial features. This aims to yield richer, more distinctive representations for better face classification performance.
-    \item Investigate the proposed model's effectiveness at classifying unseen faces and identifying their liveness compared to solely using RGB data.
+    \item We have collated a face dataset of colour images and mmWave signatures from a diverse array of 21 participants. This data includes five diverse poses, two lighting environments, and two occlusion scenarios.
+    \item We present \emph{mmFace}, a novel face recognition model that leverages both modalities yielding a system that is robust, invariant to occlusion and spoofing. This model is able to classify a given face and identify if it is live or fake with strong abilities to generalise to unseen faces.
+    \item We present an empirical analysis of seven feature-level fusion methods and determine the most optimal approach for mixing the RGB and mmWave facial features.
+    \item Our models and their evaluations are open sourced\footnote{https://github.com/StergiousAji/mmFace-3D-Face-Recognition-using-RGB-and-mmWave-Radar} to facilitate further research in small-scale, 3D face identification using mmWave technology.
 \end{enumerate}
 
 
