@@ -1,6 +1,4 @@
-# 3D Face Recognition from RGB Camera and Radar Sensor
-
-TBD
+# mmFace: 3D Face Recognition using RGB and Millimetre Wave Radar
 
 ## Project Structure Overview:
 

@@ -189,3 +189,106 @@ https://github.com/deepinsight/insightface
 - Data Acquisition presentation postponed to Monday 4th December. Can talk about model architecture next week.
 - 2 more people available tomorrow 3 and half 3pm.
 
+
+## Meeting 11 (27/11/23) - 0:20
+
+- Reduce number of slides and don’t need to include CNN model architecture (black box).
+- Talk to Chaitanya on how to process CRD data for the CNN model and design architecture (look at previous project on weapon detection).
+- Talk about novelty of this project investigating common extreme occlusion scenarios while only paper previously did with cotton masks on 3 subjects.
+
+### Meeting with Chaitanya (02/12/23)
+
+- Discussed slides for data acquisition presentation on 04/12/23 (CANCELLED)
+- Cut down slides to just 2, data samples shown clearly and model architecture good
+- Talk about the different data fusion techniques and their feasibilities when showing model architecture.
+- The CNN models created in the previous project were streamlined for real-time processing. Do not need to consider this with face recognition so can utilise the concepts within any of them.
+
+
+## Meeting 12 (08/01/24) - 0:20
+
+- Made a ResNet-based CNN although yields low accuracy model (15%)
+- Need to improve maybe by treating as video data during training.
+- Increasing/Reducing network complexity
+- Fall-back idea to use Radar for pure liveness check since Insightface able to achieve 100%
+    - Use for binary classification of real 3D face vs. 2D printed face image
+- Ask Chaitanya about specifics of mmSense architecture and format/pre-processing of CRD data
+- Ask Chaitanya about Angle of Arrival (AOA) data and if that is useful.
+
+
+## Meeting 13 (15/01/24) - 0:20
+
+- Focus on Liveness Binary Classification since ResNet18 finetuning overfitting
+- Can try ResNet50 and separately 3D video data approach → Need to reformat data loaders for this.
+- Could try data augmentation within data loaders to inherently dataset size
+
+### Meeting with Chaitanya (Multiple)
+
+- Too much variation in the data for the model to learn without overfitting.
+- Can achieve 70-72% on subset of 4 subjects and 45% on 6 with simple CNN.
+- Proximity of face to sensor is the issue need to be much closer than 20cm for accurate data.
+
+
+## Meeting 14 (22/01/24) - 0:30
+
+- Didn’t get chance to gather liveness data, will gather 2D data on 10 subjects at least (frontal poses).
+- Need to separate out classifiers to combine feature vectors also do the same for the InsightFace model to see how accurate it is at identifying liveness (need to ensure paper is not seen).
+- For InsightFace+mmFace need some way of combining two models into a single class to take in both modalities and output [subject, liveness?] predictions.
+
+
+## Meeting 15 (29/01/24) - 0:30
+
+- Need to make a custom model that combines 2 parameterised loss functions working on the 2 feature vectors separately.
+    - Model takes in Radar input and 2D feature vector and tunes the radar feature extraction and finally has 2 FC layers to output subject? and liveness?
+    - Can redefine forward pass to take 2 inputs and give 2 outputs.
+    - Loss function combines the loss from the subject and liveness classifications
+
+
+## Meeting 16 (05/02/24) - 0:30
+
+- Try zero-shot classification by trying to predict unseen classes/subjects.
+
+
+## Meeting 17 (12/02/24) - 0:20
+
+- During testing, extract features of single reference inputs for each class and use cosine similarity to test accuracy of embeddings.
+- Use data augmentation (2 flips) on both inputs to increase dataset diversity
+
+
+## Meeting 18 (19/02/24) - 0:20
+
+- Getting 75-80% face zero-shot performance on 4 subjects :)
+- Use different feature fusions to identify if better than concatenation:
+    - Addition
+    - Convolution-based
+    - Multi-head Attention Mechanism
+- Compare with more complex feature extraction for radar ARDs (ResNet?)
+- Compare with only RGB vs. only Radar vs. both
+
+
+## Meeting 19 (26/02/24) - 0:25
+
+- Explain ROC curve in terms of Sensitivity (TPR) and 1-Specificity (FPR) to explain dip for concatenation
+- Should weight accuracy more highly when comparing models since AUC showing positive results when low accuracy
+- Separate t-SNE for different poses, lighting conditions, occlusions and liveness to show clusters for 4 subjects
+- See how t-SNE responds to the raw inputs compared to embedded if worth talking about.
+- Still yet to complete Multi-head Attention
+
+
+## Meeting 20 (04/03/24) - 0:15
+
+- Show specific experiment t-SNE visualisations for best performing feature fusions
+- Compare best performing models regardless of number of epochs trained
+- Cancelled next week meeting due to deadlines
+
+
+## Meeting 21 (18/03/24) - 0:10
+
+- Started writing final paper
+- Interim report grade not released but expect A band
+- Final presentation date will be notified sooner to date.
+
+
+## Meeting 22 (25/03/24) - 0:10
+
+- Should change Research Aims section in Intro to Contributions and summarise achievements of project.
+- Final presentation date around week 3 of April since deadline extended to 30th.
