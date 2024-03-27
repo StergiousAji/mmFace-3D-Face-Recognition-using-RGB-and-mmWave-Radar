@@ -1,10 +1,7 @@
 \documentclass{mpaper}
 
-\usepackage{graphicx}
-\usepackage{multirow}
-\usepackage{booktabs}
+\usepackage{graphicx, float, multirow, booktabs, siunitx}
 \usepackage[format=plain, labelfont={bf},textfont=it,tableposition=above]{caption}
-\usepackage{siunitx}
 
 \begin{document}
 
@@ -40,7 +37,7 @@ Facial recognition is an evolving research domain within the field of computer v
 Since its inception in the 1960s, facial recognition technology has undergone significant growth. Initially pioneered by Bledsoe \cite{bledsoe1966model}, early systems distinguished faces by comparing manually annotated landmark features such as the nose, eyes, and mouth. In recent years, the emergence of deep learning has reshaped human face classification, leveraging extensive online repositories of face images for improved performance and efficiency. However, these systems predominantly rely on images captured by RGB cameras, leaving them vulnerable to variations in lighting and facial pose \cite{xu2004depth}. By incorporating depth data and drawing attention to the geometric details of the face, the impact of such environmental factors can be regulated. Furthermore, the transition to three-dimensional facial recognition not only increases accuracy but also bolsters the security of biometric systems against spoofing attacks \cite{wen2015face}.
 
 
-\subsection{Motivation}
+\subsection{Motivations}
 % The popularity of 3D face recognition is on the rise, evidenced by its adoption in smartphones with the likes of Apple and their Face ID \cite{apple-faceid} technology. This growing demand has pushed the commercialisation of depth-sensing technology to smaller form factors, enabling it to operate efficiently in real-time on mobile devices \cite{soumya2023recent}. Face ID, in particular, has achieved a level of security that allows its integration into services like Apple Pay. However, the use of costly proprietary hardware and restrictive patents by Apple make it harder for smaller companies to adopt an equally compact and secure face recognition system.
 The popularity of 3D face recognition is on the rise, evidenced by its adoption in smartphones with the likes of Apple and their Face ID \cite{apple-faceid} technology. This growing demand has pushed the commercialisation of depth-sensing technology to smaller form factors, facilitating its efficient real-time operation on mobile devices \cite{soumya2023recent}. Face ID, in particular, has garnered a level of security that enables payment authentication within services such as Apple Pay. However, Apple's use of costly proprietary hardware and restrictive patents make it harder for smaller companies to adopt an equally compact and secure face recognition system.
 
@@ -52,21 +49,22 @@ Research into the efficacy of radar waves for 3D face recognition remains relati
 
 
 \subsection{Research Contributions}
-Our work explores the efficacy of using RGB cameras in conjunction with mmWave radar sensors for 3D facial recognition. Since there are no appropriate datasets available for this purpose, we have collated this data ourselves. We use the Intel RealSense L515 RGB-D camera \cite{intel-l515} for photographing individuals' faces. Meanwhile, the Google Soli \qty{60}{\GHz} radar sensor \cite{lien2016soli} is employed to gather depth information by transmitting and measuring millimetre waves reflected from the target.
+Our work explores the effectiveness of using RGB cameras in conjunction with mmWave radar sensors for 3D facial recognition. Since there are no appropriate datasets available for this purpose, we have collated this data ourselves. We use the Intel RealSense L515 RGB-D camera \cite{intel-l515} for photographing individuals' faces. Meanwhile, the Google Soli \qty{60}{\GHz} radar sensor \cite{lien2016soli} is employed to gather depth information by transmitting and measuring millimetre waves reflected from the target.
 
 We initially planned to gather face data from approximately \num{50} participants, however, only \num{21} participants came forward within the limited timeframe. We obtained face data under various conditions including diverse poses, lighting settings, and common occlusion scenarios. This comprehensive approach led to a system that demonstrates resilience to environmental factors, in comparison, to systems relying solely on RGB data.
 
 We developed a novel face recognition model using a deep convolutional neural network. This model was trained on the captured data to learn facial features from both the RGB and depth characteristics, simultaneously. We investigated different techniques in fusing these two modalities, aiming to pinpoint the most effective strategy that provides rich and distinctive representations for clean identity separation. The model's effectiveness is benchmarked against prior radar-based facial recognition systems, as well as, a comparison to using each modality independently.
 
 The key contributions of this paper are summarised below:
-
-\begin{enumerate}
+\vspace{-0.48cm}
+\begin{itemize}
+    \itemsep 0.08cm
     \item Compilation of a diverse face dataset comprising color images and mmWave signatures from 21 participants. The dataset encompasses five different poses, two lighting conditions, and two occlusion scenarios.
     \item We present \emph{mmFace}, a novel face recognition model that leverages both modalities yielding a robust system capable of handling common occluding materials and against spoofing. The model exhibits strong generalization capabilities to unseen faces and distinguishes between live and fake faces effectively.
     \item An empirical analysis of seven feature-level fusion methods is conducted to determine the most optimal approach for blending RGB and mmWave facial features.
-    \item Our models and evaluations are open sourced\footnote{https://github.com/StergiousAji/mmFace-3D-Face-Recognition-using-RGB-and-mmWave-Radar} to facilitate further research in small-scale, 3D face identification using mmWave technology.
-\end{enumerate}
-
+    \item Our models and evaluations are open sourced\footnote{\url{https://github.com/StergiousAji/mmFace-3D-Face-Recognition-using-RGB-and-mmWave-Radar}} to facilitate further research in small-scale, 3D face identification using mmWave technology.
+\end{itemize}
+\vspace{0.1cm}
 
 \section{Background}
 \subsection{mmWave Radar Technology}
@@ -75,31 +73,34 @@ Radio Detection and Ranging, or Radar, has been around for decades and plays an 
 Another notable example is Google's integration of their Soli sensor into the Pixel 4 smartphones for motion detection and gesture recognition \cite{googleblog2020}. However, the sensor's potential application to face recognition remains unexplored, presenting a unique research opportunity. Consequently, this is the sensor we used to capture mmWave face signatures during our data collection phase. A key driving factor for this choice is the Soli's miniature form factor of just \qty{6.5}{\mm} $\times$ \qty{5.0}{\mm}, and its use of Frequency Modulated Continuous Wave (FMCW) technology. This is proven to offer superior range resolution in comparison to other modulation techniques thanks to its high pulse compression \cite{mahafza2005radar}, a vital aspect for extracting accurate facial features. The Soli chip has a relatively low power consumption due to the fact that it sends 16 chirps every burst at a pulse-repetition frequency of \qty{2}{\kHz}, then stops transmitting until the next burst of chirps \cite{hayashi2021radarnet}. Each burst is transmitted at \qty{25}{\Hz} giving an overall transmission duty cycle of 2\% meaning the radar chip is turned off during the majority of its operation saving a lot of power for mobile applications.
 % However, it is important to note the trade-off, as mmWaves tend to have a lower accuracy in comparison. This could impact face recognition performance where precision in detecting and mapping facial features is paramount. This project will therefore explore counter-balancing this limitation with the information gained from RGB images, potentially paving the way for more resilient and versatile systems.
 
-
+\vspace{0.05cm}
 \subsection{Related Work}
+TODO: REWRITE
 The use of millimetre waves for face identification is a relatively new research field, spurred by the recent commercialisation of radar sensor technology. One of the earliest studies found to investigate human identification using mmWaves can be traced back to 2019, conducted by Zhao et al. \cite{zhao2019mid}. Although this paper focuses on classifying subjects by their gait and body shape rather than facial features, it demonstrates the ability of mmWaves to encapsulate the subtle idiosyncrasies among individuals. These nuanced differences are vital for learning models to effectively differentiate between unique subjects, leading to high classification accuracies.
 
+TODO: REWRITE
 Following this, Hof et al. \cite{hof2020face} proposed an Autoencoder that can distinguish human faces captured by an 802.11ad/y networking chipset operating at a centre frequency, $f_c$, of 60 GHz. The Autoencoder is able to encode mmWave face signatures of over 200 individuals with enough separation to distinguish between positive and negative instances by measuring their Mean Squared Error (MSE) against reference facial embeddings. The study conducted an extensive data collection process, capturing face scans of 206 participants comprising various genders and ages, in five different poses: frontal, as well as, $15^\circ$ and $25^\circ$ head rotations to the left and right. This collection was subsequently made available through an IEEE Data Port \cite{mmwavefacedata}. While this dataset encapsulates faces from a wide range of people, including some with beards and spectacles, it lacks representation of other common occlusion scenarios like head accessories, that our project aims to explore. Moreover, the study utilised a larger sensor containing a total of 1024 transmit-receiver antenna pairs, found to capture redundant information. This is in contrast to the compact Soli chip, intended to work within a smartphone. The study simulated the effect of reducing the antenna count to 10, markedly decreasing the distinctiveness of facial signatures. Promisingly, increasing the number of neurons in their Neural Network and an additional hidden layer could compensate for this reduction, maintaining high accuracy.
 
 Lim et al. \cite{lim2020dnn} proposes another Deep Neural Network model, however with a more traditional Multi-Layer Perceptron (MLP) architecture where every layer is fully connected to adjacent ones. The study utilised a small-scale, 61 GHz FMCW radar sensor developed by bitsensing Inc. \cite{bitsensing2020bts60}, comparable to the Google Soli with a single transmit and three receiver antennas. The model attained a mean classification accuracy of 92\% across eight subjects, surpassing the performance of both, a Support Vector Machine (SVM), and a tree-based Ensemble Learning approach trained on the same face signatures. It is important to note the relatively small-sized dataset used to train the model, raising concerns about potential overfitting as the data is not representative enough. The paper provides limited details on the data collection methodology used, only mentioning that the facial distances ranged from 30 cm to 50 cm. It can be assumed then that the study likely focussed on frontal poses without any occlusions for all eight subjects. The research also explored the impact of using a single receiving antenna, which resulted in a reduced accuracy of 73.7\%. This finding is in line with Hof et al.'s \cite{hof2020face} observation that an increased number of receiving antennas can enhance classification accuracy by the ability to capture more nuanced facial features. The paper also suggests that a CNN may be more appropriate if signals were stacked on the time axis rather than the frequency axis.
 
+TODO: REWRITE
 During the same period, Kim et al. \cite{kim2020face} conducted research using an identical sensor from bitsensing Inc., featuring a range resolution of 2.5 cm. Their study introduces a CNN model comprising three convolutional layers and three fully connected layers. The radar data underwent heavy preprocessing to transform it into a more image-like format suitable for the CNN model. With a data split of 70\%/15\%/15\% for training, validation, and testing, the model achieved an average classification accuracy of 98.7\% on a limited dataset of only three individuals. Interestingly, the study also examined the impact of wearing cotton masks. The results showed a minimal drop in average classification accuracy by 0.9\%, which is encouraging for the objectives of our project. However, these findings are to be taken with caution due to the small size of the dataset. It remains unclear whether this level of performance would hold consistently across a larger group of subjects with more varied occlusions.
 
 Pho et al. \cite{pho2021radar} adopts a One-Shot Learning approach to the problem. This is where the model is trained with a single or only a few labelled instances, beneficial when there is a lack of training samples available. The proposed method constitutes a Siamese structure of two identical CNNs with shared parameters that map the input radar signals into a latent space. A distance metric between the outputs of both CNNs is used during the training and testing phases to measure the similarity between face inputs. The model is specifically trained for \textit{binary classification} by inputting pairs of face signatures from either the same or different people. The same bitsensing Inc. BTS60 chipset, used by Lim et al. and Kim et al. \cite{lim2020dnn, kim2020face}, is employed to capture 500 frames of the faces of eight participants. An average classification of 97.6\% was achieved, an improvement over the previous DNN model by Lim et al. involving the same number of people. t-Stochastic Neighbour Embedding (t-SNE) \cite{van2008visualizing} is then applied for dimensionality reduction. The resulting visualisations demonstrated that the one-shot Siamese network effectively separated each individual's face into exclusive regions, simplifying the classification task. Although a small dataset is used, only encompassing frontal poses with no occlusion settings, the proposed method is well documented and is likely robust against larger datasets.
 
 Challa et al. \cite{challa2021face} employs two different machine learning models on the dataset made available through the IEEE port \cite{mmwavefacedata}. Their approach began with CNN-based Autoencoders followed by a Random Forest Ensemble Learning approach. A total of nine Autoencoders were built, each tailored to different frame rates, focusing on compressing and learning to reconstruct the original data from its compressed, latent form. The Autoencoders were trained using randomly selected data samples from a subset of 186 mmWave face signatures. The flattened and labelled outputs were then used to train and test nine discrete Random Forest models using identical hyperparameters, as recommended by the Sci-kit library. This methodology yielded impressive results, achieving an average classification accuracy of 99.98\% using all 1400 frames per individual. Even reducing the number of frames to 70 per person, the model was able to maintain a high accuracy of 97.1\%. The paper presents an approach that is unique in comparison to the rest of the research papers tackling this subject, showcasing an efficient model that is able to be deployed on mobile chips.
 
+TODO: REWRITE
 The research in this area exclusively focuses on utilising data from radar sensors, largely driven by concerns of privacy preservation. However, a significant limitation of this approach is the required duration for capturing an accurate facial scan. The sensor needs to operate for several seconds, typically in the range between 10 and 15 seconds, in order to obtain a detailed scan. Such a time frame is impractical in real-world situations, as it necessitates the subject to remain motionless for a prolonged period. Up to this point, no study was found to explore the potential benefits of combining radar signatures with corresponding RGB data to enhance facial recognition capabilities. Given the high performance of existing deep learning models using RGB images alone, such as InsightFace \cite{deng2018arcface}, integrating these models with mmWave radar data presents a promising avenue. This combination could accelerate face acquisition time, while leveraging the advantages of mmWaves in terms of their robustness to lighting variations and occlusions.
 
 
 \subsection{InsightFace}
-\label{background:insightface}
 In the evolving field of face recognition, deep CNNs have emerged as a dominant approach due to their ability to extract discriminative facial features from images. One significant advancement in this area is the InsightFace toolkit, implementing algorithms designed to address the intricacies of face analysis and recognition. Key works include the preliminary ArcFace model, introduced by Deng et al. \cite{deng2018arcface}, alongside the robust Face Alignment model by Gho et al. \cite{guo2018stacked}. ArcFace employs a novel Additive Angular Margin Loss to maximise class separability, further enhancing the discriminative power in mapping face images to feature embeddings. However, this method was found to face challenges with label noise, requiring the ``cleaning'' of many real-world images sourced from the web. To address this, further progress was made with the Sub-center ArcFace model \cite{deng2020subcenter}, introducing the concept of sub-classes to boost resilience against intra-class variations and label noise. It achieved state-of-the-art performance on many widely used benchmark datasets such as the Labeled Faces in the Wild (LFW) \cite{huang2008labeled} and the YouTube Faces (YTF) datasets \cite{wolf2011face}. The integration of pretrained models offered by InsightFace into our system enables us to concentrate efforts on enhancing the performance of our model's depth and contour detection capabilities. 
 % By fusing the depth and contour detection capabilities of mmWave radar with the rich, textural features gathered by ArcFace from RGB images, the system has the potential to attain improved accuracy and robustness. This approach is particularly promising in environments where conventional optical methods falter.
 
 
 \subsection{Multimodal Data Fusion Techniques}
-\label{background:multimodal_data_fusion_techniques}
+TODO: REWRITE
 Multimodality, as defined by Lahat et al. \cite{lahat2015multimodal}, refers to the use and analysis of multiple types of data, potentially arriving from multiple sensors. The aim is to extract and blend salient information gathered by each sensor. The integration of this diverse data lead to outputs with richer representations than what could be achieved by the individual modalities alone. 
 % We hypothesise that coupling the textural information from colour images with the depth gathered by the radar sensor could greatly improve class separation, and subsequently, face recognition performance.
 
@@ -114,20 +115,23 @@ Each data fusion technique comes with its own set of challenges and consideratio
 
 
 \section{Methodology}
-\subsection{Data Acquisition and Experiments}
-Following a thorough research of the field, the next steps involve designing and conducting the data acquisition process necessary to train our proposed model with. These experiments require careful planning since the data collected here directly determines the effectiveness of the resulting model. As found in Section \ref{background:data_acquisition} of the Background, it is vital to compile multiple poses in order for the model to learn a comprehensive 3D scan of the individual's face. Furthermore, it induces pose-invariance into the system, accommodating real-world use cases where individuals may not always present an exact frontal pose to the face recognition system. Most studies concentrate on variations in the yaw axis since a person is less likely to tilt or pitch their head by a significant angle in comparison to left and right rotations of the face. For this reason, we will similarly focus on head rotations around the yaw axis. We plan to record facial poses at $0^\circ$, as well as, $30^\circ$ and $45^\circ$ to the left and right of the sensors, denoted by positive and negative angles. 
+\subsection{Data Acquisition}
+TODO: REWRITE
+Following a thorough research of the field, the next steps involved designing and conducting the data acquisition process necessary to train our proposed model with. These experiments required careful planning since the data collected here directly determines the effectiveness of the resulting model. As found in the related works, it is vital to compile multiple poses in order for the model to learn a comprehensive 3D scan of the individual's face. Furthermore, it induces pose-invariance into the system, accommodating real-world use cases where individuals may not always present an exact frontal pose to the face recognition system. Most studies concentrate on azimuth variations since a person is less likely to tilt or pitch their head by a significant angle in comparison to left and right rotations of the face. For this reason, we will similarly focus on head rotations around the yaw axis. We plan to record facial poses at $0^\circ$, $30^\circ$ and $45^\circ$ azimuth relative to the sensors.
 
-Since this experiment aims to explore the benefits of mmWave sensors in the context of face recognition, two different lighting conditions will be incorporated in our data collection experiments. Namely, regular and dim lighting scenarios. We hypothesise that the mmWave face signatures would be unaffected by environmental lighting due to the sensor using its own active illumination of the target face, unlike the RGB camera. Therefore, if the system is able to demonstrate higher accuracy utilising both modalities as opposed to relying solely on RGB data, it would conclusively show that mmWaves offer robustness against varying lighting conditions.
+Since this experiment aims to explore the benefits of mmWave sensors in the context of face recognition, two different lighting conditions are incorporated in our data collection experiments. Namely, regular and dim lighting scenarios. We hypothesise that the mmWave face signatures would be unaffected by environmental lighting due to the sensor using its own active illumination of the target face, unlike the RGB camera. Therefore, if the system is able to demonstrate higher accuracy utilising both modalities as opposed to relying solely on RGB data, it would decisively indicate that mmWaves offer resilience against varying lighting conditions.
 
-Finally, we aim to investigate the penetrative power of mmWaves to directly reach the skin through cloth and hair by injecting common occlusion scenarios into our experiments. It would be beneficial for facial recognition systems to be robust against typical obstructions such as glasses, hats, masks and so on. Currently, users would be required to remove such accessories for systems to accurately identify and grant them access to particular devices or areas. With mmWaves, we hypothesise that this may not be needed since facial features could be captured regardless. This could greatly benefit security surveillance where individuals deliberately obscure their faces in order to hide their identities. In our experiment, we aim to capture scenarios both with and without occlusion. Since cotton masks have already been explored by Kim et al. \cite{kim2020face}, other common items like hats, sunglasses, and scarves will be used to mirror day-to-day scenarios.
+Finally, we investigate the penetrative power of mmWaves to directly reach the skin through cloth and hair by injecting common occlusion scenarios into our experiments. It would be beneficial for facial recognition systems to be inherently robust against typical obstructions such as glasses, hats, masks and so on. Currently, users would be required to remove such accessories for systems to accurately identify and grant them access to particular devices or areas. With mmWaves, we hypothesise that this may not be needed since facial features could be captured regardless. This could greatly benefit security surveillance where individuals deliberately obscure their faces in order to hide their identities. In our experiment, we capture scenarios both with and without occlusion. Since cotton masks have already been explored by Kim et al. \cite{kim2020face}, other common items like hats, sunglasses, and scarves are used to mirror day-to-day scenarios.
 
-On top of investigating environmental invariances, our research seeks to determine the least amount of radar data necessary to still yield easily separable facial embeddings. Previous studies were observed to record between 200 and 2,000 total frames which, depending on the sampling rate, requires running the sensor for eight to a maximum of 80 seconds for each scenario. This is due to the lower accuracy of mmWaves demanding a longer exposure to provide a dense enough representation. Nevertheless, requiring an individual to keep their face still for over three seconds is impractical in real-world applications. Our approach, which integrates RGB data, may reduce the need for prolonged radar frame capture. Consequently, in our experiments, we will collect 10 RGB frames and a maximum of 250 frames worth of mmWave bursts, equivalent to operating the Google Soli sensor for 10 seconds at a 25 Hz sampling rate. This approach will provide ample data to assess the minimum number of mmWave frames needed for effective identification. 
+% On top of investigating environmental invariances, our research seeks to determine the least amount of radar data necessary to still yield easily separable facial embeddings. Previous studies were observed to record between 200 and 2,000 total frames which, depending on the sampling rate, requires running the sensor for eight to a maximum of 80 seconds for each scenario. This is due to the lower accuracy of mmWaves demanding a longer exposure to provide a dense enough representation. Nevertheless, requiring an individual to keep their face still for over three seconds is impractical in real-world applications. Our approach, which integrates RGB data, may reduce the need for prolonged radar frame capture. Consequently, in our experiments, we will collect 10 RGB frames and a maximum of 250 frames worth of mmWave bursts, equivalent to operating the Google Soli sensor for 10 seconds at a 25 Hz sampling rate. This approach will provide ample data to assess the minimum number of mmWave frames needed for effective identification. 
 
-To ensure a diverse range of facial data, we aim to recruit 50 participants, given the tight timeframe of this project. Adhering to ethical standards regarding sensitive personal information, our participant pool will consist of adults, predominantly university students. While this results in an over-representation of individuals aged 20--25 years, it should not impact our study as age variance is not something that is being explored. A total of 15 scenarios will be captured for each participant at a distance of 20 cm from the sensors. Each time the sensors will be run for 10 seconds, totalling 150 RGB frames and 3,750 mmWave frames per person.
+To ensure a diverse range of facial data, we recruited 21 participants within the tight timeframe of the project. Adhering to ethical standards regarding sensitive personal information, our participant pool consists of adults, predominantly university students. While this results in an over-representation of individuals aged 20--25 years, it should not impact our study as age variance is not something that is being explored. A total of 15 scenarios are captured for each participant at a distance of 20 cm from the sensors. Each time the sensors are run for 10 seconds, totalling 150 RGB frames and 3,750 mmWave frames per person.
+
+TODO: FIGURES
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.35\textwidth]{diagrams/equipment.pdf}
+    \includegraphics[width=0.35\textwidth]{figures/equipment.pdf}
     \vspace{0.2cm}
     \caption{Equipment: Intel Realsense L515 RGB-D Camera (Left) and the Google's Soli 60 GHz radar sensor (right)}
     \label{fig:equipment}
@@ -135,19 +139,55 @@ To ensure a diverse range of facial data, we aim to recruit 50 participants, giv
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.31\textwidth, height=12.5cm]{diagrams/experiment_setup.pdf}
+    \includegraphics[width=0.31\textwidth, height=12.5cm]{figures/experiment_setup.pdf}
     \caption{Experiment Setup}
     \label{fig:experiment_setup}
 \end{figure}
 
 
+To illustrate the results of the collection process, data samples of a subject are provided in the left half of Figure \ref{fig:rgb_crd_plot}. This grid shows RGB frames recorded from all 15 scenarios, with the three different conditions along the rows and the five pose variations along the columns. For brevity, the conditions are abbreviated as outlined in Table \ref{tab:conditions}.
+
+\begin{table}[h!]
+    \centering
+    \resizebox{0.4\textwidth}{!}{
+        \begin{tabular}{cc}
+            \toprule
+            \textbf{Abbreviation} & \textbf{Expanded Form} \\
+            \midrule
+            NO & No Occlusion \\
+            O & Occlusion \\
+            RLC & Regular Lighting Condition \\
+            DLC & Dim Lighting Condition \\
+            \bottomrule
+        \end{tabular}
+    }
+    \vspace{0.1cm}
+    \caption{Table displaying full forms for abbreviations describing experiment conditions.}
+    \label{tab:conditions}
+\end{table}
+
+\vspace{-0.1cm}
+The radar bursts obtained during the data collection phase are pre-processed through multiple FFT stages to transform the raw signals into discretised Complex Range-Doppler (CRD) maps \cite{lien2016soli,hayashi2021radarnet}. This is two-dimensional representation of the reflected radar signal, where the range dimension corresponds to the distance of the subject from the Soli sensor and the Doppler dimension corresponds to the radial velocity of the subject towards the sensor. Face scans are collected using the Soli's short configuration which operates at an $f_c$ of \qty{60}{\GHz}, with a maximum bandwidth $B$ of \qty{5.5}{\GHz}, and bursts sampled at \qty{25}{\Hz}. This gives a range resolution of $\frac{c}{2B} = $ \qty{2.7}{\cm}, where $c$ denotes the speed of light. The Soli chip has a single transmit and three receiver antennas, each capturing a superposition of scattered reflections from the target. Given that the Intel RealSense captures RGB-D frames at a different sampling rate of 30 frames per second (FPS), timestamp information is also recorded for the possibility of synchronising the two modalities for early data fusion. The right half of Figure \ref{fig:rgb_crd_plot} illustrates a plot of a single CRD frame of the same subject's face showing the intensities of received signals in discrete 32 Doppler bins along the $x$-axis and 16 Range bins along the $y$-axis.
+
+% Work has also been conducted in converting the data collected from our acquisition experiments into formats suitable for our proposed model. We have successfully transformed the radar bursts into CRD maps, which can be plotted displaying intensities of received waves into discrete Doppler bins along the $x$-axis and Range bins along the $y$-axis. A data sample of a single CRD frame can be observed in the right half of Figure \ref{fig:rgb_crd_plot}.
+
+% TODO: LIGHTEN FACE
+\begin{figure*}[h]
+    \centering
+    \includegraphics[width=0.99\textwidth]{figures/CRD_RGB_plot.pdf}
+    \vspace{-0.1cm}
+    \caption{Data samples collected for Subject 0. The left figure shows the RGB frames of all 15 scenarios organised by pose and condition. The right figure plots a single CRD frame showing amplitudes of reflected waves detected by the three receiving channels of the Soli, categorised into discrete Range-Doppler bins}
+    \label{fig:rgb_crd_plot}
+\end{figure*}
+
+
 \subsection{mmFace}
+TODO: ARCHITECTURE DESIGN AND CHANGES/IMPROVEMENTS MADE
 Building on the intuition from Section \ref{background:insightface} of the Background chapter, it is clear that the ArcFace model from the InsightFace toolkit emerges as the best choice for our project. It attains state-of-the-art classification results on accepted benchmark sets, outperforming the previous bests such as Facebook's DeepFace \cite{taigman2014deepface} and Google's FaceNet \cite{schroff2015facenet}. This selection allows us to treat the RGB data processing as a \textit{black-box} framework, enabling us to concentrate efforts on perfecting the radar-based model we are naming, \textit{mmFace}. Furthermore, this facilitates exploration into the various methods in fusing the two modalities as discussed in Section \ref{background:multimodal_data_fusion_techniques}. Figure \ref{fig:model_architecture} shows a high-level diagram of the model workflow described here. 
 
-Our proposed model, mmFace, will employ a CNN-based architecture, which is particularly effective for processing image-like data. The radar bursts obtained during the data collection phase will be transformed into Complex Range-Doppler (CRD) maps \cite{lien2016soli,hayashi2021radarnet} prior to feeding it into the model. Face scans will be collected using the Google Soli's short configuration which operates at a centre frequency of 60 GHz, with a maximum bandwidth $B$ of 5.5 GHz, and bursts sampled at 25 Hz. This gives a range resolution of $\frac{c}{2B} = 2.7$ cm, where $c$ denotes the speed of light. Given that the Intel RealSense captures RGB-D frames at a different sampling rate of 30 frames per second (FPS), timestamp information is also recorded for the possibility of synchronising the two modalities for early data fusion.
-
-TODO:
-The Soli chip as single transmit antenna and three receiver antennas capturing a superposition of scattered reflections from the target
+Our proposed model, mmFace, will employ a CNN-based architecture, which is particularly effective for processing image-like data. 
+% The radar bursts obtained during the data collection phase will be transformed into Complex Range-Doppler (CRD) maps \cite{lien2016soli,hayashi2021radarnet} prior to feeding it into the model. Face scans will be collected using the Google Soli's short configuration which operates at a centre frequency of 60 GHz, with a maximum bandwidth $B$ of 5.5 GHz, and bursts sampled at 25 Hz. This gives a range resolution of $\frac{c}{2B} = 2.7$ cm, where $c$ denotes the speed of light. Given that the Intel RealSense captures RGB-D frames at a different sampling rate of 30 frames per second (FPS), timestamp information is also recorded for the possibility of synchronising the two modalities for early data fusion.
+% The Soli chip as single transmit antenna and three receiver antennas capturing a superposition of scattered reflections from the target
 
 As explained before, the data fusion techniques we plan to investigate include late, feature-level fusion and late, decision-level fusion. Pure intermediate fusion is not feasible due to the black-box treatment of the InsightFace model making it difficult to integrate information from both modalities within its hidden layers. Nonetheless, late, feature-level fusion remains viable, combining the outputs of the final layers of each model to form an embedding containing both the RGB and radar features. Similarly, decision-level fusion will be explored since this entails mixing the predictions from the individual models. Early fusion presents significant challenges due to the dissimilarities in sampling rates and data formats of the two modalities. The CRD maps must be synchronised and transformed into a depth image-like format before merging with the RGB images. Furthermore, this would require a whole new training cycle with the mmFace model which may be infeasible within the project's timeframe. However, should time permit, we will consider investigating this approach.
 
@@ -161,14 +201,14 @@ The dataset, comprising 50 participants, will be divided by subjects into an $80
 
 \begin{figure*}[h!]
     \centering
-    \includegraphics[width=1\textwidth]{diagrams/model_workflow.png}
+    \includegraphics[width=1\textwidth]{figures/model_workflow.png}
     \caption{Workflow Diagram}
     \label{fig:model_workflow}
 \end{figure*}
 
 \begin{figure*}[h!]
     \centering
-    \includegraphics[width=1\textwidth]{diagrams/model_architecture.png}
+    \includegraphics[width=1\textwidth]{figures/model_architecture-test.png}
     \caption{Architecture Diagram}
     \label{fig:model_architecture}
 \end{figure*}
