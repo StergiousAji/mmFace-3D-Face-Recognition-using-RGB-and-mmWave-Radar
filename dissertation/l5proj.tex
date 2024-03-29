@@ -139,7 +139,7 @@ A close-up of the equipment setup used can be observed in Figure \ref{fig:equipm
     \centering
     \includegraphics[width=0.35\textwidth,decodearray={1 1 1 1 1 1}]{figures/equipment.pdf}
     \vspace{0.2cm}
-    \caption{Equipment: Intel Realsense L515 RGB-D Camera (left) and the Google's Soli \qty{60}{\GHz} radar sensor (right)}
+    \caption{Equipment: Intel Realsense L515 RGB-D Camera (left) and the Google's Soli \textit{\qty{60}{\GHz}} radar sensor (right)}
     \label{fig:equipment}
 \end{figure}
 
@@ -152,7 +152,7 @@ A close-up of the equipment setup used can be observed in Figure \ref{fig:equipm
 \end{figure}
 
 
-To illustrate the results of the collection process, the left half of Figure \ref{fig:rgb_crd_plot} presents data samples from a single subject. This grid shows RGB captures from all 15 scenarios, with the three different conditions along the rows and the five pose variations along the columns. For brevity, the conditions are abbreviated as outlined in Table \ref{tab:conditions}.
+To illustrate the results of the collection process, the left half of Figure \ref{fig:rgb_crd_plot} presents data samples from a single subject. This grid shows RGB captures from all 15 scenarios, with the three different conditions along the rows and the five pose variations along the columns. For brevity, the conditions are abbreviated as outlined in Table \ref{tab:abbreviated_conditions}.
 
 \begin{table}[h!]
     \centering
@@ -170,29 +170,42 @@ To illustrate the results of the collection process, the left half of Figure \re
     }
     \vspace{0.1cm}
     \caption{Table displaying full forms for abbreviations describing experiment conditions.}
-    \label{tab:conditions}
+    \label{tab:abbreviated_conditions}
 \end{table}
 
 % Furthermore, the radar bursts obtained during the data collection phase are preprocessed through multiple FFT stages to transform the raw signals into discretised Complex Range-Doppler (CRD) maps \cite{lien2016soli,hayashi2021radarnet}. This is two-dimensional representation of the reflected radar signal, where the range dimension corresponds to the distance from the Soli sensor and the Doppler dimension corresponds to the radial velocity of the subject towards the sensor. Face scans are collected using the Soli's short configuration which operates at an $f_c$ of \qty{60}{\GHz}, with a maximum bandwidth $B$ of \qty{5.5}{\GHz}, and bursts sampled at \qty{25}{\Hz}. This gives a range resolution of $\frac{c}{2B} = $ \qty{2.7}{\cm}, where $c$ denotes the speed of light. The Soli chip has a single transmit and three receiver antennas, each capturing a superposition of scattered reflections from the target. Given that the Intel RealSense captures RGB-D frames at a different sampling rate of 30 frames per second (FPS), timestamp information is also recorded for the possibility of synchronising the two modalities for early data fusion. The right half of Figure \ref{fig:rgb_crd_plot} illustrates a plot of a single CRD frame across the three receiving channels of the same subject's face. The CRD plot showing the intensities of received signals in discrete 32 Doppler bins along the $x$-axis and 16 Range bins along the $y$-axis.
-Moreover, the radar bursts acquired during the data collection phase undergo multiple FFT stages of preprocessing to convert the raw signals into discretised Complex Range-Doppler (CRD) maps \cite{lien2016soli,hayashi2021radarnet}. These maps offer a two-dimensional representation of the reflected radar signal, where the range dimension corresponds to the distance from the Soli sensor, and the Doppler dimension corresponds to the radial velocity of the subject towards the sensor. Face scans are obtained using the Soli's short configuration, operating at an $f_c$ of \qty{60}{\GHz}, with a maximum bandwidth $B$ of \qty{5.5}{\GHz}, and bursts sampled at a rate of \qty{25}{\Hz}. This configuration provides a range resolution of $\frac{c}{2B} = $ \qty{2.7}{\cm}, where $c$ denotes the speed of light. The Soli chip comprises a single transmit and three receiver antennas, each capturing a superposition of scattered reflections from the target. Given that the Intel RealSense captures RGB-D frames at a different sampling rate of 30 frames per second (FPS), timestamp information is also logged for the potential of synchronising the two modalities for early data fusion. The right half of Figure \ref{fig:rgb_crd_plot} depicts a plot of a single CRD frame across the three receiving channels of the same subject's face. The plot illustrates the discrete intensities of received signals across 16 Doppler bins along the $x$-axis and 32 Range bins along the $y$-axis.
+Moreover, the radar bursts acquired during the data collection phase undergo multiple FFT stages of preprocessing to convert the raw signals into discretised Complex Range-Doppler (CRD) maps. These maps offer a two-dimensional representation of the reflected radar signal, where the range dimension corresponds to the distance from the Soli sensor, and the Doppler dimension corresponds to the radial velocity of the subject towards the sensor \cite{lien2016soli,hayashi2021radarnet}. Face scans are obtained using the Soli's short configuration, operating at an $f_c$ of \qty{60}{\GHz}, with a maximum bandwidth $B$ of \qty{5.5}{\GHz}, and bursts sampled at a rate of \qty{25}{\Hz}. This configuration provides a range resolution of $\frac{c}{2B} = $ \qty{2.7}{\cm}, where $c$ denotes the speed of light. The Soli chip comprises a single transmit and three receiver antennas, each capturing a superposition of scattered reflections from the target. Given that the Intel RealSense captures RGB-D frames at a different sampling rate of 30 frames per second (FPS), timestamp information is also logged for the potential of synchronising the two modalities for early data fusion. The right half of Figure \ref{fig:rgb_crd_plot} depicts a plot of a single CRD frame across the three receiving channels of the same subject's face. The plot illustrates the discrete intensities of received signals across 16 Doppler bins along the $x$-axis and 32 Range bins along the $y$-axis.
 
 \begin{figure*}[h]
     \centering
     \includegraphics[width=0.99\textwidth]{figures/rgb_crd_plot.png}
     \vspace{0.2cm}
-    \caption{Data samples collected for Subject 0. The left figure shows the RGB frames of all 15 scenarios organised by pose and condition. The right figure plots a single CRD frame showing amplitudes of reflected waves detected by the three receiving channels of the Soli, categorised into discrete Range-Doppler bins}
+    \caption{Data samples collected for Subject 0. The left figure shows the RGB frames of all 15 scenarios organised by pose and condition. The right figure plots a single CRD frame showing amplitudes of reflected waves detected by the three receiving channels of the Soli, categorised into discrete Range-Doppler bins.}
     \label{fig:rgb_crd_plot}
 \end{figure*}
 
 
 \subsection{mmFace}
-TODO: ARCHITECTURE DESIGN AND CHANGES/IMPROVEMENTS MADE and REWRITE
-Building on the intuition from Section \ref{background:insightface} of the Background chapter, it is clear that the ArcFace model from the InsightFace toolkit emerges as the best choice for our project. It attains state-of-the-art classification results on accepted benchmark sets, outperforming the previous bests such as Facebook's DeepFace \cite{taigman2014deepface} and Google's FaceNet \cite{schroff2015facenet}. This selection allows us to treat the RGB data processing as a \textit{black-box} framework, enabling us to concentrate efforts on perfecting the radar-based model we are naming, \textit{mmFace}. Furthermore, this facilitates exploration into the various methods in fusing the two modalities as discussed in Section \ref{background:multimodal_data_fusion_techniques}. Figure \ref{fig:model_architecture} shows a high-level diagram of the model workflow described here. 
+Building on the intuition from Section \ref{background:insightface} of the Background chapter, it is clear that the ArcFace model from the InsightFace toolkit emerges as the best choice for our project. It attains state-of-the-art classification results on accepted benchmark sets, outperforming the previous bests such as Facebook's DeepFace \cite{taigman2014deepface} and Google's FaceNet \cite{schroff2015facenet}. This selection allows us to treat the RGB data processing as a \textit{black-box} framework, enabling us to concentrate efforts on perfecting the radar-based model we are naming, \textit{mmFace}. Furthermore, this facilitates exploration into the various methods in fusing the two modalities. 
+
+Figure \ref{fig:model_architecture} depicts a high-level diagram of the system workflow employed during training and inference. A more detailed architecture of our end-to-end mmFace model can be viewed in Figure \ref{fig:model_architecture} showing every layer. To summarise, mmFace takes two inputs: an mmWave face signature in an $\mathtt{ARD}$ format and an InightFace embedding extracted from the corresponding RGB frame. In order to simplify computation, the magnitudes of every complex range $r$ and Doppler $d$ bin are taken to produce an Absolute Range-Doppler (ARD) map using the absolute function as follows:
+$$\mathtt{ARD}_{r,d} = \text{abs}(\mathtt{CRD}_{r,d})$$
+The inputs then go through three main stages: \textbf{mmWave Feature Extraction}, \textbf{Feature Fusion}, and finally, \textbf{Class Prediction} each described in detail below to finally produce a subject prediction and a liveness class prediction. This is simply a binary classification: 0 for fake and 1 for real.
+
+%TODO: ENUMERATE???
+\textbf{mmWave Feature Extraction}
+
+Firstly, the $\mathtt{ARD}$ input is processed through four unstrided convolutions followed by a max-pooling then two fully connected layers to compress the embedding size. Due to the relatively small size of the $\mathtt{ARD}$ maps only being $32 \times 16$ pixels, it was important that most of the information is kept reducing the need for any more max-poolings or strided convolutions. To simplify the next stage, we decided to match the final radar embedding size with the 512-dimension InsightFace embedding.
+
+\textbf{Feature Fusion}
+
+The next phase was fusing the extracted radar embedding with the RGB embedding input. We investigate seven different fusion strategies with the simplest being concatenation of the two features. This is then processed through a single fully connected layer to reduce the dimensionality before the final stage.
+
+\textbf{Class Prediction}
+
+Finally, the fused multimodal embedding carried over to two separate fully connected layers to finally predict the identity of the face and its liveness property to counter against spoofing attacks.
 
 Our proposed model, mmFace, will employ a CNN-based architecture, which is particularly effective for processing image-like data. 
-% The radar bursts obtained during the data collection phase will be transformed into Complex Range-Doppler (CRD) maps \cite{lien2016soli,hayashi2021radarnet} prior to feeding it into the model. Face scans will be collected using the Google Soli's short configuration which operates at a centre frequency of 60 GHz, with a maximum bandwidth $B$ of 5.5 GHz, and bursts sampled at 25 Hz. This gives a range resolution of $\frac{c}{2B} = 2.7$ cm, where $c$ denotes the speed of light. Given that the Intel RealSense captures RGB-D frames at a different sampling rate of 30 frames per second (FPS), timestamp information is also recorded for the possibility of synchronising the two modalities for early data fusion.
-% The Soli chip as single transmit antenna and three receiver antennas capturing a superposition of scattered reflections from the target
-
 As explained before, the data fusion techniques we plan to investigate include late, feature-level fusion and late, decision-level fusion. Pure intermediate fusion is not feasible due to the black-box treatment of the InsightFace model making it difficult to integrate information from both modalities within its hidden layers. Nonetheless, late, feature-level fusion remains viable, combining the outputs of the final layers of each model to form an embedding containing both the RGB and radar features. Similarly, decision-level fusion will be explored since this entails mixing the predictions from the individual models. Early fusion presents significant challenges due to the dissimilarities in sampling rates and data formats of the two modalities. The CRD maps must be synchronised and transformed into a depth image-like format before merging with the RGB images. Furthermore, this would require a whole new training cycle with the mmFace model which may be infeasible within the project's time frame. However, should time permit, we will consider investigating this approach.
 
 % We plan to adopt a ResNet-based architecture for mmFace due to its refinements over its predecessors like AlexNet \cite{krizhevsky2012imagenet} and VGGNet \cite{simonyan2014very}. The ResNet framework \cite{he2016deep} incorporates ``skip connections'' and residual blocks to resolve the vanishing gradient problem encountered in VGGNet, allowing scaling of the network beyond the 19-layer limitation. This support for deeper networks provides a strong foundation for the mmFace model for learning the complex radar face signatures.
@@ -206,14 +219,15 @@ The dataset, comprising 50 participants, will be divided by subjects into an $80
 \begin{figure*}[h!]
     \centering
     \includegraphics[width=1\textwidth]{figures/model_workflow.png}
-    \caption{Workflow Diagram}
+    \caption{High-level model workflow diagram of our proposed 3D face recognition system incorporating millimetre-wave radar and RGB images}
     \label{fig:model_workflow}
 \end{figure*}
 
 \begin{figure*}[h!]
     \centering
-    \includegraphics[width=1\textwidth]{figures/model_architecture-test.png}
-    \caption{Architecture Diagram}
+    \includegraphics[width=1\textwidth]{figures/model_architecture.png}
+    \vspace{0.001cm}
+    \caption{Model architecture of our mmFace model displaying each layer, as well as its input and output sizes}
     \label{fig:model_architecture}
 \end{figure*}
 
