@@ -1,15 +1,15 @@
 name: "mmFaceHybrid"
 layer {
-  name: "crd_input"
+  name: "ard_input"
   type: "Input"
-  top: "crd_input"
+  top: "ard_input"
   input_param { shape: { dim: 1 dim: 3 dim: 16 dim: 32 } }
 }
 
 layer {
   name: "conv1"
   type: "Convolution"
-  bottom: "crd_input"
+  bottom: "ard_input"
   top: "conv1"
   convolution_param {
     num_output: 16
