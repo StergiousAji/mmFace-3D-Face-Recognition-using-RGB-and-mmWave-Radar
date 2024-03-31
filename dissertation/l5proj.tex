@@ -131,19 +131,19 @@ Finally, we delve into assessing the penetrating capability of mmWaves to direct
 
 % On top of investigating environmental invariances, our research seeks to determine the least amount of radar data necessary to still yield easily separable facial embeddings. Previous studies were observed to record between 200 and 2,000 total frames which, depending on the sampling rate, requires running the sensor for eight to a maximum of 80 seconds for each scenario. This is due to the lower accuracy of mmWaves demanding a longer exposure to provide a dense enough representation. Nevertheless, requiring an individual to keep their face still for over three seconds is impractical in real-world applications. Our approach, which integrates RGB data, may reduce the need for prolonged radar frame capture. Consequently, in our experiments, we will collect 10 RGB frames and a maximum of 250 frames worth of mmWave bursts, equivalent to operating the Google Soli sensor for 10 seconds at a 25 Hz sampling rate. This approach will provide ample data to assess the minimum number of mmWave frames needed for effective identification. 
 
-To ensure a diverse range of facial data, we recruited 21 participants within the tight time frame of the project. Adhering to ethical standards regarding sensitive personal information, our participant pool consists of university students. While this results in an over-representation of individuals aged 20--25 years, it should not impact our study as age variance is not something that is being explored. A total of 15 scenarios are captured for each participant at a distance of \qty{20}{\cm} from the sensors. Each time the sensors are run for 10 seconds, totalling 150 RGB frames and 3,750 mmWave frames per person. On top of this, scans of printed faces are also collected in order train the model to detect the face liveness as well as its identity. This was restricted to the three frontal poses of all participants to mirror common spoofing strategies.
+To ensure a diverse range of facial data, we recruited 21 participants within the tight time frame of the project. Adhering to ethical standards regarding sensitive personal information, our participant pool consists of university students in the age range 18--35 years. While this results in an over-representation of individuals aged 20--25 years, it should not impact our study as age variance is not being explored. A total of 15 scenarios are captured for each participant at a distance of \qty{20}{\cm} from the sensors. Each time the sensors are run for 10 seconds, totalling 150 RGB frames and 3,750 mmWave frames per person. On top of this, scans of printed faces are also collected in order to train the model to detect the face liveness as well as its identity. This was restricted to the three frontal poses of all participants to mirror common spoofing strategies, providing another 30 RGB frames and 225 mmWave frames per fake counterpart.
 
 A close-up of the equipment setup used can be observed in Figure \ref{fig:equipment} showing the Intel Realsense RGB-D camera and the green Soli chip mounted side-by-side on a breadboard. The full experiment setup is photographed in Figure \ref{fig:experiment_setup} with the red cross marking the face distance and the five pose directions indicated by the yellow tape.
 
-\vspace{-0.1cm}
+\vspace{-0.25cm}
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.35\textwidth,decodearray={1 1 1 1 1 1}]{figures/equipment.pdf}
-    \vspace{0.2cm}
+    \vspace{0.1cm}
     \caption{Equipment: Intel Realsense L515 RGB-D Camera (left) and the Google's Soli \textit{\qty{60}{\GHz}} radar sensor (right)}
     \label{fig:equipment}
+    \vspace{-0.3cm}
 \end{figure}
-
 
 \begin{figure}[h!]
     \centering
@@ -223,11 +223,16 @@ The inputs then go through three main stages: \textbf{mmWave Feature Extraction}
 
 The three-channel ARD format of the mmWave face signatures allows leveraging convolutional-based feature extraction due to its image-like format. Convolutional layers can detect spatial patterns among the range and Doppler profiles for specific faces, which can be enhanced with deeper layers. Due to the relatively small size of the $\mathtt{ARD}$ maps only being $32 \times 16$ bins/pixels, it was important that most of the information is kept reducing the need for any more max-poolings or strided convolutions. To simplify the fusion stage, we decided to match the final radar embedding vector size with the 512-dimension InsightFace embedding using two fully connected layers. Four convolution layers with a kernel size of $3 \times 3$ with filter sizes increasing by powers of two starting from 16 to 128 were found to be sufficient with increasing layers affording diminishing returns. All linear transformations are followed by a batch normalisation layer to reduce overfitting and increase the generalisability of the model. All non-linear transformations were chosen to use the ReLU activation function to prevent vanishing weights. 
 
-\texttt{mmFace} contains around 18 million parameters and takes $x$ milliseconds to process a single (\texttt{ARD}, InsightFace RGB embedding) input.
-%TODO: SINGLE INPUT PROCESSING TIME
+\texttt{mmFace} contains around 2.8 million parameters and takes on average 4.1 milliseconds ($\text{SD}=\text{\qty{0.2}{\ms}}$) to process a single (\texttt{ARD}, InsightFace RGB embedding) input on an NVIDIA GeForce GTX 1650 GPU.
 
-\subsubsection{Training?}
+\subsubsection{Training}
+We created and trained our models using PyTorch version 2.1 for approximately 20 to 25 epochs, employing a Stochastic Gradient Descent optimiser minimising the Cross Entropy Loss ($L_{\text{CE}}$). We opted for a fixed learning rate of 0.01, an L2 regularization rate of $1\mathrm{e}{-3}$, and a momentum of 0.9. As our model generates two predictions, we merged the losses from each with equal weighting to ensure equitable learning of both attributes. This combined loss $\mathcal{L}$ is formalised as follows:
+$$\mathcal{L} = L_{\text{CE}}(s, \hat{s}) + L_{\text{CE}}(l, \hat{l})$$
+where $s$ and $l$ represent the true subject and liveness, respectively, while $\hat{s}$ and $\hat{l}$ signify the model's corresponding predicted values.
 
+\vspace{0.2cm}
+\subsubsection{Testing}
+We evaluate our models against zero-shot classification task in order to assess the generalisation ability at identifying to unseen faces. We train the models on a random subset of 17 of the total 21 subjects, just over an 80\% train split, keeping in mind this includes 17 fake counterparts totalling 38 subject instances. The remaining four subjects (eight instances) are left out for testing. During inference, the features from the final hybrid fully connected layer, \texttt{fc\_hybrid1}, are used. The cosine similarity between each output embedding of the test data and eight pre-selected reference embeddings are calculated to find the maximal score and corresponding prediction for face identity and liveness. A decision threshold $t$ is used such that the maximal score must be greater than it to qualify for a valid prediction. This ensures that predictions are not made for output embeddings that are mostly equidistant to all reference embedding such that no practical decision can be made.
 
 % Our proposed model, mmFace, will employ a CNN-based architecture, which is particularly effective for processing image-like data. As explained before, the data fusion techniques we plan to investigate include late, feature-level fusion and late, decision-level fusion. Pure intermediate fusion is not feasible due to the black-box treatment of the InsightFace model making it difficult to integrate information from both modalities within its hidden layers. Nonetheless, late, feature-level fusion remains viable, combining the outputs of the final layers of each model to form an embedding containing both the RGB and radar features. Similarly, decision-level fusion will be explored since this entails mixing the predictions from the individual models. Early fusion presents significant challenges due to the dissimilarities in sampling rates and data formats of the two modalities. The CRD maps must be synchronised and transformed into a depth image-like format before merging with the RGB images. Furthermore, this would require a whole new training cycle with the mmFace model which may be infeasible within the project's time frame. However, should time permit, we will consider investigating this approach.
 
@@ -243,7 +248,7 @@ The three-channel ARD format of the mmWave face signatures allows leveraging con
 
 \subsection{Results}
 
-% TODO: REDUCE DECIMAL PLACES
+% TODO: REDUCE DECIMAL PLACES???
 \begin{table}[htbp]
     \centering
     \begin{tabular}{lcccc}
@@ -258,11 +263,14 @@ The three-channel ARD format of the mmWave face signatures allows leveraging con
         Pairwise Dot Max & 82.70\% & 0.7905 & 72.84\% & 0.6962 \\
         Pairwise Dot Flatten & 86.66\% & 0.8480 & 94.74\% & 0.9270 \\
         Multi-Head Attention & 86.28\% & 0.7984 & 96.41\% & 0.8922 \\
+        \midrule
+        Radar Only & 38.23\% & 0.3052 & 96.63\% & 0.7715 \\
+        RGB Only & 85.49\% & 0.8335 & 69.32\% & 0.6759 \\
         \bottomrule
     \end{tabular}
-    \caption{Results of Feature Fusion Techniques}
+    \caption{Subject and liveness accuracies and F1 measures for the seven feature fusion strategies along with the individual modalities.}
     \label{tab:results}
-  \end{table}
+\end{table}
 
 \begin{table}[htbp]
     \centering

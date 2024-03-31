@@ -38,9 +38,9 @@ def rgb(_, x2):
 
 
 # mmFace-Hybrid: {Radar (32, 16, 3), RGB Embedding (512)} -> {subject?, liveness?}
-class MMFaceHybrid(nn.Module):
+class MMFace(nn.Module):
     def __init__(self, num_subjects, fuse=concatenate):
-        super(MMFaceHybrid, self).__init__()
+        super(MMFace, self).__init__()
         self.conv1 = nn.Sequential(
             nn.Conv2d(3, 16, kernel_size=3, stride=1),
             nn.BatchNorm2d(16),
@@ -117,7 +117,7 @@ class MMFaceHybrid(nn.Module):
 
 
 
-class MMFace(nn.Module):
+class MMFaceSingle(nn.Module):
     def __init__(self, num_classes=50):
         super(MMFace, self).__init__()
         self.conv1 = nn.Sequential(
