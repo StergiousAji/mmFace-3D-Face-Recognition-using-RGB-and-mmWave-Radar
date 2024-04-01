@@ -259,35 +259,36 @@ We investigate seven feature-level fusion strategies listed as follows in terms 
     $$\mathtt{multiply}(\bm{\vec{x}}, \bm{\vec{y}}) = \left[(x_i \cdot y_i) \ | \ \forall i \in \{1, \ldots, n\}\right]$$
     \item \textbf{Pairwise Dot Average:} This involves a dot product of the transpose of vector $\bm{\vec{x}}$ with vector $\bm{\vec{y}}$ resulting in an $n \times n$ matrix followed by a column-wise average by mean to produce an $n$ sized fused feature vector.
     \begin{align*}
-        \mathit{Let} \ &\bm{Z} = \bm{\vec{x}}^T \cdot \bm{\vec{y}} \ \mathit{in} \\
+        \mathit{Let} \ \bm{Z} & = \ \bm{\vec{x}}^T \cdot \bm{\vec{y}} \ \mathit{in} \\
         % \mathtt{pairwise\_dot\_average}&(\bm{\vec{x}}, \bm{\vec{y}}) =\\& \left[ \frac{1}{n} \sum_{i=1}^n \bm{Z}_{i,1}, \frac{1}{n} \sum_{i=1}^n \bm{Z}_{i,2}, \ldots, \frac{1}{n} \sum_{i=1}^n \bm{Z}_{i,n} \right] \\
-        \mathtt{pairwise\_dot\_average}&(\bm{\vec{x}}, \bm{\vec{y}}) = \left[\frac{1}{n} \sum_{j=1}^n \bm{Z}_{j,i} \ \middle| \ \forall i \in \{1, \ldots, n\}\right]
+        \hspace{-0.15cm}\mathtt{pairwise\_dot\_avg}(\bm{\vec{x}}, \bm{\vec{y}}) &= \left[ \frac{1}{n} \sum_{j=1}^n \bm{Z}_{j,i} \ \middle| \ \forall i \in \{1, \ldots, n\}\right]
     \end{align*}
     \item \textbf{Pairwise Dot Max:} This similarly involves the dot product to produce $n \times n$ matrix which is followed by a column-wise max. $*$ denotes a selection of all rows in this case.
     \begin{align*}
-        \mathit{Let} \ &\bm{Z} = \bm{\vec{x}}^T \cdot \bm{\vec{y}} \ \mathit{in} \\
+        \mathit{Let} \ \bm{Z} & = \bm{\vec{x}}^T \cdot \bm{\vec{y}} \ \mathit{in} \\
         % \mathtt{pairwise\_dot\_max}(\bm{\vec{x}}, &\bm{\vec{y}}) =\\ &\left[ \max(\bm{Z}_{*,1}), \max(\bm{Z}_{*,2}), \ldots, \max(\bm{Z}_{*,n}) \right] \\
-        \mathtt{pairwise\_dot\_max}&(\bm{\vec{x}}, \bm{\vec{y}}) = \left[ \max(\bm{Z}_{*,i}) \ \middle| \ \forall i \in \{1, \ldots, n\} \right]
+        \mathtt{pairwise\_dot\_max}(\bm{\vec{x}}, \bm{\vec{y}}) &= \left[ \max(\bm{Z}_{*,i}) \ \middle| \ \forall i \in \{1, \ldots, n\} \right]
     \end{align*}
     \item \textbf{Pairwise Dot Flatten:} This is the final pairwise dot fusion strategy now following the dot product with a flatten operation of the $n \times n$ matrix into an $n^2$-sized vector.
     \begin{align*}
-        \mathit{Let} \ &\bm{Z} = \bm{\vec{x}}^T \cdot \bm{\vec{y}} \ \mathit{in} \\
+        \mathit{Let} \ \bm{Z} = & \ \bm{\vec{x}}^T \cdot \bm{\vec{y}} \ \mathit{in} \\
         \mathtt{pairwise\_dot\_flatten}(\bm{\vec{x}}, &\bm{\vec{y}}) =\\ &\left[ \bm{Z}_{1,1}, \bm{Z}_{1,2}, \ldots, \bm{Z}_{n,n\text{-}1}, \bm{Z}_{n,n} \right]
     \end{align*}
     \item \textbf{Multi-Head Attention:} This involves using a self-attention mechanism popular in transformer architectures for natural language processing tasks. The key idea of self-attention is to isolate and mix the most aspects from both feature vectors by transforming them into three separate representations, namely a query $\bm{Q}$, key $\bm{K}$, and value $\bm{V}$ \cite{vaswani2017attention}. Each embedding has a distinct role with the query capturing features that the model deems relevant for making predictions. $\bm{Q}$ may focus on facial features that are common or discriminative across both modalities such as facial landmarks and overall identity information. Meanwhile, $\bm{K}$ may focus on modality-specific elements such as the colour and texture information embedded within the RGB feature vector while structural information being offered by the radar embedding. Finally, $\bm{V}$ contains the actual fine-grained details captured by both modalities that will be attended to by the model based on the resulting query-key similarities. In order to maximise this affect, this mechanism is applied separately across multiple attention heads, decreasing the possibility of the model missing salient aspects of the feature.
     This is formalised below, where first the two inputs are stacked vertically and copied through three separate linear transformations to obtain the $\bm{Q}$, $\bm{K}$, $\bm{V}$ matrices.
+    % TODO: HOW ATTENTION FROM PYTORCH DOCS
+    % TODO: POSITIONAL ENCODING??
     \begin{align*}
-        \mathit{Let} \ h_i = \mathtt{Attention}&(\bm{Q}_i, \bm{K}_i, \bm{V}_i) \ \mathit{in} \\
+        \mathit{Let} \ h_i = \mathtt{Attention}(\bm{Q}_i&, \bm{K}_i, \bm{V}_i) \ \mathit{in} \\
         \mathtt{multihead\_attention}(\bm{\vec{x}}, \bm{\vec{y}}) &= [h_1, \ldots, h_k]\bm{W}_O \\
         \mathit{where} \ \bm{X} = 
         \begin{bmatrix}
             \bm{\vec{x}} \\
             \bm{\vec{y}}
-        \end{bmatrix} \ & \bm{Q}_i = \bm{W}_{Q_i}\bm{X}, \\ 
-        \bm{K}_i = \bm{W}_{K_i}&\bm{X} \ \mathit{and} \ \bm{V}_i = \bm{W}_{V_i}\bm{X}
+        \end{bmatrix} \ \bm{Q}_i = \bm{W}_{Q_i}\bm{X}&, \bm{K}_i = \bm{W}_{K_i}\bm{X} \ \mathit{and} \\ 
+        \bm{V}_i = \bm{W}_{V_i}\bm{X}
     \end{align*}
 \end{enumerate}
-
 
 \section{Evaluation}
 
