@@ -1,6 +1,6 @@
 \documentclass{mpaper}
 
-\usepackage{graphicx, float, multirow, booktabs, siunitx, fancyvrb}
+\usepackage{graphicx, float, multirow, booktabs, siunitx, fancyvrb, bm}
 \usepackage[format=plain, labelfont={bf},textfont=it,tableposition=above]{caption}
 
 \begin{document}
@@ -223,7 +223,9 @@ The inputs then go through three main stages: \textbf{mmWave Feature Extraction}
 
 The three-channel ARD format of the mmWave face signatures allows leveraging convolutional-based feature extraction due to its image-like format. Convolutional layers can detect spatial patterns among the range and Doppler profiles for specific faces, which can be enhanced with deeper layers. Due to the relatively small size of the $\mathtt{ARD}$ maps only being $32 \times 16$ bins/pixels, it was important that most of the information is kept reducing the need for any more max-poolings or strided convolutions. To simplify the fusion stage, we decided to match the final radar embedding vector size with the 512-dimension InsightFace embedding using two fully connected layers. Four convolution layers with a kernel size of $3 \times 3$ with filter sizes increasing by powers of two starting from 16 to 128 were found to be sufficient with increasing layers affording diminishing returns. All linear transformations are followed by a batch normalisation layer to reduce overfitting and increase the generalisability of the model. All non-linear transformations were chosen to use the ReLU activation function to prevent vanishing weights. 
 
-\texttt{mmFace} contains around 2.8 million parameters and takes on average 4.1 milliseconds ($\text{SD}=\text{\qty{0.2}{\ms}}$) to process a single (\texttt{ARD}, InsightFace RGB embedding) input on an NVIDIA GeForce GTX 1650 GPU.
+We opted to focus on mixing the two modalities within the feature-space, specifically within the final layers of the neural network. This entails an easier fusion process since the data from both modalities are abstracted far enough into a compressed representation. Pure intermediate fusion is not feasible due to the black-box treatment of the InsightFace model making it difficult to integrate information from both modalities within its hidden layers. Early fusion presents significant challenges due to the dissimilarities in sampling rates and data formats. The \texttt{ARD} maps have to be synchronised and transformed into a depth image. This is an interesting avenue left to be explored possibly training a neural network to learn a idyllic pixel-wise depth representation of the radar bursts.
+
+\texttt{mmFace} contains around 2.8 million parameters and takes on average 4.1 milliseconds ($\text{SD}=\text{\qty{0.2}{\ms}}$) to process a single (\texttt{ARD}, RGB-embedding) input pair on an NVIDIA GeForce GTX 1650 GPU.
 
 \subsubsection{Training}
 We created and trained our models using PyTorch version 2.1 for approximately 20 to 25 epochs, employing a Stochastic Gradient Descent optimiser minimising the Cross Entropy Loss ($L_{\text{CE}}$). We opted for a fixed learning rate of 0.01, an L2 regularization rate of $1\mathrm{e}{-3}$, and a momentum of 0.9. As our model generates two predictions, we merged the losses from each with equal weighting to ensure equitable learning of both attributes. This combined loss $\mathcal{L}$ is formalised as follows:
@@ -241,8 +243,51 @@ We evaluate our models against zero-shot classification task in order to assess 
 % The dataset, comprising 50 participants, will be divided by subjects into an $80\%/10\%/10\%$ split for training, validation, and testing. Given the dataset's small size, a larger proportion is allocated for training to ensure the model can learn effectively. Following training, the testing phase will evaluate the distinctiveness of the output face embeddings. For accurate classifications, each person's face must be spatially separable in the high-dimensional embedding space allowing for unambiguous identification. t-SNE visualisations \cite{van2008visualizing} will be employed to visually inspect and confirm this is the case by comparing against the original data. In addition, standard classification accuracies will be calculated to verify the model's identity recognition capabilities against randomly selected ground truths. This also allows benchmarking our results against previous studies on radar-based 3D facial recognition.
 
 
-\subsection{Feature-Level Fusion}
+\subsection{Feature-level Fusion}
 % TODO: DIAGRAMS FOR ALL SEVEN FUSIONS?? MULTIHEAD ATTENTION
+We investigate seven feature-level fusion strategies listed as follows in terms of $n$ sized feature vectors $\bm{\vec{x}} = [x_1, x_2, \ldots, x_n]$ and $\bm{\vec{y}} = [y_1, y_2, \ldots, y_n]$:
+\vspace{-0.1cm}
+\begin{enumerate}
+    \itemsep0em
+    \item \textbf{Concatenate:} This is a simple concatenation of the two feature vectors.
+    $$\mathtt{concatenate}(\bm{\vec{x}}, \bm{\vec{y}}) = [\bm{\vec{x}}, \bm{\vec{y}}]$$
+    \item \textbf{Add:} This is a simple element-wise vector addition of $\bm{\vec{x}}$ and $\bm{\vec{y}}$.
+    % $$\mathtt{add}(\bm{\vec{x}}, \bm{\vec{y}}) = [x_1 + y_1, x_2 + y_2, \ldots, x_n + y_n]$$
+    $$\mathtt{add}(\bm{\vec{x}}, \bm{\vec{y}}) = \left[(x_i + y_i) \ | \ \forall i \in \{1, \ldots, n\}\right]$$
+    \item \textbf{Multiply:} This is an element-wise vector multiplication of $\bm{\vec{x}}$ and $\bm{\vec{y}}$.
+    % $$\mathtt{multiply}(\bm{\vec{x}}, \bm{\vec{y}}) = [x_1 \cdot y_1, x_2 \cdot y_2, \ldots, x_n \cdot y_n]$$
+    $$\mathtt{multiply}(\bm{\vec{x}}, \bm{\vec{y}}) = \left[(x_i \cdot y_i) \ | \ \forall i \in \{1, \ldots, n\}\right]$$
+    \item \textbf{Pairwise Dot Average:} This involves a dot product of the transpose of vector $\bm{\vec{x}}$ with vector $\bm{\vec{y}}$ resulting in an $n \times n$ matrix followed by a column-wise average by mean to produce an $n$ sized fused feature vector.
+    \begin{align*}
+        \mathit{Let} \ &\bm{Z} = \bm{\vec{x}}^T \cdot \bm{\vec{y}} \ \mathit{in} \\
+        % \mathtt{pairwise\_dot\_average}&(\bm{\vec{x}}, \bm{\vec{y}}) =\\& \left[ \frac{1}{n} \sum_{i=1}^n \bm{Z}_{i,1}, \frac{1}{n} \sum_{i=1}^n \bm{Z}_{i,2}, \ldots, \frac{1}{n} \sum_{i=1}^n \bm{Z}_{i,n} \right] \\
+        \mathtt{pairwise\_dot\_average}&(\bm{\vec{x}}, \bm{\vec{y}}) = \left[\frac{1}{n} \sum_{j=1}^n \bm{Z}_{j,i} \ \middle| \ \forall i \in \{1, \ldots, n\}\right]
+    \end{align*}
+    \item \textbf{Pairwise Dot Max:} This similarly involves the dot product to produce $n \times n$ matrix which is followed by a column-wise max. $*$ denotes a selection of all rows in this case.
+    \begin{align*}
+        \mathit{Let} \ &\bm{Z} = \bm{\vec{x}}^T \cdot \bm{\vec{y}} \ \mathit{in} \\
+        % \mathtt{pairwise\_dot\_max}(\bm{\vec{x}}, &\bm{\vec{y}}) =\\ &\left[ \max(\bm{Z}_{*,1}), \max(\bm{Z}_{*,2}), \ldots, \max(\bm{Z}_{*,n}) \right] \\
+        \mathtt{pairwise\_dot\_max}&(\bm{\vec{x}}, \bm{\vec{y}}) = \left[ \max(\bm{Z}_{*,i}) \ \middle| \ \forall i \in \{1, \ldots, n\} \right]
+    \end{align*}
+    \item \textbf{Pairwise Dot Flatten:} This is the final pairwise dot fusion strategy now following the dot product with a flatten operation of the $n \times n$ matrix into an $n^2$-sized vector.
+    \begin{align*}
+        \mathit{Let} \ &\bm{Z} = \bm{\vec{x}}^T \cdot \bm{\vec{y}} \ \mathit{in} \\
+        \mathtt{pairwise\_dot\_flatten}(\bm{\vec{x}}, &\bm{\vec{y}}) =\\ &\left[ \bm{Z}_{1,1}, \bm{Z}_{1,2}, \ldots, \bm{Z}_{n,n\text{-}1}, \bm{Z}_{n,n} \right]
+    \end{align*}
+    \item \textbf{Multi-Head Attention:} This involves using a self-attention mechanism popular in transformer architectures for natural language processing tasks. The key idea of self-attention is to isolate and mix the most aspects from both feature vectors by transforming them into three separate representations, namely a query $\bm{Q}$, key $\bm{K}$, and value $\bm{V}$ \cite{vaswani2017attention}. Each embedding has a distinct role with the query capturing features that the model deems relevant for making predictions. $\bm{Q}$ may focus on facial features that are common or discriminative across both modalities such as facial landmarks and overall identity information. Meanwhile, $\bm{K}$ may focus on modality-specific elements such as the colour and texture information embedded within the RGB feature vector while structural information being offered by the radar embedding. Finally, $\bm{V}$ contains the actual fine-grained details captured by both modalities that will be attended to by the model based on the resulting query-key similarities. In order to maximise this affect, this mechanism is applied separately across multiple attention heads, decreasing the possibility of the model missing salient aspects of the feature.
+    This is formalised below, where first the two inputs are stacked vertically and copied through three separate linear transformations to obtain the $\bm{Q}$, $\bm{K}$, $\bm{V}$ matrices.
+    \begin{align*}
+        \mathit{Let} \ h_i = \mathtt{Attention}&(\bm{Q}_i, \bm{K}_i, \bm{V}_i) \ \mathit{in} \\
+        \mathtt{multihead\_attention}(\bm{\vec{x}}, \bm{\vec{y}}) &= [h_1, \ldots, h_k]\bm{W}_O \\
+        \mathit{where} \ \bm{X} = 
+        \begin{bmatrix}
+            \bm{\vec{x}} \\
+            \bm{\vec{y}}
+        \end{bmatrix} \ & \bm{Q}_i = \bm{W}_{Q_i}\bm{X}, \\ 
+        \bm{K}_i = \bm{W}_{K_i}&\bm{X} \ \mathit{and} \ \bm{V}_i = \bm{W}_{V_i}\bm{X}
+    \end{align*}
+\end{enumerate}
+
 
 \section{Evaluation}
 
@@ -253,7 +298,7 @@ We evaluate our models against zero-shot classification task in order to assess 
     \centering
     \begin{tabular}{lcccc}
         \toprule
-        \multirow{2}{*}{\textbf{Feature Fusion}} & \multicolumn{2}{c}{\textbf{Subject}} & \multicolumn{2}{c}{\textbf{Liveness}} \\
+        \multirow{2}{*}{\textbf{Fusion Strategy}} & \multicolumn{2}{c}{\textbf{Subject}} & \multicolumn{2}{c}{\textbf{Liveness}} \\
         \cmidrule(lr){2-3} \cmidrule(lr){4-5} & \textbf{Accuracy} & \textbf{F1 Score} & \textbf{Accuracy} & \textbf{F1 Score} \\
         \midrule
         Concatenate & 83.70\% & 0.8347 & 99.60\% & 0.9932 \\
@@ -276,7 +321,7 @@ We evaluate our models against zero-shot classification task in order to assess 
     \centering
     \begin{tabular}{lcc}
         \toprule
-        \textbf{Feature Fusion}   & \textbf{Macro-Averaged AUC} & \textbf{KL Divergence} \\
+        \textbf{Fusion Strategy}   & \textbf{Macro-Averaged AUC} & \textbf{KL Divergence} \\
         \midrule
         Concatenate          & 0.7427                      & 0.9501                 \\
         Add                  & 0.6672                      & 1.2934                 \\
