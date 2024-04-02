@@ -51,7 +51,7 @@ Research into the efficacy of radar waves for 3D face recognition remains relati
 \subsection{Research Contributions}
 Our work explores the effectiveness of using RGB cameras in conjunction with mmWave radar sensors for 3D facial recognition. Since there are no appropriate datasets available for this purpose, we have collated this data ourselves. We use the Intel RealSense L515 RGB-D camera \cite{intel-l515} for photographing individuals' faces. Meanwhile, the Google Soli \qty{60}{\GHz} radar sensor \cite{lien2016soli} is employed to gather depth information by transmitting and measuring millimetre waves reflected from the target.
 
-We initially planned to gather face data from approximately \num{50} participants, however, only \num{21} participants came forward within the limited time frame. We obtained face data under various conditions including diverse poses, lighting settings, and common occlusion scenarios. This comprehensive approach led to a system that demonstrates resilience to environmental factors, in comparison, to systems relying solely on RGB data.
+We have gathered face data of \num{21} participants under various conditions encompassing diverse poses, lighting settings, and common occlusion scenarios. This comprehensive approach led to a system that demonstrates resilience to environmental factors, in comparison, to systems relying solely on RGB data.
 
 We developed a novel face recognition model using a deep convolutional neural network. This model was trained on the captured data to learn facial features from both the RGB and depth characteristics, simultaneously. We investigated different techniques in fusing these two modalities, aiming to pinpoint the most effective strategy that provides rich and distinctive representations for clean identity separation. The model's effectiveness is benchmarked against prior radar-based facial recognition systems, as well as, a comparison to using each modality independently.
 
@@ -100,7 +100,7 @@ In the evolving field of face recognition, deep CNNs have emerged as a dominant 
 % By fusing the depth and contour detection capabilities of mmWave radar with the rich, textural features gathered by ArcFace from RGB images, the system has the potential to attain improved accuracy and robustness. This approach is particularly promising in environments where conventional optical methods falter.
 
 
-\subsection{Multimodal Data Fusion Techniques}
+\subsection{Multimodal Data Fusion Methods}
 Multimodality, as defined by Lahat et al. \cite{lahat2015multimodal}, refers to the use and analysis of multiple types of data, potentially arriving from multiple sensors. The idea is to extract and blend salient information gathered by each sensor. The integration of this diverse data lead to outputs with richer representations than what could be achieved by the individual modalities alone. 
 % We hypothesise that coupling the textural information from colour images with the depth gathered by the radar sensor could greatly improve class separation, and subsequently, face recognition performance.
 
@@ -223,18 +223,17 @@ The inputs then go through three main stages: \textbf{mmWave Feature Extraction}
 
 The three-channel ARD format of the mmWave face signatures allows leveraging convolutional-based feature extraction due to its image-like format. Convolutional layers can detect spatial patterns among the range and Doppler profiles for specific faces, which can be enhanced with deeper layers. Due to the relatively small size of the $\mathtt{ARD}$ maps only being $32 \times 16$ bins/pixels, it was important that most of the information is kept reducing the need for any more max-poolings or strided convolutions. To simplify the fusion stage, we decided to match the final radar embedding vector size with the 512-dimension InsightFace embedding using two fully connected layers. Four convolution layers with a kernel size of $3 \times 3$ with filter sizes increasing by powers of two starting from 16 to 128 were found to be sufficient with increasing layers affording diminishing returns. All linear transformations are followed by a batch normalisation layer to reduce overfitting and increase the generalisability of the model. All non-linear transformations were chosen to use the ReLU activation function to prevent vanishing weights. 
 
-We opted to focus on mixing the two modalities within the feature-space, specifically within the final layers of the neural network. This entails an easier fusion process since the data from both modalities are abstracted far enough into a compressed representation. Pure intermediate fusion is not feasible due to the black-box treatment of the InsightFace model making it difficult to integrate information from both modalities within its hidden layers. Early fusion presents significant challenges due to the dissimilarities in sampling rates and data formats. The \texttt{ARD} maps have to be synchronised and transformed into a depth image. This is an interesting avenue left to be explored possibly training a neural network to learn a idyllic pixel-wise depth representation of the radar bursts.
+We opted to focus on mixing the two modalities within the feature-space, specifically within the final layers of the neural network. This entails an easier fusion process since the data from both modalities are abstracted far enough into a compressed representation. Pure intermediate fusion is not feasible due to the black-box treatment of the InsightFace model making it difficult to integrate information from both modalities within its hidden layers. Early fusion presents significant challenges due to the dissimilarities in sampling rates and data formats. The \texttt{ARD} maps have to be synchronised and transformed into a depth image. This is an interesting avenue left to be explored possibly training a neural network to learn an idyllic pixel-wise depth representation of the radar bursts.
 
 \texttt{mmFace} contains around 2.8 million parameters and takes on average 4.1 milliseconds ($\text{SD}=\text{\qty{0.2}{\ms}}$) to process a single (\texttt{ARD}, RGB-embedding) input pair on an NVIDIA GeForce GTX 1650 GPU.
 
 \subsubsection{Training}
 We created and trained our models using PyTorch version 2.1 for approximately 20 to 25 epochs, employing a Stochastic Gradient Descent optimiser minimising the Cross Entropy Loss ($L_{\text{CE}}$). We opted for a fixed learning rate of 0.01, an L2 regularization rate of $1\mathrm{e}{-3}$, and a momentum of 0.9. As our model generates two predictions, we merged the losses from each with equal weighting to ensure equitable learning of both attributes. This combined loss $\mathcal{L}$ is formalised as follows:
 $$\mathcal{L} = L_{\text{CE}}(s, \hat{s}) + L_{\text{CE}}(l, \hat{l})$$
-where $s$ and $l$ represent the true subject and liveness, respectively, while $\hat{s}$ and $\hat{l}$ signify the model's corresponding predicted values.
+where $s$ and $l$ represent the true subject and liveness, respectively, while $\hat{s}$ and $\hat{l}$ signify the model's corresponding predictions.
 
-\vspace{0.2cm}
 \subsubsection{Testing}
-We evaluate our models against zero-shot classification task in order to assess the generalisation ability at identifying to unseen faces. We train the models on a random subset of 17 of the total 21 subjects, just over an 80\% train split, keeping in mind this includes 17 fake counterparts totalling 38 subject instances. The remaining four subjects (eight instances) are left out for testing. During inference, the features from the final hybrid fully connected layer, \texttt{fc\_hybrid1}, are used. The cosine similarity between each output embedding of the test data and eight pre-selected reference embeddings are calculated to find the maximal score and corresponding prediction for face identity and liveness. A decision threshold $t$ is used such that the maximal score must be greater than it to qualify for a valid prediction. This ensures that predictions are not made for output embeddings that are mostly equidistant to all reference embedding such that no practical decision can be made.
+We evaluate our models through a zero-shot classification task in order to assess the generalisation ability at identifying unseen faces. We train the models on a random subset of 17 of the total 21 subjects, just over an 80\% train split, keeping in mind this includes 17 fake counterparts totalling 38 subject instances. The remaining four subjects (or eight total instances) are left out for testing. During inference, the features from the final hybrid fully connected layer, \texttt{fc\_hybrid1}, are used. The cosine similarity between each output embedding of the test data and eight pre-selected reference embeddings are calculated to find the maximal score and corresponding prediction for face identity and liveness. A decision threshold $t$ is used such that the maximal score must be greater than it to qualify for a valid prediction. This ensures that predictions are not made for output embeddings that are mostly equidistant to all reference embeddings such that no practical decision can be made.
 
 % Our proposed model, mmFace, will employ a CNN-based architecture, which is particularly effective for processing image-like data. As explained before, the data fusion techniques we plan to investigate include late, feature-level fusion and late, decision-level fusion. Pure intermediate fusion is not feasible due to the black-box treatment of the InsightFace model making it difficult to integrate information from both modalities within its hidden layers. Nonetheless, late, feature-level fusion remains viable, combining the outputs of the final layers of each model to form an embedding containing both the RGB and radar features. Similarly, decision-level fusion will be explored since this entails mixing the predictions from the individual models. Early fusion presents significant challenges due to the dissimilarities in sampling rates and data formats of the two modalities. The CRD maps must be synchronised and transformed into a depth image-like format before merging with the RGB images. Furthermore, this would require a whole new training cycle with the mmFace model which may be infeasible within the project's time frame. However, should time permit, we will consider investigating this approach.
 
@@ -245,52 +244,62 @@ We evaluate our models against zero-shot classification task in order to assess 
 
 \subsection{Feature-level Fusion}
 % TODO: DIAGRAMS FOR ALL SEVEN FUSIONS?? MULTIHEAD ATTENTION
-We investigate seven feature-level fusion strategies listed as follows in terms of $n$ sized feature vectors $\bm{\vec{x}} = [x_1, x_2, \ldots, x_n]$ and $\bm{\vec{y}} = [y_1, y_2, \ldots, y_n]$:
+We investigate seven feature-level fusion strategies listed as follows in terms of $n$-dimensional feature vectors $\bm{\vec{x}} = [x_1, x_2, \ldots, x_n]$ and $\bm{\vec{y}} = [y_1, y_2, \ldots, y_n]$:
 \vspace{-0.1cm}
 \begin{enumerate}
     \itemsep0em
-    \item \textbf{Concatenate:} This is a simple concatenation of the two feature vectors.
+    \item \textbf{Concatenate:} This is a concatenation of the two feature vectors, the most common strategy employed for its ease of implementation and effectiveness.
     $$\mathtt{concatenate}(\bm{\vec{x}}, \bm{\vec{y}}) = [\bm{\vec{x}}, \bm{\vec{y}}]$$
-    \item \textbf{Add:} This is a simple element-wise vector addition of $\bm{\vec{x}}$ and $\bm{\vec{y}}$.
+
+    \item \textbf{Add:} This involves an element-wise vector addition of $\bm{\vec{x}}$ and $\bm{\vec{y}}$. This can be very effective if both feature vectors point in the same direction compounding their resulting summation, however, if both feature vectors point in opposite directions, then this would result in a more orthogonal resulting vector direction.
     % $$\mathtt{add}(\bm{\vec{x}}, \bm{\vec{y}}) = [x_1 + y_1, x_2 + y_2, \ldots, x_n + y_n]$$
     $$\mathtt{add}(\bm{\vec{x}}, \bm{\vec{y}}) = \left[(x_i + y_i) \ | \ \forall i \in \{1, \ldots, n\}\right]$$
-    \item \textbf{Multiply:} This is an element-wise vector multiplication of $\bm{\vec{x}}$ and $\bm{\vec{y}}$.
+    
+    \item \textbf{Multiply:} This is an element-wise vector multiplication or the Hadamard product of $\bm{\vec{x}}$ and $\bm{\vec{y}}$. This preserves the original feature vector structure while emphasising relationships between corresponding feature elements.
     % $$\mathtt{multiply}(\bm{\vec{x}}, \bm{\vec{y}}) = [x_1 \cdot y_1, x_2 \cdot y_2, \ldots, x_n \cdot y_n]$$
-    $$\mathtt{multiply}(\bm{\vec{x}}, \bm{\vec{y}}) = \left[(x_i \cdot y_i) \ | \ \forall i \in \{1, \ldots, n\}\right]$$
-    \item \textbf{Pairwise Dot Average:} This involves a dot product of the transpose of vector $\bm{\vec{x}}$ with vector $\bm{\vec{y}}$ resulting in an $n \times n$ matrix followed by a column-wise average by mean to produce an $n$ sized fused feature vector.
+    $$\mathtt{multiply}(\bm{\vec{x}}, \bm{\vec{y}}) = \left[(x_iy_i) \ | \ \forall i \in \{1, \ldots, n\}\right]$$
+    
+    \item \textbf{Pairwise Dot Mean:} This involves a dot product of the transpose of vector $\bm{\vec{x}}$ with vector $\bm{\vec{y}}$ resulting in an $n \times n$ matrix followed by a column-wise mean operation to produce an $n$-dimensional fused feature vector. The intuition behind this comes from the pairwise dot providing a more representative mixing of the feature elements since each radar feature is multiplied by every RGB feature which are all looked at during the pooling method to reduce the dimensionality of the matrix.
     \begin{align*}
         \mathit{Let} \ \bm{Z} & = \ \bm{\vec{x}}^T \cdot \bm{\vec{y}} \ \mathit{in} \\
         % \mathtt{pairwise\_dot\_average}&(\bm{\vec{x}}, \bm{\vec{y}}) =\\& \left[ \frac{1}{n} \sum_{i=1}^n \bm{Z}_{i,1}, \frac{1}{n} \sum_{i=1}^n \bm{Z}_{i,2}, \ldots, \frac{1}{n} \sum_{i=1}^n \bm{Z}_{i,n} \right] \\
-        \hspace{-0.15cm}\mathtt{pairwise\_dot\_avg}(\bm{\vec{x}}, \bm{\vec{y}}) &= \left[ \frac{1}{n} \sum_{j=1}^n \bm{Z}_{j,i} \ \middle| \ \forall i \in \{1, \ldots, n\}\right]
+        \hspace{-0.2cm}\mathtt{pairwise\_dot\_mean}(\bm{\vec{x}}, \bm{\vec{y}}) &= \left[ \frac{1}{n} \sum_{j=1}^n \bm{Z}_{j,i} \ \middle| \ \forall i \in \{1, \ldots, n\}\right]
     \end{align*}
-    \item \textbf{Pairwise Dot Max:} This similarly involves the dot product to produce $n \times n$ matrix which is followed by a column-wise max. $*$ denotes a selection of all rows in this case.
+    
+    \item \textbf{Pairwise Dot Max:} This similarly involves the dot product followed by a column-wise max. Similar to the max-pooling strategy, bigger features are selected from the excessive mixing of the two modalities rather than an averaging which can squash certain feature correlations. $*$ denotes a selection of all rows of a matrix.
     \begin{align*}
         \mathit{Let} \ \bm{Z} & = \bm{\vec{x}}^T \cdot \bm{\vec{y}} \ \mathit{in} \\
         % \mathtt{pairwise\_dot\_max}(\bm{\vec{x}}, &\bm{\vec{y}}) =\\ &\left[ \max(\bm{Z}_{*,1}), \max(\bm{Z}_{*,2}), \ldots, \max(\bm{Z}_{*,n}) \right] \\
         \mathtt{pairwise\_dot\_max}(\bm{\vec{x}}, \bm{\vec{y}}) &= \left[ \max(\bm{Z}_{*,i}) \ \middle| \ \forall i \in \{1, \ldots, n\} \right]
     \end{align*}
-    \item \textbf{Pairwise Dot Flatten:} This is the final pairwise dot fusion strategy now following the dot product with a flatten operation of the $n \times n$ matrix into an $n^2$-sized vector.
+    
+    \item \textbf{Pairwise Dot Flatten:} This is the final pairwise dot fusion strategy now following the dot product with a flatten operation of the $n \times n$ matrix into an $n^2$-sized vector. This conversely keeps all of the correlations between the radar and RGB features giving the model to select which features are most useful through the final fully connected layers.
     \begin{align*}
         \mathit{Let} \ \bm{Z} = & \ \bm{\vec{x}}^T \cdot \bm{\vec{y}} \ \mathit{in} \\
         \mathtt{pairwise\_dot\_flatten}(\bm{\vec{x}}, &\bm{\vec{y}}) =\\ &\left[ \bm{Z}_{1,1}, \bm{Z}_{1,2}, \ldots, \bm{Z}_{n,n\text{-}1}, \bm{Z}_{n,n} \right]
     \end{align*}
-    \item \textbf{Multi-Head Attention:} This involves using a self-attention mechanism popular in transformer architectures for natural language processing tasks. The key idea of self-attention is to isolate and mix the most aspects from both feature vectors by transforming them into three separate representations, namely a query $\bm{Q}$, key $\bm{K}$, and value $\bm{V}$ \cite{vaswani2017attention}. Each embedding has a distinct role with the query capturing features that the model deems relevant for making predictions. $\bm{Q}$ may focus on facial features that are common or discriminative across both modalities such as facial landmarks and overall identity information. Meanwhile, $\bm{K}$ may focus on modality-specific elements such as the colour and texture information embedded within the RGB feature vector while structural information being offered by the radar embedding. Finally, $\bm{V}$ contains the actual fine-grained details captured by both modalities that will be attended to by the model based on the resulting query-key similarities. In order to maximise this affect, this mechanism is applied separately across multiple attention heads, decreasing the possibility of the model missing salient aspects of the feature.
-    This is formalised below, where first the two inputs are stacked vertically and copied through three separate linear transformations to obtain the $\bm{Q}$, $\bm{K}$, $\bm{V}$ matrices.
+    
+    \item \textbf{Multi-Head Attention:} This involves using a self-attention mechanism popular in transformer architectures for natural language processing tasks. The key idea of self-attention is to isolate and mix the most important aspects from both feature vectors by transforming them into three separate representations, namely a query $\bm{Q}$, key $\bm{K}$, and value $\bm{V}$ \cite{vaswani2017attention}. Each embedding has a distinct role with the query capturing features that the model deems relevant for making predictions. $\bm{Q}$ may focus on facial features that are common or discriminative across both modalities such as facial landmarks and overall identity information. Meanwhile, $\bm{K}$ may focus on modality-specific elements such as the colour and texture information embedded within the RGB feature vector while structural information being offered by the radar embedding. Finally, $\bm{V}$ contains the actual fine-grained details captured by both modalities that will be attended to by the model based on the resulting query-key similarities. In order to maximise this affect, this mechanism is applied separately across multiple attention heads, decreasing the possibility of the model missing salient aspects of the feature.
+    This is formalised below, where first the two inputs are stacked vertically, $\bm{X} = \begin{bmatrix} \bm{\vec{x}} \\ \bm{\vec{y}} \end{bmatrix}$, and copied through three separate linear transformations to obtain the $\bm{Q}$, $\bm{K}$, $\bm{V}$ matrices. This is done for each of the $k$ attention heads using separate learnable weight matrices.
     % TODO: HOW ATTENTION FROM PYTORCH DOCS
     % TODO: POSITIONAL ENCODING??
     \begin{align*}
         \mathit{Let} \ h_i = \mathtt{Attention}(\bm{Q}_i&, \bm{K}_i, \bm{V}_i) \ \mathit{in} \\
-        \mathtt{multihead\_attention}(\bm{\vec{x}}, \bm{\vec{y}}) &= [h_1, \ldots, h_k]\bm{W}_O \\
-        \mathit{where} \ \bm{X} = 
-        \begin{bmatrix}
-            \bm{\vec{x}} \\
-            \bm{\vec{y}}
-        \end{bmatrix} \ \bm{Q}_i = \bm{W}_{Q_i}\bm{X}&, \bm{K}_i = \bm{W}_{K_i}\bm{X} \ \mathit{and} \\ 
-        \bm{V}_i = \bm{W}_{V_i}\bm{X}
+        \hspace{-1cm}\mathtt{multihead\_attention}(\bm{\vec{x}}, \bm{\vec{y}}) &= [h_1, \ldots, h_k]\bm{W}_O \\
+        \mathit{where} \ 
+        % \bm{X} = 
+        % \begin{bmatrix}
+        %     \bm{\vec{x}} \\
+        %     \bm{\vec{y}}
+        % \end{bmatrix} 
+        \bm{Q}_i = \bm{W}_{Q_i}\bm{X}, \ \bm{K}_i = \bm{W}_{K_i}&\bm{X} \ \mathit{and} \ \bm{V}_i = \bm{W}_{V_i}\bm{X}
     \end{align*}
 \end{enumerate}
 
+
+
 \section{Evaluation}
+We evaluate our model by examining its discriminative ability at representing unseen faces. Various metrics such as the prediction accuracies, precision and recall are used to compare the different fusion strategies against each other as well showing
 
 \subsection{Results}
 
@@ -305,7 +314,7 @@ We investigate seven feature-level fusion strategies listed as follows in terms 
         Concatenate & 83.70\% & 0.8347 & 99.60\% & 0.9932 \\
         Add & 62.97\% & 0.6291 & 99.20\% & 0.9911 \\
         Multiply & 87.10\% & 0.8543 & 96.66\% & 0.9481 \\
-        Pairwise Dot Average & 88.83\% & 0.8464 & 80.81\% & 0.7699 \\
+        Pairwise Dot Mean & 88.83\% & 0.8464 & 80.81\% & 0.7699 \\
         Pairwise Dot Max & 82.70\% & 0.7905 & 72.84\% & 0.6962 \\
         Pairwise Dot Flatten & 86.66\% & 0.8480 & 94.74\% & 0.9270 \\
         Multi-Head Attention & 86.28\% & 0.7984 & 96.41\% & 0.8922 \\
@@ -314,7 +323,7 @@ We investigate seven feature-level fusion strategies listed as follows in terms 
         RGB Only & 85.49\% & 0.8335 & 69.32\% & 0.6759 \\
         \bottomrule
     \end{tabular}
-    \caption{Subject and liveness accuracies and F1 measures for the seven feature fusion strategies along with the individual modalities.}
+    \caption{Subject and liveness accuracies and micro-averaged F1 measures for the seven feature fusion strategies along with the individual modalities.}
     \label{tab:results}
 \end{table}
 
@@ -327,7 +336,7 @@ We investigate seven feature-level fusion strategies listed as follows in terms 
         Concatenate          & 0.7427                      & 0.9501                 \\
         Add                  & 0.6672                      & 1.2934                 \\
         Multiply             & 0.7282                      & 0.5468                 \\
-        Pairwise Dot Average & 0.9204                      & 0.2155                 \\
+        Pairwise Dot Mean & 0.9204                      & 0.2155                 \\
         Pairwise Dot Max     & 0.8511                      & 0.2394                 \\
         Pairwise Dot Flatten & 0.8562                      & 0.3653                 \\
         Multi-Head Attention & 0.8229                      & 0.4775                 \\

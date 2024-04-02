@@ -14,7 +14,7 @@ def add(x1, x2):
 def multiply(x1, x2):
     return x1*x2, x1.shape[1]
 
-def pairwise_dot_avg(x1, x2):
+def pairwise_dot_mean(x1, x2):
     y = torch.stack(([torch.mean(x1[i, None].T @ x2[i, None], axis=0) for i in range(len(x1))]))
     return y, y.shape[1]
 
