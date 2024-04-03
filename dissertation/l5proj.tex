@@ -2,6 +2,11 @@
 
 \usepackage{graphicx, float, multirow, booktabs, siunitx, fancyvrb, bm}
 \usepackage[format=plain, labelfont={bf},textfont=it,tableposition=above]{caption}
+\usepackage[table]{xcolor}
+
+\definecolor{lightgreen}{RGB}{166, 237, 174}
+\definecolor{lightred}{RGB}{255, 189, 190}
+\definecolor{lightgold}{RGB}{255, 231, 143}
 
 \begin{document}
 
@@ -299,49 +304,93 @@ We investigate seven feature-level fusion strategies listed as follows in terms 
 
 
 \section{Evaluation}
-We evaluate our model by examining its discriminative ability at representing unseen faces. Various metrics such as the prediction accuracies, precision and recall are used to compare the different fusion strategies against each other as well showing
+We evaluate our model by examining its discriminative ability at representing four unseen faces. Various metrics such as the prediction accuracies, precision and recall are used to compare the different fusion strategies against each other as well showing the performance of individual modalities. Prior to the zero-shot task, we select and extract the final hidden representation of eight reference frame pairs that the test set will be compared against. These eight contain both the live and fake samples of the random subset of four unseen subjects.
 
 \subsection{Results}
+Firstly, the model accuracies at predicting both the subject identity and the liveness flag are measured. This is done by calculating the most similar reference embedding to the final feature vector of a particular test sample by the maximum cosine similarity. A decision threshold $t$ of 0.5 is used to quantify a true prediction, however, all models achieved a high coverage with the lowest being the radar only model with a 79.8\% coverage. Secondly, since 
 
-% TODO: REDUCE DECIMAL PLACES???
+Table \ref{tab:subject_liveness_acc_f1} displays the subject and liveness accuracies for all feature fusion strategies as well as the weighted $F_{\beta}$-measures, over all the respective classes in the test data. For completeness, the performance of the individual modalities are also listed in order to show the advantageous effect of the multimodal feature fusions. A $\beta$ of 0.5 was chosen for the F-scores since in face recognition systems falsely allowing the wrong identity through the system is more harmful than false negatives requiring twice as much emphasis for higher precision compared to recall. 
+
+The best and worst performers are highlighted in green and red respectively. Evidently, certain fusion strategies performed better at identifying subjects while others performed better at predicting the face liveness. The concatenation strategy was found to be best suited at representing faces for an accurate liveness check. Meanwhile, the pairwise dot then mean strategy outperformed within the subject category, attaining the highest accuracy and $F_{0.5}$ measure. However, it is clear that it is relatively poor at detecting the face liveness, obtaining an accuracy that is even lower than simply using the mmWave radar features alone. This is likely due to the mean pooling step squashing outlier feature correlations between the two modalities. The vector addition performed very poorly at predicting facial identities, being much better at predicting liveness in comparison. 
+
 \begin{table}[htbp]
     \centering
-    \begin{tabular}{lcccc}
-        \toprule
-        \multirow{2}{*}{\textbf{Fusion Strategy}} & \multicolumn{2}{c}{\textbf{Subject}} & \multicolumn{2}{c}{\textbf{Liveness}} \\
-        \cmidrule(lr){2-3} \cmidrule(lr){4-5} & \textbf{Accuracy} & \textbf{F1 Score} & \textbf{Accuracy} & \textbf{F1 Score} \\
-        \midrule
-        Concatenate & 83.70\% & 0.8347 & 99.60\% & 0.9932 \\
-        Add & 62.97\% & 0.6291 & 99.20\% & 0.9911 \\
-        Multiply & 87.10\% & 0.8543 & 96.66\% & 0.9481 \\
-        Pairwise Dot Mean & 88.83\% & 0.8464 & 80.81\% & 0.7699 \\
-        Pairwise Dot Max & 82.70\% & 0.7905 & 72.84\% & 0.6962 \\
-        Pairwise Dot Flatten & 86.66\% & 0.8480 & 94.74\% & 0.9270 \\
-        Multi-Head Attention & 86.28\% & 0.7984 & 96.41\% & 0.8922 \\
-        \midrule
-        Radar Only & 38.23\% & 0.3052 & 96.63\% & 0.7715 \\
-        RGB Only & 85.49\% & 0.8335 & 69.32\% & 0.6759 \\
-        \bottomrule
-    \end{tabular}
-    \caption{Subject and liveness accuracies and micro-averaged F1 measures for the seven feature fusion strategies along with the individual modalities.}
-    \label{tab:results}
+    \resizebox{1.07\columnwidth}{!}{
+        \begin{tabular}{lcccc}
+            \toprule
+            \multirow{2}{*}{\textbf{Fusion Strategy}} & \multicolumn{2}{c}{\textbf  {Subject}} & \multicolumn{2}{c}{\textbf{Liveness}} \\
+            \cmidrule(lr){2-3} \cmidrule(lr){4-5} & \textbf{Accuracy (\%)} & \textbf{$\bm{F_{0.5}}$ Score} & \textbf{Accuracy (\%)} & \textbf{$\bm{F_{0.5}}$ Score} \\
+            \midrule
+            Concatenate & 83.7 & 0.835 & \cellcolor{lightgreen}99.6 & \cellcolor{lightgreen}0.996 \\
+            Add & \cellcolor{lightred}63.0 & \cellcolor{lightred}0.629 & 99.2 & 0.992 \\
+            Multiply & 87.1 & 0.869 & 96.7 & 0.963 \\
+            Pairwise Dot Mean & \cellcolor{lightgreen}88.8 & \cellcolor{lightgreen}0.880 & 80.8 & 0.808 \\
+            Pairwise Dot Max & 82.7 & 0.820 & \cellcolor{lightred}72.8 & \cellcolor{lightred}0.735 \\
+            Pairwise Dot Flatten & 86.7 & 0.862 & 94.7 & 0.944 \\
+            Multi-Head Attention & 86.3 & 0.851 & 96.4 & 0.950 \\
+            \midrule
+            Radar Only & 38.2 & 0.370 & 96.6 & 0.916 \\
+            RGB Only & 85.5 & 0.855 & 69.3 & 0.701 \\
+            \bottomrule
+        \end{tabular}
+    }
+    \vspace{0.1cm}
+    \caption{Subject and liveness accuracies and weighted-averaged $F_{0.5}$ measures for the seven feature fusion strategies along with the individual modalities.}
+    \label{tab:subject_liveness_acc_f1}
+\end{table}
+
+Looking at the individual performance for the two prediction types is useful at judging the strategies' effectiveness at classifying unseen data to the respective classes.
+
+\begin{table}[htbp]
+    \centering
+    \resizebox{1\columnwidth}{!}{
+        \begin{tabular}{lS[table-format=2.2]S[table-format=1.4]}
+            \toprule
+            \textbf{Fusion Strategy}   & {\textbf{Mean Accuracy (\%)}} & {\textbf{Mean $\bm{F_{0.5}}$ Score}} \\
+            \midrule
+            Concatenate          & 91.7 & 0.915 \\
+            Add                  & 81.1 & 0.811 \\
+            \rowcolor{lightgreen}
+            Multiply  & \cellcolor{lightgreen}91.9 & \cellcolor{lightgreen}0.916 \\
+            Pairwise Dot Mean    & 84.8 & 0.844 \\
+            \rowcolor{lightred}
+            Pairwise Dot Max     & \cellcolor{lightred}77.8 & \cellcolor{lightred}0.778 \\
+            Pairwise Dot Flatten & 90.7 & 0.903 \\
+            Multi-Head Attention & 91.3 & 0.900 \\
+            \midrule
+            Radar Only           & 67.4 & 0.643 \\
+            RGB Only             & 77.4 & 0.778 \\
+            \bottomrule
+        \end{tabular}
+    }
+    \vspace{0.1cm}
+    \caption{TODO}
+    \label{tab:averaged_acc_f1}
 \end{table}
 
 \begin{table}[htbp]
     \centering
-    \begin{tabular}{lcc}
-        \toprule
-        \textbf{Fusion Strategy}   & \textbf{Macro-Averaged AUC} & \textbf{KL Divergence} \\
-        \midrule
-        Concatenate          & 0.7427                      & 0.9501                 \\
-        Add                  & 0.6672                      & 1.2934                 \\
-        Multiply             & 0.7282                      & 0.5468                 \\
-        Pairwise Dot Mean & 0.9204                      & 0.2155                 \\
-        Pairwise Dot Max     & 0.8511                      & 0.2394                 \\
-        Pairwise Dot Flatten & 0.8562                      & 0.3653                 \\
-        Multi-Head Attention & 0.8229                      & 0.4775                 \\
-        \bottomrule
-    \end{tabular}
+    \resizebox{1\columnwidth}{!}{
+        \begin{tabular}{lcc}
+            \toprule
+            \textbf{Fusion Strategy}   & \textbf{Macro-Averaged AUC} \\
+            \midrule
+            Concatenate          & 0.743 \\
+            \rowcolor{lightred}
+            Add                  & 0.667 \\
+            Multiply             & 0.728 \\
+            \rowcolor{lightgreen}
+            Pairwise Dot Mean    & 0.920 \\
+            Pairwise Dot Max     & 0.851 \\
+            Pairwise Dot Flatten & 0.856 \\
+            Multi-Head Attention & 0.823 \\
+            \midrule
+            Radar Only           & 0.538 \\
+            RGB Only             & 0.912 \\
+            \bottomrule
+        \end{tabular}
+    }
+    \vspace{0.1cm}
     \caption{Performance Metrics for Feature Fusion Techniques}
     \label{tab:metrics}
 \end{table}
