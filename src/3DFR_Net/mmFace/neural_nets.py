@@ -11,7 +11,7 @@ def concatenate(x1, x2):
 def add(x1, x2):
     return x1 + x2, x1.shape[1]
 
-def multiply(x1, x2):
+def hadamard_product(x1, x2):
     return x1*x2, x1.shape[1]
 
 def pairwise_dot_mean(x1, x2):

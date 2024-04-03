@@ -260,9 +260,9 @@ We investigate seven feature-level fusion strategies listed as follows in terms 
     % $$\mathtt{add}(\bm{\vec{x}}, \bm{\vec{y}}) = [x_1 + y_1, x_2 + y_2, \ldots, x_n + y_n]$$
     $$\mathtt{add}(\bm{\vec{x}}, \bm{\vec{y}}) = \left[(x_i + y_i) \ | \ \forall i \in \{1, \ldots, n\}\right]$$
     
-    \item \textbf{Multiply:} This is an element-wise vector multiplication or the Hadamard product of $\bm{\vec{x}}$ and $\bm{\vec{y}}$. This preserves the original feature vector structure while emphasising relationships between corresponding feature elements.
-    % $$\mathtt{multiply}(\bm{\vec{x}}, \bm{\vec{y}}) = [x_1 \cdot y_1, x_2 \cdot y_2, \ldots, x_n \cdot y_n]$$
-    $$\mathtt{multiply}(\bm{\vec{x}}, \bm{\vec{y}}) = \left[(x_iy_i) \ | \ \forall i \in \{1, \ldots, n\}\right]$$
+    \item \textbf{Hadamard Product:} This is an element-wise vector multiplication or the Hadamard product of $\bm{\vec{x}}$ and $\bm{\vec{y}}$. This preserves the original feature vector structure while emphasising relationships between corresponding feature elements.
+    % $$\mathtt{hadamard\_product}(\bm{\vec{x}}, \bm{\vec{y}}) = [x_1 \cdot y_1, x_2 \cdot y_2, \ldots, x_n \cdot y_n]$$
+    $$\mathtt{hadamard\_product}(\bm{\vec{x}}, \bm{\vec{y}}) = \left[(x_iy_i) \ | \ \forall i \in \{1, \ldots, n\}\right]$$
     
     \item \textbf{Pairwise Dot Mean:} This involves a dot product of the transpose of vector $\bm{\vec{x}}$ with vector $\bm{\vec{y}}$ resulting in an $n \times n$ matrix followed by a column-wise mean operation to produce an $n$-dimensional fused feature vector. The intuition behind this comes from the pairwise dot providing a more representative mixing of the feature elements since each radar feature is multiplied by every RGB feature which are all looked at during the pooling method to reduce the dimensionality of the matrix.
     \begin{align*}
@@ -290,14 +290,15 @@ We investigate seven feature-level fusion strategies listed as follows in terms 
     % TODO: POSITIONAL ENCODING??
     \begin{align*}
         \mathit{Let} \ h_i = \mathtt{Attention}(\bm{Q}_i&, \bm{K}_i, \bm{V}_i) \ \mathit{in} \\
-        \hspace{-1cm}\mathtt{multihead\_attention}(\bm{\vec{x}}, \bm{\vec{y}}) &= [h_1, \ldots, h_k]\bm{W}_O \\
+        \hspace{-1cm}\mathtt{multihead\_attention}(\bm{\vec{x}}, \bm{\vec{y}}) &= [h_1, \ldots, h_k]\bm{W}^O \\
         \mathit{where} \ 
         % \bm{X} = 
         % \begin{bmatrix}
         %     \bm{\vec{x}} \\
         %     \bm{\vec{y}}
         % \end{bmatrix} 
-        \bm{Q}_i = \bm{W}_{Q_i}\bm{X}, \ \bm{K}_i = \bm{W}_{K_i}&\bm{X} \ \mathit{and} \ \bm{V}_i = \bm{W}_{V_i}\bm{X}
+        % \bm{Q}_i = \bm{W}_{Q_i}\bm{X}, \ \bm{K}_i = \bm{W}_{K_i}&\bm{X} \ \mathit{and} \ \bm{V}_i = \bm{W}_{V_i}\bm{X}
+        \bm{Q}_i = \bm{W}^{Q}_i\bm{X}, \ \bm{K}_i = \bm{W}^{K}_i&\bm{X} \ \mathit{and} \ \bm{V}_i = \bm{W}^{V}_i\bm{X}
     \end{align*}
 \end{enumerate}
 
@@ -309,13 +310,11 @@ We evaluate our model by examining its discriminative ability at representing fo
 \subsection{Results}
 Firstly, the model accuracies at predicting both the subject identity and the liveness flag are measured. This is done by calculating the most similar reference embedding to the final feature vector of a particular test sample by the maximum cosine similarity. A decision threshold $t$ of 0.5 is used to quantify a true prediction, however, all models achieved a high coverage with the lowest being the radar only model with a 79.8\% coverage. Secondly, since 
 
-Table \ref{tab:subject_liveness_acc_f1} displays the subject and liveness accuracies for all feature fusion strategies as well as the weighted $F_{\beta}$-measures, over all the respective classes in the test data. For completeness, the performance of the individual modalities are also listed in order to show the advantageous effect of the multimodal feature fusions. A $\beta$ of 0.5 was chosen for the F-scores since in face recognition systems falsely allowing the wrong identity through the system is more harmful than false negatives requiring twice as much emphasis for higher precision compared to recall. 
-
-The best and worst performers are highlighted in green and red respectively. Evidently, certain fusion strategies performed better at identifying subjects while others performed better at predicting the face liveness. The concatenation strategy was found to be best suited at representing faces for an accurate liveness check. Meanwhile, the pairwise dot then mean strategy outperformed within the subject category, attaining the highest accuracy and $F_{0.5}$ measure. However, it is clear that it is relatively poor at detecting the face liveness, obtaining an accuracy that is even lower than simply using the mmWave radar features alone. This is likely due to the mean pooling step squashing outlier feature correlations between the two modalities. The vector addition performed very poorly at predicting facial identities, being much better at predicting liveness in comparison. 
+Table \ref{tab:subject_liveness_acc_fb} displays the subject and liveness accuracies for all feature fusion strategies as well as the weighted $F_{\beta}$-measures, over all the respective classes in the test data. For completeness, the performance of the individual modalities are also listed in order to show the advantageous effect of the multimodal feature fusions. A $\beta$ of 0.5 was chosen for the F-scores since in face recognition systems falsely allowing the wrong identity through the system is more harmful than false negatives requiring twice as much emphasis for higher precision compared to recall. 
 
 \begin{table}[htbp]
     \centering
-    \resizebox{1.07\columnwidth}{!}{
+    \resizebox{1.02\columnwidth}{1.9cm}{
         \begin{tabular}{lcccc}
             \toprule
             \multirow{2}{*}{\textbf{Fusion Strategy}} & \multicolumn{2}{c}{\textbf  {Subject}} & \multicolumn{2}{c}{\textbf{Liveness}} \\
@@ -323,7 +322,7 @@ The best and worst performers are highlighted in green and red respectively. Evi
             \midrule
             Concatenate & 83.7 & 0.835 & \cellcolor{lightgreen}99.6 & \cellcolor{lightgreen}0.996 \\
             Add & \cellcolor{lightred}63.0 & \cellcolor{lightred}0.629 & 99.2 & 0.992 \\
-            Multiply & 87.1 & 0.869 & 96.7 & 0.963 \\
+            Hadamard Product & 87.1 & 0.869 & 96.7 & 0.963 \\
             Pairwise Dot Mean & \cellcolor{lightgreen}88.8 & \cellcolor{lightgreen}0.880 & 80.8 & 0.808 \\
             Pairwise Dot Max & 82.7 & 0.820 & \cellcolor{lightred}72.8 & \cellcolor{lightred}0.735 \\
             Pairwise Dot Flatten & 86.7 & 0.862 & 94.7 & 0.944 \\
@@ -336,10 +335,14 @@ The best and worst performers are highlighted in green and red respectively. Evi
     }
     \vspace{0.1cm}
     \caption{Subject and liveness accuracies and weighted-averaged $F_{0.5}$ measures for the seven feature fusion strategies along with the individual modalities.}
-    \label{tab:subject_liveness_acc_f1}
+    \label{tab:subject_liveness_acc_fb}
 \end{table}
 
-Looking at the individual performance for the two prediction types is useful at judging the strategies' effectiveness at classifying unseen data to the respective classes.
+The best and worst performers are highlighted in green and red respectively. Evidently, certain fusion strategies performed better at identifying subjects while others performed better at predicting the face liveness. The concatenation strategy was found to be best suited at representing faces for an accurate liveness check. Meanwhile, the pairwise dot then mean strategy outperformed within the subject category, attaining the highest accuracy and $F_{0.5}$ measure. However, it is clear that it is relatively poor at detecting the face liveness, obtaining an accuracy that is even lower than simply using the mmWave radar features alone. This is likely due to the mean pooling step squashing outlier feature correlations between the two modalities. The vector addition performed very poorly at predicting facial identities, being much better at predicting liveness in comparison. 
+
+Looking at the individual performance for the two prediction types is useful at judging the strategies' effectiveness at classifying unseen data to the respective prediction labels. However, it is also useful to identify the best overall strategy performing equally well at predicting subject identity as well as its liveness flag.
+
+Table \ref{tab:averaged_acc_fb} displays each of the nine models with their respective average accuracy and $F_{0.5}$ measure applying equal weighting to the subject and liveness results. It is evident that the Hadamard product of the two feature vectors achieved the highest mean accuracy and F-measure.
 
 \begin{table}[htbp]
     \centering
@@ -351,7 +354,7 @@ Looking at the individual performance for the two prediction types is useful at 
             Concatenate          & 91.7 & 0.915 \\
             Add                  & 81.1 & 0.811 \\
             \rowcolor{lightgreen}
-            Multiply  & \cellcolor{lightgreen}91.9 & \cellcolor{lightgreen}0.916 \\
+            Hadamard Product  & \cellcolor{lightgreen}91.9 & \cellcolor{lightgreen}0.916 \\
             Pairwise Dot Mean    & 84.8 & 0.844 \\
             \rowcolor{lightred}
             Pairwise Dot Max     & \cellcolor{lightred}77.8 & \cellcolor{lightred}0.778 \\
@@ -364,13 +367,27 @@ Looking at the individual performance for the two prediction types is useful at 
         \end{tabular}
     }
     \vspace{0.1cm}
-    \caption{TODO}
-    \label{tab:averaged_acc_f1}
+    \caption{Averaged accuracy and $F_{0.5}$ score for the seven fusion strategies and individual modalities, applying equal weighting to subject and liveness predictions.}
+    \label{tab:averaged_acc_fb}
 \end{table}
+
+% TODO: SENSITIVITY & (1 - SPECIFICITY)
+However, it is notable that the element-wise product method is closely followed by the concatenation and multi-head attention strategies therefore it is more informative to assess the model's performance at different decision thresholds. This is the main idea behind the Receiver Operating Characteristic (ROC) Curve which analyses the true positive rate (TPR) against the false positive rate (FPR) at varying decision thresholds. However, since we are dealing with a multi-classification task, the one-vs-rest ROC curve is more appropriate where each class is evaluated against the rest using a one-hot strategy. This, therefore, needs each of the eight reference test subjects to be plotted separately. 
+
+Figure \ref{fig:roc_hadamard_product} plots the one-vs-rest ROC curves for the highest performing strategy, fusion by the Hadamard product of the feature vectors. The blue dotted curve denotes the single macro-averaged trend among the individual curves. While, the dashed diagonal line indicates the chance level equivalent to a random guessing. Curves above the chance level and reaching the top-left corner pertain a better classifier. This is often measured by the area under the curve (AUC) metric of the ROC curve. 
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/roc_hadamard_product.png}
+    \caption{TODO}
+    \label{fig:roc_hadamard_product}
+\end{figure}
+
+Table \ref{tab:macro_auc} lists the macro-averaged AUC metrics for all nine models. As made evident by the plot and the table, while the Hadamard product offers the highest accuracies it does not maintain its predictive nature across all decision thresholds attaining a relatively low AUC of 0.73. 
 
 \begin{table}[htbp]
     \centering
-    \resizebox{1\columnwidth}{!}{
+    \resizebox{0.8\columnwidth}{!}{
         \begin{tabular}{lcc}
             \toprule
             \textbf{Fusion Strategy}   & \textbf{Macro-Averaged AUC} \\
@@ -378,11 +395,12 @@ Looking at the individual performance for the two prediction types is useful at 
             Concatenate          & 0.743 \\
             \rowcolor{lightred}
             Add                  & 0.667 \\
-            Multiply             & 0.728 \\
+            Hadamard Product     & 0.728 \\
             \rowcolor{lightgreen}
             Pairwise Dot Mean    & 0.920 \\
             Pairwise Dot Max     & 0.851 \\
             Pairwise Dot Flatten & 0.856 \\
+            \rowcolor{lightgold}
             Multi-Head Attention & 0.823 \\
             \midrule
             Radar Only           & 0.538 \\
@@ -392,10 +410,17 @@ Looking at the individual performance for the two prediction types is useful at 
     }
     \vspace{0.1cm}
     \caption{Performance Metrics for Feature Fusion Techniques}
-    \label{tab:metrics}
+    \label{tab:macro_auc}
 \end{table}
 
+Taking all metrics into account, it is safe to conclude that the multi-head attention strategy (highlighted in gold) provides the best overall model in both face and liveness identification achieving the third-highest mean accuracy and $F_{0.5}$ measure while maintaining a high AUC beating its above competitors: concatenate and Hadamard product. The one-vs-rest ROC curve for the multi-head attention model is depicted in Figure \ref{fig:roc_multihead_attention}.
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/roc_multihead_attention.png}
+    \caption{TODO}
+    \label{fig:roc_multihead_attention}
+\end{figure}
 
 \section{Conclusions}
 
