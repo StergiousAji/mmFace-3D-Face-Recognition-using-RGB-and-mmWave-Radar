@@ -1,6 +1,6 @@
 \documentclass{mpaper}
 
-\usepackage{graphicx, float, multirow, booktabs, siunitx, fancyvrb, bm}
+\usepackage{graphicx, float, multirow, booktabs, siunitx, fancyvrb, bm, subcaption}
 \usepackage[format=plain, labelfont={bf},textfont=it,tableposition=above]{caption}
 \usepackage[table]{xcolor}
 
@@ -382,14 +382,30 @@ However, it is notable that the element-wise product method is closely followed 
 
 Figure \ref{fig:roc_hadamard_product} plots the one-vs-rest ROC curves for the highest performing strategy, fusion by the Hadamard product of the feature vectors. The blue dotted curve denotes the single macro-averaged trend among the individual curves. While, the dashed diagonal line indicates the chance level equivalent to a random guessing. Curves above the chance level and reaching the top-left corner pertain a better classifier. This is often measured by the area under the curve (AUC) metric of the ROC curve. 
 
-\begin{figure}[h!]
+\begin{figure*}[h!]
     \centering
-    \includegraphics[width=0.5\textwidth]{figures/roc_hadamard_product.png}
-    \caption{OvR ROC curves plotted for each of the eight reference embeddings using the Hadamard product feature fusion. The respective AUC metrics are shown as well as the chance level and macro-averaged ROC curve. }
-    \label{fig:roc_hadamard_product}
-\end{figure}
+    \begin{subfigure}[b]{0.31\textwidth}
+        \includegraphics[width=\textwidth]{figures/roc_hadamard_product.png}
+        \caption{Hadamard Product}
+        \label{fig:roc_hadamard_product}
+    \end{subfigure}
+    ~
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{figures/roc_concatenate.png}
+        \caption{Concatenate}
+        \label{fig:roc_concatenate}
+    \end{subfigure}
+    ~
+    \begin{subfigure}[b]{0.31\textwidth}
+        \includegraphics[width=\textwidth]{figures/roc_multihead_attention.png}
+        \caption{Multi-Head Attention}
+        \label{fig:roc_multihead_attention}
+    \end{subfigure}
+    \vspace{0.3cm}
+    \caption{One-vs-the-Rest ROC curves plotted for each of the eight reference embeddings. Their respective AUC metrics are shown as well as the chance level and macro-averaged ROC curve.}
+\end{figure*}
 
-Table \ref{tab:macro_auc} lists the macro-averaged AUC metrics for all nine models. As made evident by the plot and the table, while the Hadamard product offers the highest accuracies it does not maintain its predictive nature across all decision thresholds attaining an AUC of 0.73. This is in contrast to the 0.82 AUC achieved by the multi-head attention strategy which ranked third-highest at the overall performance. Figure \ref{fig:roc_multihead_attention} plots the one-vs-rest ROC curve for the multi-head attention approach. The plots show that the multi-head attention performs equally well at distinguishing the majority of the reference instances against each other with a slight dip for the three of the fake subject. Meanwhile, the Hadamard product strategy produces consistent sensitivity to false alarm ratios for most of the classes, following the average trend with the exception of, Subject 15-Live doing remarkably poorly at certain cut-off values.
+Table \ref{tab:macro_auc} lists the macro-averaged AUC metrics for all nine models. As made evident by the plot and the table, while the Hadamard product offers the highest accuracies it does not maintain its predictive nature across all decision thresholds attaining an AUC of 0.73. This is in contrast to the 0.82 AUC achieved by the multi-head attention strategy which ranked third-highest at the overall performance. Figure \ref{fig:roc_multihead_attention} plots the one-vs-the-rest (OvR) ROC curve for the multi-head attention approach. The plots show that the multi-head attention performs equally well at distinguishing the majority of the reference instances against each other with a slight dip for the three of the fake subject. Meanwhile, the Hadamard product strategy produces consistent sensitivity to false alarm ratios for most of the classes, following the average trend with the exception of, Subject 15-Live doing remarkably poorly at certain cut-off values.
 % TODO: SENSITIVITY & (1 - SPECIFICITY)
 
 It is important to note that the AUC metric is invariant to the decision threshold which has a profound impact whenever there is disparity in the cost of false negatives over false positives. In face recognition, especially for secure biometric authentication, false positives indicate a large flaw meaning the model should prioritise minimising them, even if that entails an increase of false negatives which are more tolerable. This is especially true for the binary liveness check. The model should be rewarded for minimising the success rate of 2D spoofing attacks.
@@ -401,30 +417,25 @@ It is important to note that the AUC metric is invariant to the decision thresho
             \toprule
             \textbf{Fusion Strategy}   & \textbf{Macro-Averaged AUC} \\
             \midrule
-            Concatenate          & 0.743 \\
-            Add                  & 0.667 \\
-            Hadamard Product     & 0.728 \\
-            Pairwise Dot Mean    & 0.920 \\
-            Pairwise Dot Max     & 0.851 \\
-            Pairwise Dot Flatten & 0.856 \\
-            Multi-Head Attention & 0.823 \\
+            \rowcolor{lightgreen}
+            Concatenate          & 0.961 \\
+            Add                  & 0.918 \\
+            Hadamard Product     & 0.945 \\
+            Pairwise Dot Mean    & 0.914 \\
+            \rowcolor{lightred}
+            Pairwise Dot Max     & 0.863 \\
+            Pairwise Dot Flatten & 0.925 \\
+            Multi-Head Attention & 0.913 \\
             \midrule
-            Radar Only           & 0.538 \\
-            RGB Only             & 0.912 \\
+            Radar Only           & 0.735 \\
+            RGB Only             & 0.901 \\
             \bottomrule
         \end{tabular}
     }
     \vspace{0.1cm}
-    \caption{Performance Metrics for Feature Fusion Techniques}
+    \caption{Table listing the macro-averaged AUC metrics for all fusion methods as well as the individual modalities.}
     \label{tab:macro_auc}
 \end{table}
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.5\textwidth]{figures/roc_multihead_attention.png}
-    \caption{OvR ROC curves plotted for each of the eight reference embeddings using the Multi-Head Attention feature fusion. The respective AUC metrics are shown as well as the chance level and macro-averaged ROC curve.}
-    \label{fig:roc_multihead_attention}
-\end{figure}
 
 
 \subsubsection{t-SNE Visualisations}
@@ -437,23 +448,25 @@ It is evident that there is more noise among the features from the real dataset 
 
 \begin{figure*}[!htb] 
     \centering
-    \begin{minipage}[b]{0.3\textwidth}
+    \begin{subfigure}[b]{0.3\textwidth}
         \includegraphics[width=\textwidth]{figures/tsne_hadamard_product.png}
-        \caption{TODO}
+        \caption{Hadamard Product}
         \label{fig:tsne_hadamard_product}
-    \end{minipage}
+    \end{subfigure}
     ~
-    \begin{minipage}[b]{0.3\textwidth}
+    \begin{subfigure}[b]{0.3\textwidth}
         \includegraphics[width=\textwidth]{figures/tsne_concatenate.png}
-        \caption{TODO}
+        \caption{Concatenate}
         \label{fig:tsne_concatenate}
-    \end{minipage}
+    \end{subfigure}
     ~
-    \begin{minipage}[b]{0.3\textwidth}
+    \begin{subfigure}[b]{0.3\textwidth}
         \includegraphics[width=\textwidth]{figures/tsne_multihead_attention.png}
-        \caption{TODO}
+        \caption{Multi-Head Attention}
         \label{fig:tsne_multihead_attention}
-    \end{minipage}
+    \end{subfigure}
+    \vspace{0.3cm}
+    \caption{2D t-SNE projections of the final layer fused features after $\mathtt{fc\_hybrid1}$ of the model. Top three fusion strategies in the order of the highest overall mean accuracy.}
 \end{figure*}
 
 % \begin{figure}[h!]

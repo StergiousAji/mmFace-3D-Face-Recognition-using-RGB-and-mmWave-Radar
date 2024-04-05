@@ -11,7 +11,7 @@
             "Weighted-Averaged F-Score": 0.9955
         },
         "Coverage": 99.7194,
-        "Macro-Averaged AUC": 0.7427,
+        "Macro-Averaged AUC": 0.9605,
         "KL Divergence": 0.9501
     },
     "ADD": {
@@ -26,7 +26,7 @@
             "Weighted-Averaged F-Score": 0.9919
         },
         "Coverage": 99.9065,
-        "Macro-Averaged AUC": 0.6672,
+        "Macro-Averaged AUC": 0.9179,
         "KL Divergence": 1.2934
     },
     "HADAMARD PRODUCT": {
@@ -41,7 +41,7 @@
             "Weighted-Averaged F-Score": 0.9630
         },
         "Coverage": 98.0823,
-        "Macro-Averaged AUC": 0.7282,
+        "Macro-Averaged AUC": 0.9452,
         "KL Divergence": 0.5468
     },
     "PAIRWISE DOT MEAN": {
@@ -56,7 +56,7 @@
             "Weighted-Averaged F-Score": 0.8083
         },
         "Coverage": 95.2760,
-        "Macro-Averaged AUC": 0.9204,
+        "Macro-Averaged AUC": 0.9141,
         "KL Divergence": 0.2155
     },
     "PAIRWISE DOT MAX": {
@@ -71,7 +71,7 @@
             "Weighted-Averaged F-Score": 0.7354
         },
         "Coverage": 95.5800,
-        "Macro-Averaged AUC": 0.8511,
+        "Macro-Averaged AUC": 0.8626,
         "KL Divergence": 0.2394
     },
     "PAIRWISE DOT FLATTEN": {
@@ -86,7 +86,7 @@
             "Weighted-Averaged F-Score": 0.9435
         },
         "Coverage": 97.8485,
-        "Macro-Averaged AUC": 0.8562,
+        "Macro-Averaged AUC": 0.9245,
         "KL Divergence": 0.3653
     },
     "MULTI-HEAD ATTENTION": {
@@ -101,7 +101,7 @@
             "Weighted-Averaged F-Score": 0.9495
         },
         "Coverage": 92.5398,
-        "Macro-Averaged AUC": 0.8229,
+        "Macro-Averaged AUC": 0.9129,
         "KL Divergence": 0.4775
     },
     "RADAR": {
@@ -116,7 +116,7 @@
             "Weighted-Averaged F-Score": 0.9161
         },
         "Coverage": 79.8410,
-        "Macro-Averaged AUC": 0.5377,
+        "Macro-Averaged AUC": 0.7351,
         "KL Divergence": 2.0042
     },
     "RGB": {
@@ -131,7 +131,7 @@
             "Weighted-Averaged F-Score": 0.7006
         },
         "Coverage": 97.4977,
-        "Macro-Averaged AUC": 0.9117,
+        "Macro-Averaged AUC": 0.9012,
         "KL Divergence": 0.1948
     }
 }
