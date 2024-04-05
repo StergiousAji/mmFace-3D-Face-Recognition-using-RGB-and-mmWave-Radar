@@ -239,7 +239,7 @@ Data augmentations are applied to both \texttt{ARD} and RGB frames, restricted t
 Ultimately, \texttt{mmFace} contains around 2.8 million parameters and takes, on average, 4.1 milliseconds ($\text{SD}=\text{\qty{0.2}{\ms}}$) to process a single (\texttt{ARD}, RGB-embedding) input pair on an NVIDIA GeForce GTX 1650 GPU.
 
 \subsubsection{Training}
-We created and trained our models using PyTorch version 2.1, running for 20 to 25 epochs, employing a Stochastic Gradient Descent (SGD) optimiser that was tasked with minimising the cross entropy losses ($L_{\text{CE}}$) of each prediction. We opted for a fixed learning rate of 0.01, an L2 regularisation rate of $1\mathrm{e}{-3}$, and a momentum of 0.9. As our model generates two predictions, we merge the losses from each with equal weighting to ensure uniform learning of both attributes. This combined loss $\mathcal{L}$ is formulated as follows:
+We created and trained our models using PyTorch version 2.1 \cite{paszke2019pytorch}, running for 20 to 25 epochs, employing a Stochastic Gradient Descent (SGD) optimiser that was tasked with minimising the cross entropy losses ($L_{\text{CE}}$) of each prediction. We opted for a fixed learning rate of 0.01, an L2 regularisation rate of $1\mathrm{e}{-3}$, and a momentum of 0.9. As our model generates two predictions, we merge the losses from each with equal weighting to ensure uniform learning of both attributes. This combined loss $\mathcal{L}$ is formulated as follows:
 $$\mathcal{L} = L_{\text{CE}}(s, \hat{s}) + L_{\text{CE}}(l, \hat{l})$$
 Here, $s$ and $l$ represent the true subject and liveness labels, respectively, while $\hat{s}$ and $\hat{l}$ signify the model's corresponding predictions. 
 
@@ -258,43 +258,43 @@ Our models are evaluated through a zero-shot classification task in order to ass
 \subsection{Feature-level Fusion}
 % TODO: DIAGRAMS FOR ALL SEVEN FUSIONS?? MULTIHEAD ATTENTION
 % TODO: BACKUP WITH SOURCES
-We investigate seven feature-level fusion strategies listed as follows in terms of $n$-dimensional feature vectors $\bm{\vec{x}} = [x_1, x_2, \ldots, x_n]$ and $\bm{\vec{y}} = [y_1, y_2, \ldots, y_n]$:
+We investigate seven feature-level fusion strategies listed as follows in terms of two $n$-dimensional feature vector inputs, $\bm{\vec{x}} = [x_1, x_2, \ldots, x_n]$ and $\bm{\vec{y}} = [y_1, y_2, \ldots, y_n]$:
 \vspace{-0.1cm}
 \begin{enumerate}
     \itemsep0em
-    \item \textbf{Concatenate:} This is a concatenation of the two feature vectors, the most common strategy employed for its ease of implementation and effectiveness.
+    \item \textbf{Concatenate:} This is a straightforward concatenation of the two feature vectors, the most common strategy employed for its ease of implementation and effectiveness as all information is preserved.
     $$\mathtt{concatenate}(\bm{\vec{x}}, \bm{\vec{y}}) = [\bm{\vec{x}}, \bm{\vec{y}}]$$
 
-    \item \textbf{Add:} This involves an element-wise vector addition of $\bm{\vec{x}}$ and $\bm{\vec{y}}$. This can be very effective if both feature vectors point in the same direction compounding their resulting summation, however, if both feature vectors point in opposite directions, then this would result in a more orthogonal resulting vector direction.
+    \item \textbf{Add:} This involves an element-wise vector addition of $\bm{\vec{x}}$ and $\bm{\vec{y}}$. This can be highly effective when both feature vectors point in the same direction compounding their resulting summation, however, if both feature vectors point in opposite directions, then this would result in a more orthogonal resulting vector direction.
     % $$\mathtt{add}(\bm{\vec{x}}, \bm{\vec{y}}) = [x_1 + y_1, x_2 + y_2, \ldots, x_n + y_n]$$
     $$\mathtt{add}(\bm{\vec{x}}, \bm{\vec{y}}) = \left[(x_i + y_i) \ | \ \forall i \in \{1, \ldots, n\}\right]$$
     
-    \item \textbf{Hadamard Product:} This is an element-wise vector multiplication or the Hadamard product of $\bm{\vec{x}}$ and $\bm{\vec{y}}$. This preserves the original feature vector structure while emphasising relationships between corresponding feature elements.
+    \item \textbf{Hadamard Product:} This is the element-wise vector multiplication or the Hadamard product of $\bm{\vec{x}}$ and $\bm{\vec{y}}$. The idea here is to preserve the original feature vector structure while emphasising relationships between corresponding feature elements. It has been used successfully for multimodal residual learning by Kim et al. \cite{kim2016multimodal}.
     % $$\mathtt{hadamard\_product}(\bm{\vec{x}}, \bm{\vec{y}}) = [x_1 \cdot y_1, x_2 \cdot y_2, \ldots, x_n \cdot y_n]$$
     $$\mathtt{hadamard\_product}(\bm{\vec{x}}, \bm{\vec{y}}) = \left[(x_iy_i) \ | \ \forall i \in \{1, \ldots, n\}\right]$$
     
-    \item \textbf{Pairwise Dot Mean:} This involves a dot product of the transpose of vector $\bm{\vec{x}}$ with vector $\bm{\vec{y}}$ resulting in an $n \times n$ matrix followed by a column-wise mean operation to produce an $n$-dimensional fused feature vector. The intuition behind this comes from the pairwise dot providing a more representative mixing of the feature elements since each radar feature is multiplied by every RGB feature which are all looked at during the pooling method to reduce the dimensionality of the matrix.
+    \item \textbf{Pairwise Dot Mean:} This involves a dot product of the transpose of vector $\bm{\vec{x}}$ with vector $\bm{\vec{y}}$ resulting in an $n \times n$ matrix followed by a column-wise mean operation to produce an $n$-dimensional fused feature vector. The rationale behind this stems from the pairwise dot providing a more comprehensive blending of the feature. Each radar feature is multiplied by every RGB feature, and the resulting values are all attended to during the pooling process to reduce the dimensionality of the matrix.
     \begin{align*}
         \mathit{Let} \ \bm{Z} & = \ \bm{\vec{x}}^T \cdot \bm{\vec{y}} \ \mathit{in} \\
         % \mathtt{pairwise\_dot\_average}&(\bm{\vec{x}}, \bm{\vec{y}}) =\\& \left[ \frac{1}{n} \sum_{i=1}^n \bm{Z}_{i,1}, \frac{1}{n} \sum_{i=1}^n \bm{Z}_{i,2}, \ldots, \frac{1}{n} \sum_{i=1}^n \bm{Z}_{i,n} \right] \\
         \hspace{-0.2cm}\mathtt{pairwise\_dot\_mean}(\bm{\vec{x}}, \bm{\vec{y}}) &= \left[ \frac{1}{n} \sum_{j=1}^n \bm{Z}_{j,i} \ \middle| \ \forall i \in \{1, \ldots, n\}\right]
     \end{align*}
     
-    \item \textbf{Pairwise Dot Max:} This similarly involves the dot product followed by a column-wise max. Similar to the max-pooling strategy, bigger features are selected from the excessive mixing of the two modalities rather than an averaging which can squash certain feature correlations. $*$ denotes a selection of all rows of a matrix.
+    \item \textbf{Pairwise Dot Max:} This similarly involves the dot product followed by a column-wise max. In contrast to averaging, which could squash certain feature correlations, this approach isolates larger features resulting from the exhaustive mixing of both modalities, a similar intuition behind the max-pooling layers. Here, $*$ denotes a selection of all rows of a matrix.
     \begin{align*}
         \mathit{Let} \ \bm{Z} & = \bm{\vec{x}}^T \cdot \bm{\vec{y}} \ \mathit{in} \\
         % \mathtt{pairwise\_dot\_max}(\bm{\vec{x}}, &\bm{\vec{y}}) =\\ &\left[ \max(\bm{Z}_{*,1}), \max(\bm{Z}_{*,2}), \ldots, \max(\bm{Z}_{*,n}) \right] \\
         \mathtt{pairwise\_dot\_max}(\bm{\vec{x}}, \bm{\vec{y}}) &= \left[ \max(\bm{Z}_{*,i}) \ \middle| \ \forall i \in \{1, \ldots, n\} \right]
     \end{align*}
     
-    \item \textbf{Pairwise Dot Flatten:} This is the final pairwise dot fusion strategy now following the dot product with a flatten operation of the $n \times n$ matrix into an $n^2$-sized vector. This conversely keeps all of the correlations between the radar and RGB features giving the model to select which features are most useful through the final fully connected layers.
+    \item \textbf{Pairwise Dot Flatten:} This is the final pairwise dot fusion strategy now following the dot product with a flatten operation of the $n \times n$ matrix into an $n^2$-dimensional vector. This conversely retains all correlations between the radar and RGB features, leaving the subsequent fully connected layers of the model to determine which features are most relevant.
     \begin{align*}
         \mathit{Let} \ \bm{Z} = & \ \bm{\vec{x}}^T \cdot \bm{\vec{y}} \ \mathit{in} \\
         \mathtt{pairwise\_dot\_flatten}(\bm{\vec{x}}, &\bm{\vec{y}}) =\\ &\left[ \bm{Z}_{1,1}, \bm{Z}_{1,2}, \ldots, \bm{Z}_{n,n\text{-}1}, \bm{Z}_{n,n} \right]
     \end{align*}
     
-    \item \textbf{Multi-Head Attention:} This involves using a self-attention mechanism popular in transformer architectures for natural language processing tasks. The key idea of self-attention is to isolate and mix the most important aspects from both feature vectors by transforming them into three separate representations, namely a query $\bm{Q}$, key $\bm{K}$, and value $\bm{V}$ \cite{vaswani2017attention}. Each embedding has a distinct role with the query capturing features that the model deems relevant for making predictions. $\bm{Q}$ may focus on facial features that are common or discriminative across both modalities such as facial landmarks and overall identity information. Meanwhile, $\bm{K}$ may focus on modality-specific elements such as the colour and texture information embedded within the RGB feature vector while structural information being offered by the radar embedding. Finally, $\bm{V}$ contains the actual fine-grained details captured by both modalities that will be attended to by the model based on the resulting query-key similarities. In order to maximise this affect, this mechanism is applied separately across multiple attention heads, decreasing the possibility of the model missing salient aspects of the feature.
-    This is formalised below, where first the two inputs are stacked vertically, $\bm{X} = \begin{bmatrix} \bm{\vec{x}} \\ \bm{\vec{y}} \end{bmatrix}$, and copied through three separate linear transformations to obtain the $\bm{Q}$, $\bm{K}$, $\bm{V}$ matrices. This is done for each of the $k$ attention heads using separate learnable weight matrices.
+    \item \textbf{Multi-Head Attention:} This involves using a self-attention mechanism prevalent in transformer architectures popularised by the seminal paper by Vaswani et al. \cite{vaswani2017attention}. It was initially designed for natural language processing tasks but has shown a lot of success in computer vision. The key idea of self-attention is to isolate and mix the most important aspects from both feature vectors by converting them into three distinct representations: a query $\bm{Q}$, key $\bm{K}$, and value $\bm{V}$. Each embedding plays a unique role such as the query capturing features that the model deems relevant for making predictions. To do this $\bm{Q}$ may focus on features that are shared or discriminative across both modalities such as facial landmarks and overall identity information. Meanwhile, $\bm{K}$ might focus on modality-specific elements such as the colour and texture information embedded within the RGB feature vector, while 3D structural details being offered by the radar embedding. Finally, $\bm{V}$ encapsulates the actual fine-grained details captured by both modalities that will be attended to by the model based on the resulting query-key similarities. In order to maximise this affect, this mechanism is applied separately across multiple attention heads, reducing the risk of overlooking salient characteristics.
+    This is expressed formally below, where first the two inputs are stacked vertically, $\bm{X} = \begin{bmatrix} \bm{\vec{x}} \\ \bm{\vec{y}} \end{bmatrix}$, then copied through three separate linear transformations to obtain the $\bm{Q}$, $\bm{K}$, $\bm{V}$ matrices. This is done for each of the $k$ attention heads using separate learnable weight matrices.
     % TODO: HOW ATTENTION FROM PYTORCH DOCS
     % TODO: POSITIONAL ENCODING??
     \begin{align*}
@@ -314,13 +314,13 @@ We investigate seven feature-level fusion strategies listed as follows in terms 
 
 
 \section{Evaluation}
-We evaluate our model by examining its discriminative ability at representing four unseen faces. Various metrics such as the prediction accuracies, precision and recall are used to compare the different fusion strategies against each other as well showing the performance of individual modalities. Prior to the zero-shot task, we select and extract the final hidden representation of eight reference frame pairs that the test set will be compared against. These eight contain both the live and fake samples of the random subset of four unseen subjects.
+We evaluate our model by examining its discriminative ability at representing the four unseen faces. We utilise various metrics, such as the prediction accuracies, precision and recall, and ROC AUC, to compare the different fusion strategies against each other as well showing their performance against simply using the individual modalities. Prior to the zero-shot task, we select and extract the final hidden representation of eight reference frame pairs. These reference embeddings serve as the basis for comparison with the test set, encompassing both live and fake samples of the four unseen subjects.
 
 \subsection{Results}
-Firstly, the model accuracies at predicting both the subject identity and the liveness flag are measured. This is done by calculating the most similar reference embedding to the final feature vector of a particular test sample by the maximum cosine similarity. A decision threshold $t$ of 0.5 is used to quantify a true prediction. All models achieved a high coverage, shown in Table \ref{tab:averaged_acc_fb}, with the lowest being the radar only model with a 79.8\% coverage. Secondly, since the eight chosen reference instances exhibit two properties, the facial identity and its liveness status, this provides calculating separate metrics to measure each model's ability to predict identity independent to the liveness check.
+Firstly, we gauge the accuracies of the models in predicting both the facial identity and authenticity. This involves determining the most similar reference embedding to the final feature vector of a specific test sample using the maximum cosine similarity. A decision threshold $t$ of 0.5 is applied to quantify a true prediction, otherwise, it is marked as a failed prediction. All models demonstrate high coverage, as illustrated in Table \ref{tab:averaged_acc_fb}, with the radar-only model achieving the lowest coverage at 79.8\%. Secondly, since the eight selected reference instances exhibit two properties -- facial identity and liveness status -- this allows for the calculation of separate metrics to assess each model's ability to predict identity independently of the liveness check.
 
 \subsubsection{Accuracy and F-measure}
-Table \ref{tab:subject_liveness_acc_fb} displays the subject and liveness accuracies for all feature fusion strategies as well as the weighted $F_{\beta}$-measures, over all the respective classes in the test data. For completeness, the performance of the individual modalities are also listed in order to show the advantageous effect of the multimodal feature fusions. A $\beta$ of 0.5 was chosen for the F-scores since in face recognition systems falsely allowing the wrong identity through the system is more harmful than false negatives requiring twice as much emphasis for higher precision compared to recall. 
+Table \ref{tab:subject_liveness_acc_fb} presents the subject and liveness accuracies for all feature fusion strategies as well as the weighted $F_{\beta}$-measures, averaged over all the respective classes. For completeness, the performance of the individual modalities are also listed in order to show the advantageous effect of the multimodal feature fusions. A $\beta$ value of 0.5 was chosen for the F-scores since, in face recognition systems, erroneously admitting the wrong identity is more detrimental than false negatives, thus requiring twice the emphasis on precision compared to recall.
 
 \begin{table}[htbp]
     \centering
@@ -349,11 +349,12 @@ Table \ref{tab:subject_liveness_acc_fb} displays the subject and liveness accura
     \vspace{-0.1cm}
 \end{table}
 
-The best and worst performers are highlighted in green and red respectively. Evidently, certain fusion strategies performed better at identifying subjects while others performed better at predicting the face liveness. The concatenation strategy was found to be best suited at representing faces for an accurate liveness check. Meanwhile, the pairwise dot then mean strategy outperformed within the subject category, attaining the highest accuracy and $F_{0.5}$ measure. However, it is clear that it is relatively poor at detecting the face liveness, obtaining an accuracy that is even lower than simply using the mmWave radar features alone. This is likely due to the mean pooling step squashing outlier feature correlations between the two modalities. The vector addition performed very poorly at predicting facial identities, being much better at predicting liveness in comparison. 
+% TODO: Discuss results of individual modalities
+The best and worst performers are highlighted in green and red respectively. Evidently, certain fusion strategies excel at identifying subjects, while others are more adept at predicting face liveness. Among these strategies, the concatenation method emerges as the most effective for accurately verifying liveness. Meanwhile, the pairwise dot then mean strategy outperforms within the subject category, attaining the highest accuracy and $F_{0.5}$ measure. However, it's ability to detect face liveness is notably lacking, obtaining an accuracy that is even lower than simply using the mmWave radar features. This is likely due to the mean pooling step squashing outlier feature correlations between the two modalities that may be relevant for the liveness detection. The vector addition proves to be very ineffective in predicting facial identity, being much better at predicting liveness in comparison. 
 
-Looking at the individual performance for the two prediction types is useful at judging the strategies' effectiveness at classifying unseen data to the respective prediction labels. However, it is also useful to identify the best overall strategy performing equally well at predicting subject identity as well as its liveness flag.
+Examining the individual performance for each prediction type provides insight into the strategies' effectiveness in classifying unseen data to their respective labels. However, it's equally important to identify the overall best strategy that performs well in both categories.
 
-Table \ref{tab:averaged_acc_fb} displays each of the nine models with their respective average accuracy and $F_{0.5}$ measure applying equal weighting to the subject and liveness results. It is evident that the Hadamard product of the two feature vectors achieved the highest mean accuracy and F-measure.
+Table \ref{tab:averaged_acc_fb} showcases each of the nine models with their respective average accuracy and $F_{0.5}$ measure applying equal weighting to the subject and liveness results. It is evident that the Hadamard product of the two feature vectors achieved the highest mean accuracy and F-measure. Additionally, it highlights the fact that all fusion strategies improve on the results from using the independent modalities alone.
 
 \begin{table}[htbp]
     \centering
@@ -385,9 +386,9 @@ Table \ref{tab:averaged_acc_fb} displays each of the nine models with their resp
 \end{table}
 
 \subsubsection{ROC Curves and AUC}
-However, it is notable that the element-wise product method is closely followed by the concatenation and multi-head attention strategies therefore it is more informative to assess the model's performance at different decision thresholds. This is the main idea behind the Receiver Operating Characteristic (ROC) Curve which analyses the true positive rate (TPR) against the false positive rate (FPR) at varying decision thresholds. However, since we are dealing with a multi-classification task, the one-vs-rest ROC curve is more appropriate where each class is evaluated against the rest using a one-hot strategy. This, therefore, needs each of the eight reference test subjects to be plotted separately. 
+However, it is notable that the element-wise product method is closely followed by the concatenation and multi-head attention strategies therefore it is more informative to assess the model's performance at different decision thresholds. This is the main idea behind the Receiver Operating Characteristic (ROC) Curve which analyses the true positive rate (TPR) against the false positive rate (FPR) at varying decision thresholds. However, given the multi-classification nature of our task, the one-vs-the-rest (OvR) ROC curve is more appropriate, where each class is evaluated against the rest using a one-hot strategy. This therefore, needs each of the eight reference test subjects to be plotted separately.
 
-Figure \ref{fig:roc_hadamard_product} plots the one-vs-rest ROC curves for the highest performing strategy, fusion by the Hadamard product of the feature vectors. The blue dotted curve denotes the single macro-averaged trend among the individual curves. While, the dashed diagonal line indicates the chance level equivalent to a random guessing. Curves above the chance level and reaching the top-left corner pertain a better classifier. This is often measured by the area under the curve (AUC) metric of the ROC curve. 
+Figure \ref{fig:roc_hadamard_product} plots the one-vs-the-rest ROC curves for the highest performing strategy: feature fusion by the Hadamard product. The blue dotted curve indicates the macro-averaged trend among the individual curves, while the dashed diagonal line denotes the chance level equivalent to a random guessing model. Curves above the chance level and reaching the top-left corner demonstrate a better classifier. This is often quantified by the area under the curve (AUC) metric of the ROC curve. 
 
 \begin{figure*}[h!]
     \centering
@@ -412,8 +413,9 @@ Figure \ref{fig:roc_hadamard_product} plots the one-vs-rest ROC curves for the h
     \caption{One-vs-the-Rest ROC curves plotted for each of the eight reference embeddings. Their respective AUC metrics are shown as well as the chance level and macro-averaged ROC curve.}
 \end{figure*}
 
-Table \ref{tab:macro_auc} lists the macro-averaged AUC metrics for all nine models. As made evident by the plot and the table, while the Hadamard product offers the highest accuracies it does not maintain its predictive nature across all decision thresholds attaining an AUC of 0.73. This is in contrast to the 0.82 AUC achieved by the multi-head attention strategy which ranked third-highest at the overall performance. Figure \ref{fig:roc_multihead_attention} plots the one-vs-the-rest (OvR) ROC curve for the multi-head attention approach. The plots show that the multi-head attention performs equally well at distinguishing the majority of the reference instances against each other with a slight dip for the three of the fake subject. Meanwhile, the Hadamard product strategy produces consistent sensitivity to false alarm ratios for most of the classes, following the average trend with the exception of, Subject 15-Live doing remarkably poorly at certain cut-off values.
+Table \ref{tab:macro_auc} lists the macro-averaged AUC metrics for all nine models. As made evident by the plot and the table, while the Hadamard product offers the highest accuracies it does not maintain its predictive nature across all decision thresholds attaining an AUC of 0.945. This is in contrast to the 0.961 AUC achieved by the concatenation strategy which ranked second-highest in overall performance. Figure \ref{fig:roc_concatenate} plots the one-vs-the-rest ROC curve for the concatenation approach. The plot shows that the concatenation performs equally well at distinguishing the majority of the reference instances since all curves are tightly packed and close to the top-left corner. In contrast, the ROC curves for the Hadamard product method are more dispersed with the relatively distinguishing ability for Subject 2-Live.
 % TODO: SENSITIVITY & (1 - SPECIFICITY)
+% TODO: ROC CURVE FOR MULTI-HEAD ATTENTION
 
 It is important to note that the AUC metric is invariant to the decision threshold which has a profound impact whenever there is disparity in the cost of false negatives over false positives. In face recognition, especially for secure biometric authentication, false positives indicate a large flaw meaning the model should prioritise minimising them, even if that entails an increase of false negatives which are more tolerable. This is especially true for the binary liveness check. The model should be rewarded for minimising the success rate of 2D spoofing attacks.
 
@@ -446,12 +448,11 @@ It is important to note that the AUC metric is invariant to the decision thresho
 
 
 \subsubsection{t-SNE Visualisations}
-Following this, it is important to visualise the final embedding vectors of each model to verify that each identity is pushed to distinct regions of the high-dimensional Euclidean space. $t$-distributed Stochastic Neighbour Embedding or $t$-SNE \cite{van2008visualizing} is commonly employed to reduce the dimensionality of the feature vectors to a lower space that can be easily visualised. t-SNE tends to preserve the local structure of the data much better over Principal Component Analysis (PCA) which is better at keeping the global variance in the data. This means that t-SNE can help identify meaningful patterns or groupings within the data since the similarities between data points are kept providing interpretable visualisations.
+Following this, it is important to visualise the final embedding vectors of each model to verify that each identity is pushed to distinct regions of the high-dimensional Euclidean space. $t$-distributed Stochastic Neighbour Embedding or $t$-SNE \cite{van2008visualizing} is commonly employed to reduce the dimensionality of the feature vectors to a lower space that can be easily visualised. t-SNE tends to preserve the local structure of the data much better in comparison to Principal Component Analysis (PCA) which is better at keeping the global variance in the data. This means that t-SNE can help identify meaningful patterns or groupings within the data since the similarities between data points are maintained providing interpretable visualisations.
 
-Figures \ref{fig:tsne_hadamard_product}, \ref{fig:tsne_concatenate}, and \ref{fig:tsne_multihead_attention} show the final features of the top three ranking overall strategies after t-SNE, namely, the Hadamard product, concatenation, and multi-head attention approaches. Each data point is colour-coded by the subject identity with ones coming from fake subjects having a lighter shade. It is clear that all three strategies group face data from the same subject into similar regions of the multimodal space. It can be observed that fusion by concatenation results in a tighter clustering with more separation between the distinct grouped islands of data points. Not only that, but it can be seen that some data points overlap with non-similar clusters in each of the strategies providing lower subject identity accuracies with the least being observed within the Hadamard product, backed by its highest subject prediction accuracy out of the three. However, the concatenation strategy is the clear produces a clear linear separation between fake and real faces backing up the 99.6\% liveness detection accuracy. The other two strategies do not have such a clear separation, requiring more non-linear boundaries.
+Figures \ref{fig:tsne_hadamard_product}, \ref{fig:tsne_concatenate}, and \ref{fig:tsne_multihead_attention} show the final features of the top three ranking overall strategies after t-SNE, namely, the Hadamard product, concatenation, and multi-head attention approaches. Each data point is colour-coded by the subject identity with those coming from fake subjects having a lighter shade. It is clear that all three strategies group face data from the same subject into similar regions of the multimodal space. It can be observed that fusion by concatenation results in a tighter clustering with more separation between the distinct grouped islands of data points. Not only that, but it can be seen that some data points overlap with non-similar clusters in each of the strategies. This would entail lower subject identity accuracies with the least being observed within the Hadamard product, backed by its highest subject prediction accuracy out of the three. However, the concatenation strategy produces a clear linear separation between fake and real faces backing up the 99.6\% liveness detection accuracy. The other two strategies do not have such a clear separation, requiring more non-linear boundaries.
 
 It is evident that there is more noise among the features from the real dataset compared to the fake, producing more distinct clusterings and confusion among all three strategies. This can be attributed to the higher level of variation of poses among the real dataset in contrast since only the frontal poses were utilised for the fake dataset. 
-
 
 \begin{figure*}[!htb] 
     \centering
@@ -476,26 +477,9 @@ It is evident that there is more noise among the features from the real dataset 
     \caption{2D t-SNE projections of the final layer fused features after $\mathtt{fc\_hybrid1}$ of the model. Top three fusion strategies in the order of the highest overall mean accuracy.}
 \end{figure*}
 
-% \begin{figure}[h!]
-%     \centering
-%     \includegraphics[width=0.5\textwidth]{figures/tsne_hadamard_product.png}
-%     \caption{TODO}
-%     \label{fig:tsne_hadamard_product}
-% \end{figure}
+TODO: RESULTS OF DIM LIGHTING AND OCCLUSION SCENARIO
 
-% \begin{figure}[h!]
-%     \centering
-%     \includegraphics[width=0.5\textwidth]{figures/tsne_multihead_attention.png}
-%     \caption{TODO}
-%     \label{fig:tsne_multihead_attention}
-% \end{figure}
 
-% \begin{figure}[h!]
-%     \centering
-%     \includegraphics[width=0.5\textwidth]{figures/tsne_concatenate.png}
-%     \caption{TODO}
-%     \label{fig:tsne_concatenate}
-% \end{figure}
 
 \section{Conclusions}
 
