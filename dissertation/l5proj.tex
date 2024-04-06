@@ -65,7 +65,7 @@ The key contributions of this paper are summarised below:
 \begin{itemize}
     \itemsep 0.08cm
     \item Compilation of a diverse face dataset comprising colour images and mmWave signatures from 21 participants. The dataset encompasses five different poses, two lighting conditions, and two occlusion scenarios.
-    \item We present \texttt{mmFace}, a hybrid face recognition model that harnesses both modalities yielding a robust system capable of handling common occluding materials and nullifying 2D spoofing attempts. The model exhibits strong generalisation capabilities to unseen faces and discerns between live and fake faces effectively.
+    \item We present \texttt{mmFace}, a hybrid face recognitioxn model that harnesses both modalities yielding a robust system capable of handling common occluding materials and nullifying 2D spoofing attempts. The model exhibits strong generalisation capabilities to unseen faces and discerns between live and fake faces effectively.
     \item An empirical analysis of seven feature-level fusion methods is conducted to determine the most optimal approach for blending RGB and mmWave facial features.
     \item Our models and evaluations are open sourced\footnote{\url{https://github.com/StergiousAji/mmFace-3D-Face-Recognition-using-RGB-and-mmWave-Radar}} to facilitate further research into small-scale, 3D face identification using mmWave technology.
 \end{itemize}
@@ -79,7 +79,7 @@ Radio Detection and Ranging, or Radar, has been around for decades and plays an 
 
 Another notable example is Google's integration of their Soli sensor into the Pixel 4 smartphones for motion detection and gesture recognition \cite{googleblog2020}. However, the sensor's potential application to face recognition remains unexplored, presenting a unique research opportunity. Consequently, this is the sensor we use to capture mmWave face signatures during our data collection procedure. A key driving factor for this choice is the Soli's miniature form factor of just \qty{6.5}{\mm} $\times$ \qty{5.0}{\mm}, and its use of Frequency Modulated Continuous Wave (FMCW) technology. This is proven to offer superior range resolution in comparison to other modulation techniques thanks to its high pulse compression \cite{mahafza2005radar}, a vital aspect for extracting accurate facial features. Furthermore, The Soli chip has a relatively low power consumption due to the fact that it sends 16 chirps every burst at a pulse-repetition frequency of \qty{2}{\kHz}, after which it halts transmission until the next burst of chirps \cite{hayashi2021radarnet, mitchell2023mmsense}. Each burst is transmitted at rate of \qty{25}{\Hz} giving an overall transmission duty cycle of 2\%. This effectively means that the radar chip remains inactive during the majority of its operation, saving a lot of power for small-scale mobile applications.
 % However, it is important to note the trade-off, as mmWaves tend to have a lower accuracy in comparison. This could impact face recognition performance where precision in detecting and mapping facial features is paramount. This project will therefore explore counter-balancing this limitation with the information gained from RGB images, potentially paving the way for more resilient and versatile systems.
-
+x
 \vspace{0.05cm}
 \subsection{Related Work}
 % The use of millimetre waves for face identification is a relatively new research field, spurred by the recent commercialisation of radar sensor technology. One of the earliest studies found to investigate human identification using mmWaves can be traced back to 2019, conducted by Zhao et al. \cite{zhao2019mid}. Although this paper focuses on classifying subjects by their gait and body shape rather than facial features, it demonstrates the ability of mmWaves to encapsulate the subtle idiosyncrasies among individuals. These nuanced differences are vital for learning models to effectively differentiate between unique subjects, leading to high classification accuracies.
@@ -121,7 +121,7 @@ One common strategy involves merging multiple data modalities before feeding the
 % \textbf{Intermediate Fusion} or \textbf{Feature-level Fusion} is based on neural network architectures and involves the idea of combining different modalities within the feature space where there is a higher level of abstraction of the raw data. This can be as straightforward as a simple concatenation of the individual latent embeddings, or as complex as using Autoencoders for non-linear feature fusion as demonstrated by Charte et al. \cite{charte2018practical}. This approach offers greater versatility than early and late fusions, as it allows for the integration of features at various depths within the neural network. However, it can lead to challenges such as a risk of overfitting or a failure in learning relationships between the different modalities.
 \textbf{Intermediate Fusion}, or \textbf{Feature-level Fusion}, is rooted in neural network architectures and revolves around the concept of combining different modalities within the feature space where there is a higher level of abstraction of the raw data. This can range from a basic concatenation of the individual latent embeddings to employing autoencoders for non-linear feature fusion, as demonstrated by Charte et al. \cite{charte2018practical}. This approach offers greater versatility than early and late fusions since it allows for the integration of features at various depths within the neural network. However, it can pose challenges such as the risk of overfitting or difficulty in learning relationships between the different modalities.
 
-% Each data fusion technique comes with its own set of challenges and considerations, necessitating experimentation to determine the most effective way to merge the RGB and mmWave signatures. A variant of late, feature-level fusion where the embeddings from the last layers of each model are combined is what was chosen. It would be challenging to attempt early fusion due to the substantial differences between the two modalities. Such integration would likely require heavy preprocessing of the radar data, potentially involving its conversion into a depth image.
+% Each data fusion technique comes with its own set of challenges and considerations, necessitating experimentation to determine the most effective way to merge the RGB and mmWave signatures. A variant of late, feature-level fusion where the embeddings from the last layers of each model are combined is what waaaas chosen. It would be challenging to attempt early fusion due to the substantial differences between the two modalities. Such integration would likely requixre heavy preprocessing of the radar data, potentially involving its conversion into a depth image.
 Each data fusion technique presents its own set of considerations, necessitating experimentation to determine the most effective approach to merging RGB and mmWave signatures. A variant of late, feature-level fusion, where the embeddings from the final layers of each model are combined, was chosen as the most feasible. 
 % It would be challenging to attempt early fusion due to the substantial differences between the two modalities. Such integration would likely require heavy preprocessing of the radar data, potentially involving its conversion into a depth image.
 
@@ -140,7 +140,7 @@ Finally, we delve into assessing the permeating capability of mmWaves to directl
 
 % On top of investigating environmental invariances, our research seeks to determine the least amount of radar data necessary to still yield easily separable facial embeddings. Previous studies were observed to record between 200 and 2,000 total frames which, depending on the sampling rate, requires running the sensor for eight to a maximum of 80 seconds for each scenario. This is due to the lower accuracy of mmWaves demanding a longer exposure to provide a dense enough representation. Nevertheless, requiring an individual to keep their face still for over three seconds is impractical in real-world applications. Our approach, which integrates RGB data, may reduce the need for prolonged radar frame capture. Consequently, in our experiments, we will collect 10 RGB frames and a maximum of 250 frames worth of mmWave bursts, equivalent to operating the Google Soli sensor for 10 seconds at a 25 Hz sampling rate. This approach will provide ample data to assess the minimum number of mmWave frames needed for effective identification. 
 
-To ensure a diverse range of facial data, we recruited 21 participants within the limited time frame of the project. Adhering to ethical standards regarding sensitive personal information, our participant pool consists of male and female university students and faculty in the age range 18--35 years. A total of 15 scenarios are captured for each participant at a distance of \qty{20}{\cm} from the sensors. Each time the sensors are run for 10 seconds, totalling 150 RGB frames and 3,750 mmWave frames per person. On top of this, scans of printed faces are also collected in order to train the model to detect facial authenticity as well as its identity. This was restricted to the three frontal poses for each participant, mirroring common spoofing tactics, providing another 30 RGB frames and 225 mmWave frames per fake instance.
+To ensure a diverse range of facial data, we recruited 21 participants within the limited time frame of the project. Adhering to ethical standards regarding sensitive personal information, our participant pool consists of male and female university students and faculty in the age range 18--35 years. A total of 15 scenarios are captured for each participant at a distance of \qty{20}{\cm} from the sensors. Each time the sensors are run for 10 seconds with the participant being asked to maintain a neutral expression, totalling 150 RGB frames and 3,750 mmWave frames per person. On top of this, scans of printed faces are also collected in order to train the model to detect facial authenticity as well as its identity. This was restricted to the three frontal poses for each participant, mirroring common spoofing tactics, providing another 30 RGB frames and 225 mmWave frames per fake instance.
 
 A close-up of the equipment setup used can be observed in Figure \ref{fig:equipment} showing the Intel Realsense RGB-D camera and the green Soli chip mounted side-by-side on a breadboard. The full experiment setup is photographed in Figure \ref{fig:experiment_setup} with the red cross indicating the \qty{20}{\cm} face distance where subjects need to be positioned, and the five pose directions marked by the yellow tape.
 
@@ -314,12 +314,12 @@ We investigate seven feature-level fusion strategies listed as follows in terms 
 
 
 \section{Evaluation}
-We evaluate our model by examining its discriminative ability at representing the four unseen faces. We utilise various metrics, such as the prediction accuracies, precision and recall, and ROC AUC, to compare the different fusion strategies against each other as well showing their performance against simply using the individual modalities. Prior to the zero-shot task, we select and extract the final hidden representation of eight reference frame pairs. These reference embeddings serve as the basis for comparison with the test set, encompassing both live and fake samples of the four unseen subjects.
+We evaluate our model by examining its discriminative ability at representing the four unseen faces. We utilise various metrics, such as the prediction accuracies, precision, recall, and ROC AUC, to compare the different fusion strategies against each other as well as showing their performance against simply using the individual modalities. Prior to the zero-shot task, we select and extract the final hidden layer of eight reference frame pairs. These reference embeddings serve as the basis for comparison against the rest of the test set, encompassing both live and fake samples of the four unseen subjects. The references were picked out of the frontal pose, non-occlusion, and regular lighting category as this is the most common setting for face recognition tasks.
 
 \subsection{Results}
 Firstly, we gauge the accuracies of the models in predicting both the facial identity and authenticity. This involves determining the most similar reference embedding to the final feature vector of a specific test sample using the maximum cosine similarity. A decision threshold $t$ of 0.5 is applied to quantify a true prediction, otherwise, it is marked as a failed prediction. All models demonstrate high coverage, as illustrated in Table \ref{tab:averaged_acc_fb}, with the radar-only model achieving the lowest coverage at 79.8\%. Secondly, since the eight selected reference instances exhibit two properties -- facial identity and liveness status -- this allows for the calculation of separate metrics to assess each model's ability to predict identity independently of the liveness check.
 
-\subsubsection{Accuracy and F-measure}
+\subsubsection{Zero-shot Accuracies and F-measures}
 Table \ref{tab:subject_liveness_acc_fb} presents the subject and liveness accuracies for all feature fusion strategies as well as the weighted $F_{\beta}$-measures, averaged over all the respective classes. For completeness, the performance of the individual modalities are also listed in order to show the advantageous effect of the multimodal feature fusions. A $\beta$ value of 0.5 was chosen for the F-scores since, in face recognition systems, erroneously admitting the wrong identity is more detrimental than false negatives, thus requiring twice the emphasis on precision compared to recall.
 
 \begin{table}[htbp]
@@ -346,7 +346,7 @@ Table \ref{tab:subject_liveness_acc_fb} presents the subject and liveness accura
     \vspace{0.1cm}
     \caption{Subject and liveness accuracies and weighted-averaged $F_{0.5}$ measures for the seven feature fusion strategies along with the individual modalities.}
     \label{tab:subject_liveness_acc_fb}
-    \vspace{-0.1cm}
+    \vspace{-0.2cm}
 \end{table}
 
 % TODO: Discuss results of individual modalities
@@ -354,12 +354,12 @@ The best and worst performers are highlighted in green and red respectively. Evi
 
 Examining the individual performance for each prediction type provides insight into the strategies' effectiveness in classifying unseen data to their respective labels. However, it's equally important to identify the overall best strategy that performs well in both categories.
 
-Table \ref{tab:averaged_acc_fb} showcases each of the nine models with their respective average accuracy and $F_{0.5}$ measure applying equal weighting to the subject and liveness results. It is evident that the Hadamard product of the two feature vectors achieved the highest mean accuracy and F-measure. Additionally, it highlights the fact that all fusion strategies improve on the results from using the independent modalities alone.
+Table \ref{tab:averaged_acc_fb} showcases each of the nine models with their respective average accuracy and $F_{0.5}$ measure applying equal weighting to the subject and liveness results. It is evident that the Hadamard product of the two feature vectors achieved the highest mean accuracy and F-measure. Additionally, it highlights the fact that all fusion strategies improve on the results from using the independent modalities alone. On average, the fusion strategies exhibit a 9.6\% improvement in mean accuracy, relative to the RGB-only model which obtained the highest accuracy out of the two non-hybrid models.
 
 \begin{table}[htbp]
     \centering
-    \resizebox{1.01\columnwidth}{1.7cm}{
-        % \begin{tabular}{lS[table-format=2.2]S[table-format=1.4]}
+    \vspace{-0.1cm}
+    \resizebox{1.01\columnwidth}{1.6cm}{
         \begin{tabular}{lccc}
             \toprule
             \textbf{Fusion Strategy}   & {\textbf{Mean Accuracy (\%)}} & {\textbf{Mean $\bm{F_{0.5}}$ Score}} & \textbf{Coverage (\%)} \\
@@ -367,7 +367,7 @@ Table \ref{tab:averaged_acc_fb} showcases each of the nine models with their res
             Concatenate          & 91.7 & 0.915 & 99.7 \\
             Add                  & 81.1 & 0.811 & 99.9 \\
             \rowcolor{lightgreen}
-            Hadamard Product  & 91.9 & 0.916 & 98.1 \\
+            Hadamard Product     & 91.9 & 0.916 & 98.1 \\
             Pairwise Dot Mean    & 84.8 & 0.844 & 95.3 \\
             \rowcolor{lightred}
             Pairwise Dot Max     & 77.8 & 0.778 & 95.6 \\
@@ -382,42 +382,40 @@ Table \ref{tab:averaged_acc_fb} showcases each of the nine models with their res
     \vspace{0.1cm}
     \caption{Averaged accuracy and $F_{0.5}$ score for the seven fusion strategies and individual modalities, applying equal weighting to subject and liveness predictions.}
     \label{tab:averaged_acc_fb}
-    \vspace{-0.3cm}
+    \vspace{-0.9cm}
 \end{table}
 
-\subsubsection{ROC Curves and AUC}
-However, it is notable that the element-wise product method is closely followed by the concatenation and multi-head attention strategies therefore it is more informative to assess the model's performance at different decision thresholds. This is the main idea behind the Receiver Operating Characteristic (ROC) Curve which analyses the true positive rate (TPR) against the false positive rate (FPR) at varying decision thresholds. However, given the multi-classification nature of our task, the one-vs-the-rest (OvR) ROC curve is more appropriate, where each class is evaluated against the rest using a one-hot strategy. This therefore, needs each of the eight reference test subjects to be plotted separately.
 
-Figure \ref{fig:roc_hadamard_product} plots the one-vs-the-rest ROC curves for the highest performing strategy: feature fusion by the Hadamard product. The blue dotted curve indicates the macro-averaged trend among the individual curves, while the dashed diagonal line denotes the chance level equivalent to a random guessing model. Curves above the chance level and reaching the top-left corner demonstrate a better classifier. This is often quantified by the area under the curve (AUC) metric of the ROC curve. 
-
-\begin{figure*}[h!]
+\begin{figure*}[t!]
     \centering
-    \begin{subfigure}[b]{0.31\textwidth}
-        \includegraphics[width=\textwidth]{figures/roc_hadamard_product.png}
+    \begin{subfigure}[b]{0.325\textwidth}
+        \includegraphics[width=1.082\textwidth]{figures/roc_hadamard_product.png}
         \caption{Hadamard Product}
         \label{fig:roc_hadamard_product}
     \end{subfigure}
-    ~
-    \begin{subfigure}[b]{0.3\textwidth}
-        \includegraphics[width=\textwidth]{figures/roc_concatenate.png}
+    ~\hspace{0.001cm}
+    \begin{subfigure}[b]{0.315\textwidth}
+        \includegraphics[width=1.065\textwidth]{figures/roc_concatenate.png}
         \caption{Concatenate}
         \label{fig:roc_concatenate}
     \end{subfigure}
-    ~
-    \begin{subfigure}[b]{0.31\textwidth}
-        \includegraphics[width=\textwidth]{figures/roc_multihead_attention.png}
+    ~\hspace{0.001cm}
+    \begin{subfigure}[b]{0.325\textwidth}
+        \includegraphics[width=1.09\textwidth]{figures/roc_multihead_attention.png}
         \caption{Multi-Head Attention}
         \label{fig:roc_multihead_attention}
     \end{subfigure}
-    \vspace{0.3cm}
+    \vspace{0.1cm}
     \caption{One-vs-the-Rest ROC curves plotted for each of the eight reference embeddings. Their respective AUC metrics are shown as well as the chance level and macro-averaged ROC curve.}
+    \vspace{-0.35cm}
 \end{figure*}
 
-Table \ref{tab:macro_auc} lists the macro-averaged AUC metrics for all nine models. As made evident by the plot and the table, while the Hadamard product offers the highest accuracies it does not maintain its predictive nature across all decision thresholds attaining an AUC of 0.945. This is in contrast to the 0.961 AUC achieved by the concatenation strategy which ranked second-highest in overall performance. Figure \ref{fig:roc_concatenate} plots the one-vs-the-rest ROC curve for the concatenation approach. The plot shows that the concatenation performs equally well at distinguishing the majority of the reference instances since all curves are tightly packed and close to the top-left corner. In contrast, the ROC curves for the Hadamard product method are more dispersed with the relatively distinguishing ability for Subject 2-Live.
-% TODO: SENSITIVITY & (1 - SPECIFICITY)
-% TODO: ROC CURVE FOR MULTI-HEAD ATTENTION
+\subsubsection{ROC Curves and AUC}
+Despite the positive aggregated results, it is worth noting that the element-wise product method is closely followed by the concatenation and multi-head attention strategies. Hence, it can be more useful to assess the model's performance at different decision thresholds to provide deeper insights into which strategy yields the better classifier. This is the main idea behind the Receiver Operating Characteristic (ROC) Curve which analyses the sensitivity or true positive rate (TPR) against the false positive rate (FPR) at varying decision thresholds. Given the multi-classification nature of our task, the One-vs-the-Rest (OvR) ROC curve is the most appropriate. Here each class is evaluated against the rest using a one-hot strategy. This, therefore, requires each of the eight reference test instances to be plotted separately.
 
-It is important to note that the AUC metric is invariant to the decision threshold which has a profound impact whenever there is disparity in the cost of false negatives over false positives. In face recognition, especially for secure biometric authentication, false positives indicate a large flaw meaning the model should prioritise minimising them, even if that entails an increase of false negatives which are more tolerable. This is especially true for the binary liveness check. The model should be rewarded for minimising the success rate of 2D spoofing attacks.
+Figures \ref{fig:roc_hadamard_product}, \ref{fig:roc_concatenate}, and \ref{fig:roc_multihead_attention} plots the one-vs-the-rest ROC curves for the three highest overall performing strategies -- namely the Hadamard product, concatenation, and multi-head attention, respectively. The blue dotted curves indicate the macro-averaged trend among the individual OvR curves, while the dashed diagonal line denotes the chance level equivalent to a random guessing model. Curves above the chance level and reaching the top-left corner demonstrate a better classifier. This is often quantified by the area under the ROC curve (AUC) metric.
+
+Table \ref{tab:macro_auc} lists the macro-averaged AUC metrics for all nine models. As made evident from both the table and plots, while the Hadamard product offers the highest accuracies it does not maintain its predictive nature across all decision thresholds attaining an AUC of 0.945. While this is relatively, it is overshadowed by the 0.961 AUC achieved by the concatenation strategy which ranked second-highest within the overall performance. Figure \ref{fig:roc_concatenate} show that the concatenation method performs equally well at distinguishing the majority of the reference instances since all curves are tightly packed and in close proximity to the top-left corner. In contrast, the ROC curves for the Hadamard product method are more dispersed with the relatively low distinguishing ability for the class \textit{Subject 2-Live}. The disparate OvR ROC curves for the multi-head attention fusion strategy in Figure \ref{fig:roc_multihead_attention} suggest that it does not generate embeddings as robust as those of the other two strategies, with a proportionally higher number of false alarms compared to true positives for certain outlier classes.
 
 \begin{table}[htbp]
     \centering
@@ -448,28 +446,24 @@ It is important to note that the AUC metric is invariant to the decision thresho
 
 
 \subsubsection{t-SNE Visualisations}
-Following this, it is important to visualise the final embedding vectors of each model to verify that each identity is pushed to distinct regions of the high-dimensional Euclidean space. $t$-distributed Stochastic Neighbour Embedding or $t$-SNE \cite{van2008visualizing} is commonly employed to reduce the dimensionality of the feature vectors to a lower space that can be easily visualised. t-SNE tends to preserve the local structure of the data much better in comparison to Principal Component Analysis (PCA) which is better at keeping the global variance in the data. This means that t-SNE can help identify meaningful patterns or groupings within the data since the similarities between data points are maintained providing interpretable visualisations.
+Following this, it is important to visualise the final embedding vectors of each model to verify that each identity is pushed to distinct regions of the high-dimensional Euclidean space. $t$-distributed Stochastic Neighbour Embedding or $t$-SNE \cite{van2008visualizing} is commonly employed to reduce the dimensionality of  feature vectors to a lower space. t-SNE tends to preserve the local structure of the data much better in comparison to Principal Component Analysis (PCA) which is better at retaining the global variance in the data. This means that t-SNE can help identify meaningful patterns or groupings within the data since the similarities between data points are maintained providing interpretable visualisations.
 
-Figures \ref{fig:tsne_hadamard_product}, \ref{fig:tsne_concatenate}, and \ref{fig:tsne_multihead_attention} show the final features of the top three ranking overall strategies after t-SNE, namely, the Hadamard product, concatenation, and multi-head attention approaches. Each data point is colour-coded by the subject identity with those coming from fake subjects having a lighter shade. It is clear that all three strategies group face data from the same subject into similar regions of the multimodal space. It can be observed that fusion by concatenation results in a tighter clustering with more separation between the distinct grouped islands of data points. Not only that, but it can be seen that some data points overlap with non-similar clusters in each of the strategies. This would entail lower subject identity accuracies with the least being observed within the Hadamard product, backed by its highest subject prediction accuracy out of the three. However, the concatenation strategy produces a clear linear separation between fake and real faces backing up the 99.6\% liveness detection accuracy. The other two strategies do not have such a clear separation, requiring more non-linear boundaries.
-
-It is evident that there is more noise among the features from the real dataset compared to the fake, producing more distinct clusterings and confusion among all three strategies. This can be attributed to the higher level of variation of poses among the real dataset in contrast since only the frontal poses were utilised for the fake dataset. 
-
-\begin{figure*}[!htb] 
+\begin{figure*}[!t] 
     \centering
-    \begin{subfigure}[b]{0.3\textwidth}
-        \includegraphics[width=\textwidth]{figures/tsne_hadamard_product.png}
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=1.06\textwidth]{figures/tsne_hadamard_product.png}
         \caption{Hadamard Product}
         \label{fig:tsne_hadamard_product}
     \end{subfigure}
-    ~
-    \begin{subfigure}[b]{0.3\textwidth}
-        \includegraphics[width=\textwidth]{figures/tsne_concatenate.png}
+    ~\hspace{0.01cm}
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=1.06\textwidth]{figures/tsne_concatenate.png}
         \caption{Concatenate}
         \label{fig:tsne_concatenate}
     \end{subfigure}
-    ~
-    \begin{subfigure}[b]{0.3\textwidth}
-        \includegraphics[width=\textwidth]{figures/tsne_multihead_attention.png}
+    ~\hspace{0.01cm}
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=1.06\textwidth]{figures/tsne_multihead_attention.png}
         \caption{Multi-Head Attention}
         \label{fig:tsne_multihead_attention}
     \end{subfigure}
@@ -477,7 +471,45 @@ It is evident that there is more noise among the features from the real dataset 
     \caption{2D t-SNE projections of the final layer fused features after $\mathtt{fc\_hybrid1}$ of the model. Top three fusion strategies in the order of the highest overall mean accuracy.}
 \end{figure*}
 
+Figures \ref{fig:tsne_hadamard_product}, \ref{fig:tsne_concatenate}, and \ref{fig:tsne_multihead_attention} depict the final features extracted from the top three overall ranking strategies after t-SNE. Each data point is colour-coded by the subject identity, with those originating from fake instances shown in a lighter shade. It is clear that all three strategies group facial data from the same subject into similar regions of the multimodal space. It can be observed that fusion by concatenation results in a tighter clustering with greater separation between the distinct grouped islands of data points. Additionally, it can be seen that some data points overlap with non-similar clusters in each of the strategies, with the least confusion being observed within the Hadamard product visualisation. This explains the higher subject recognition accuracy being attained in comparison to the concatenation and multi-head attention strategies. Nonetheless, the concatenation strategy produces a clear linear separation between fake and real faces, providing rationale for its achievement of the highest liveness detection accuracy at 99.6\%. The other two strategies do not produce such a clear separation, requiring more complex, non-linear boundaries.
+
+It is evident that there is more noise among the features from the real dataset compared to the fake, producing more erratic clusterings and confusion among all three strategies. This can be attributed to the higher level of variation of poses among the real dataset in contrast since only the frontal poses were utilised for the fake dataset. 
+
+
+\subsection{Occlusion}
 TODO: RESULTS OF DIM LIGHTING AND OCCLUSION SCENARIO
+\begin{table}[htbp]
+    \centering
+    \vspace{-0.1cm}
+    \resizebox{1.01\columnwidth}{1.6cm}{
+        \begin{tabular}{lccc}
+            \toprule
+            \textbf{Fusion Strategy}   & {\textbf{Mean Accuracy (\%)}} & {\textbf{Mean $\bm{F_{0.5}}$ Score}} & \textbf{Coverage (\%)} \\
+            \midrule
+            Concatenate          & 91.4 & 0.911 & 99.7 \\
+            Add                  & 78.8 & 0.781 & 99.2 \\
+            Hadamard Product     & 88.4 & 0.829 & 93.8 \\
+            Pairwise Dot Mean    & 82.4 & 0.764 & 92.6 \\
+            Pairwise Dot Max     & 77.6 & 0.710 & 91.5 \\
+            Pairwise Dot Flatten & 88.7 & 0.871 & 98.2 \\
+            Multi-Head Attention & 82.5 & 0.813 & 98.5 \\
+            \midrule
+            Radar Only           & 69.7 & 0.577 & 82.7 \\
+            RGB Only             & 78.5 & 0.712 & 90.6 \\
+            \bottomrule
+        \end{tabular}
+    }
+    \vspace{0.1cm}
+    \caption{TODO}
+    \label{tab:occlusion_averaged_acc_fb}
+    \vspace{-0.9cm}
+\end{table}
+
+
+\subsection{Discussion}
+% TODO: SENSITIVITY & (1 - SPECIFICITY)
+% TODO: AUC OF INDIVIDUAL MODALITIES
+It is important to note that the AUC metric is invariant to the decision threshold which has a profound impact whenever there is disparity in the cost of false negatives over false positives. In face recognition, especially for secure biometric authentication, false positives indicate a large flaw meaning the model should prioritise minimising them, even if that entails an increase of false negatives which are more tolerable. This is especially true for the binary liveness check. The model should be rewarded for minimising the success rate of 2D spoofing attacks. For this reason
 
 
 

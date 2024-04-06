@@ -1,0 +1,137 @@
+{
+    "mmFace-concatenate.pt": {
+        "SUBJECT": {
+            "Accuracy": 83.2789,
+            "Micro-Accuracy": 0.8301,
+            "Weighted-Averaged F-Score": 0.8313
+        },
+        "LIVENESS": {
+            "Accuracy": 99.5428,
+            "Micro-Accuracy": 0.9922,
+            "Weighted-Averaged F-Score": 0.9948
+        },
+        "Coverage": 99.6745,
+        "Macro-Averaged AUC": 0.9466,
+        "KL Divergence": 0.4534
+    },
+    "mmFace-add.pt": {
+        "SUBJECT": {
+            "Accuracy": 58.0052,
+            "Micro-Accuracy": 0.5755,
+            "Weighted-Averaged F-Score": 0.5688
+        },
+        "LIVENESS": {
+            "Accuracy": 99.4751,
+            "Micro-Accuracy": 0.987,
+            "Weighted-Averaged F-Score": 0.9932
+        },
+        "Coverage": 99.2188,
+        "Macro-Averaged AUC": 0.8945,
+        "KL Divergence": 0.8458
+    },
+    "mmFace-hadamard_product.pt": {
+        "SUBJECT": {
+            "Accuracy": 83.3333,
+            "Micro-Accuracy": 0.7812,
+            "Weighted-Averaged F-Score": 0.8179
+        },
+        "LIVENESS": {
+            "Accuracy": 93.5417,
+            "Micro-Accuracy": 0.877,
+            "Weighted-Averaged F-Score": 0.9252
+        },
+        "Coverage": 93.75,
+        "Macro-Averaged AUC": 0.908,
+        "KL Divergence": 0.317
+    },
+    "mmFace-pairwise_dot_mean.pt": {
+        "SUBJECT": {
+            "Accuracy": 90.4427,
+            "Micro-Accuracy": 0.8379,
+            "Weighted-Averaged F-Score": 0.891
+        },
+        "LIVENESS": {
+            "Accuracy": 74.4202,
+            "Micro-Accuracy": 0.6895,
+            "Weighted-Averaged F-Score": 0.7419
+        },
+        "Coverage": 92.6432,
+        "Macro-Averaged AUC": 0.8905,
+        "KL Divergence": 0.2186
+    },
+    "mmFace-pairwise_dot_max.pt": {
+        "SUBJECT": {
+            "Accuracy": 84.4239,
+            "Micro-Accuracy": 0.7728,
+            "Weighted-Averaged F-Score": 0.834
+        },
+        "LIVENESS": {
+            "Accuracy": 70.697,
+            "Micro-Accuracy": 0.6471,
+            "Weighted-Averaged F-Score": 0.6968
+        },
+        "Coverage": 91.5365,
+        "Macro-Averaged AUC": 0.8157,
+        "KL Divergence": 0.2577
+    },
+    "mmFace-pairwise_dot_flatten.pt": {
+        "SUBJECT": {
+            "Accuracy": 84.3605,
+            "Micro-Accuracy": 0.8288,
+            "Weighted-Averaged F-Score": 0.8419
+        },
+        "LIVENESS": {
+            "Accuracy": 93.0417,
+            "Micro-Accuracy": 0.9141,
+            "Weighted-Averaged F-Score": 0.9286
+        },
+        "Coverage": 98.2422,
+        "Macro-Averaged AUC": 0.9351,
+        "KL Divergence": 0.2422
+    },
+    "mmFace-multihead_attention.pt": {
+        "SUBJECT": {
+            "Accuracy": 68.2089,
+            "Micro-Accuracy": 0.6719,
+            "Weighted-Averaged F-Score": 0.6565
+        },
+        "LIVENESS": {
+            "Accuracy": 96.7614,
+            "Micro-Accuracy": 0.9531,
+            "Weighted-Averaged F-Score": 0.9647
+        },
+        "Coverage": 98.5026,
+        "Macro-Averaged AUC": 0.9076,
+        "KL Divergence": 0.2505
+    },
+    "mmFace-radar.pt": {
+        "SUBJECT": {
+            "Accuracy": 41.0236,
+            "Micro-Accuracy": 0.3392,
+            "Weighted-Averaged F-Score": 0.3912
+        },
+        "LIVENESS": {
+            "Accuracy": 98.4252,
+            "Micro-Accuracy": 0.8138,
+            "Weighted-Averaged F-Score": 0.9424
+        },
+        "Coverage": 82.6823,
+        "Macro-Averaged AUC": 0.7606,
+        "KL Divergence": 1.443
+    },
+    "mmFace-rgb.pt": {
+        "SUBJECT": {
+            "Accuracy": 87.8592,
+            "Micro-Accuracy": 0.7962,
+            "Weighted-Averaged F-Score": 0.8587
+        },
+        "LIVENESS": {
+            "Accuracy": 69.181,
+            "Micro-Accuracy": 0.627,
+            "Weighted-Averaged F-Score": 0.6775
+        },
+        "Coverage": 90.625,
+        "Macro-Averaged AUC": 0.8611,
+        "KL Divergence": 0.1487
+    }
+}

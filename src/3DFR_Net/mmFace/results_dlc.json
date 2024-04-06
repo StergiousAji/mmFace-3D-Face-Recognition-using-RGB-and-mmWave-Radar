@@ -1,0 +1,137 @@
+{
+    "mmFace-concatenate.pt": {
+        "SUBJECT": {
+            "Accuracy": 81.4863,
+            "Micro-Accuracy": 0.8138,
+            "Weighted-Averaged F-Score": 0.813
+        },
+        "LIVENESS": {
+            "Accuracy": 99.4133,
+            "Micro-Accuracy": 0.9928,
+            "Weighted-Averaged F-Score": 0.9939
+        },
+        "Coverage": 99.8698,
+        "Macro-Averaged AUC": 0.9514,
+        "KL Divergence": 0.4505
+    },
+    "mmFace-add.pt": {
+        "SUBJECT": {
+            "Accuracy": 71.4193,
+            "Micro-Accuracy": 0.7142,
+            "Weighted-Averaged F-Score": 0.7264
+        },
+        "LIVENESS": {
+            "Accuracy": 99.6745,
+            "Micro-Accuracy": 0.9967,
+            "Weighted-Averaged F-Score": 0.9968
+        },
+        "Coverage": 100.0,
+        "Macro-Averaged AUC": 0.9346,
+        "KL Divergence": 0.8362
+    },
+    "mmFace-hadamard_product.pt": {
+        "SUBJECT": {
+            "Accuracy": 84.7344,
+            "Micro-Accuracy": 0.8203,
+            "Weighted-Averaged F-Score": 0.8461
+        },
+        "LIVENESS": {
+            "Accuracy": 93.0061,
+            "Micro-Accuracy": 0.9004,
+            "Weighted-Averaged F-Score": 0.9259
+        },
+        "Coverage": 96.8099,
+        "Macro-Averaged AUC": 0.9341,
+        "KL Divergence": 0.2961
+    },
+    "mmFace-pairwise_dot_mean.pt": {
+        "SUBJECT": {
+            "Accuracy": 87.0421,
+            "Micro-Accuracy": 0.8353,
+            "Weighted-Averaged F-Score": 0.8681
+        },
+        "LIVENESS": {
+            "Accuracy": 78.6296,
+            "Micro-Accuracy": 0.7546,
+            "Weighted-Averaged F-Score": 0.7821
+        },
+        "Coverage": 95.9635,
+        "Macro-Averaged AUC": 0.8803,
+        "KL Divergence": 0.2079
+    },
+    "mmFace-pairwise_dot_max.pt": {
+        "SUBJECT": {
+            "Accuracy": 81.9008,
+            "Micro-Accuracy": 0.763,
+            "Weighted-Averaged F-Score": 0.8054
+        },
+        "LIVENESS": {
+            "Accuracy": 77.7778,
+            "Micro-Accuracy": 0.7246,
+            "Weighted-Averaged F-Score": 0.7785
+        },
+        "Coverage": 93.1641,
+        "Macro-Averaged AUC": 0.8543,
+        "KL Divergence": 0.2469
+    },
+    "mmFace-pairwise_dot_flatten.pt": {
+        "SUBJECT": {
+            "Accuracy": 85.2611,
+            "Micro-Accuracy": 0.8398,
+            "Weighted-Averaged F-Score": 0.8528
+        },
+        "LIVENESS": {
+            "Accuracy": 96.1666,
+            "Micro-Accuracy": 0.9473,
+            "Weighted-Averaged F-Score": 0.9589
+        },
+        "Coverage": 98.5026,
+        "Macro-Averaged AUC": 0.916,
+        "KL Divergence": 0.2439
+    },
+    "mmFace-multihead_attention.pt": {
+        "SUBJECT": {
+            "Accuracy": 84.6939,
+            "Micro-Accuracy": 0.8105,
+            "Weighted-Averaged F-Score": 0.8388
+        },
+        "LIVENESS": {
+            "Accuracy": 97.415,
+            "Micro-Accuracy": 0.9323,
+            "Weighted-Averaged F-Score": 0.9654
+        },
+        "Coverage": 95.7031,
+        "Macro-Averaged AUC": 0.919,
+        "KL Divergence": 0.2627
+    },
+    "mmFace-radar.pt": {
+        "SUBJECT": {
+            "Accuracy": 40.5361,
+            "Micro-Accuracy": 0.3249,
+            "Weighted-Averaged F-Score": 0.3831
+        },
+        "LIVENESS": {
+            "Accuracy": 93.8262,
+            "Micro-Accuracy": 0.752,
+            "Weighted-Averaged F-Score": 0.8894
+        },
+        "Coverage": 80.1432,
+        "Macro-Averaged AUC": 0.7715,
+        "KL Divergence": 1.425
+    },
+    "mmFace-rgb.pt": {
+        "SUBJECT": {
+            "Accuracy": 88.5534,
+            "Micro-Accuracy": 0.821,
+            "Weighted-Averaged F-Score": 0.8716
+        },
+        "LIVENESS": {
+            "Accuracy": 75.4916,
+            "Micro-Accuracy": 0.6999,
+            "Weighted-Averaged F-Score": 0.7498
+        },
+        "Coverage": 92.7083,
+        "Macro-Averaged AUC": 0.8769,
+        "KL Divergence": 0.147
+    }
+}
