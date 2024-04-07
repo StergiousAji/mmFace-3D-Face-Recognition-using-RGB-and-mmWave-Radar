@@ -79,9 +79,21 @@ class MMFace(nn.Module):
         if fuse == multihead_attention:
             self.fuse = nn.MultiheadAttention(512, num_heads=8, batch_first=True)
         
+        # PDF needs more layers?
+        self.fc_hybridpdf = nn.Sequential(
+            nn.Linear(self.fused_dims, 2048),
+            nn.BatchNorm1d(2048),
+            nn.ReLU()
+        )
+        self.fc_hybridpdf2 = nn.Sequential(
+            nn.Linear(2048, 512),
+            nn.BatchNorm1d(512),
+            nn.ReLU()
+        )
         # Hybrid: mmFace + InsightFace2D Features
         self.fc_hybrid1 = nn.Sequential(
-            nn.Linear(self.fused_dims, 64),
+            # nn.Linear(self.fused_dims, 64),
+            nn.Linear(512, 64),
             nn.BatchNorm1d(64),
             nn.ReLU()
         )
@@ -108,6 +120,8 @@ class MMFace(nn.Module):
         else:
             x, _ = self.fuse(x1, x2)
 
+        x = self.fc_hybridpdf(x)
+        x = self.fc_hybridpdf2(x)
         x = self.fc_hybrid1(x)
         y1 = self.fc_subject(x)
         y2 = self.fc_liveness(x)
