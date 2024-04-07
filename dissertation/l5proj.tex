@@ -406,7 +406,7 @@ Table \ref{tab:averaged_acc_fb} showcases each of the nine models with their res
         \label{fig:roc_multihead_attention}
     \end{subfigure}
     \vspace{0.1cm}
-    \caption{One-vs-the-Rest ROC curves plotted for each of the eight reference embeddings. Their respective AUC metrics are shown as well as the chance level and macro-averaged ROC curve.}
+    \caption{One-vs-the-Rest ROC curves plotted for each of the eight reference embeddings. Their respective AUC metrics are shown as well as the chance level and macro-averaged ROC curve. The sub-figures show the top three overall ranking models.}
     \vspace{-0.35cm}
 \end{figure*}
 
@@ -468,16 +468,17 @@ Following this, it is important to visualise the final embedding vectors of each
         \label{fig:tsne_multihead_attention}
     \end{subfigure}
     \vspace{0.3cm}
-    \caption{2D t-SNE projections of the final layer fused features after $\mathtt{fc\_hybrid1}$ of the model. Top three fusion strategies in the order of the highest overall mean accuracy.}
+    \caption{2D t-SNE projections of the final layer features of the top three overall ranking fusion strategies. Features extracted from the $\mathtt{fc\_hybrid1}$ layer of each model.}
 \end{figure*}
 
 Figures \ref{fig:tsne_hadamard_product}, \ref{fig:tsne_concatenate}, and \ref{fig:tsne_multihead_attention} depict the final features extracted from the top three overall ranking strategies after t-SNE. Each data point is colour-coded by the subject identity, with those originating from fake instances shown in a lighter shade. It is clear that all three strategies group facial data from the same subject into similar regions of the multimodal space. It can be observed that fusion by concatenation results in a tighter clustering with greater separation between the distinct grouped islands of data points. Additionally, it can be seen that some data points overlap with non-similar clusters in each of the strategies, with the least confusion being observed within the Hadamard product visualisation. This explains the higher subject recognition accuracy being attained in comparison to the concatenation and multi-head attention strategies. Nonetheless, the concatenation strategy produces a clear linear separation between fake and real faces, providing rationale for its achievement of the highest liveness detection accuracy at 99.6\%. The other two strategies do not produce such a clear separation, requiring more complex, non-linear boundaries.
 
-It is evident that there is more noise among the features from the real dataset compared to the fake, producing more erratic clusterings and confusion among all three strategies. This can be attributed to the higher level of variation of poses among the real dataset in contrast since only the frontal poses were utilised for the fake dataset. 
+It is evident that there is more noise among the features from the real dataset compared to the fake, producing more erratic clusterings and confusion among all three strategies. This can be attributed to the higher level of variation of poses among the real dataset in contrast since only the frontal poses were utilised for the fake dataset. Furthermore, so far the models have been assessed from a general perspective, treating all conditions equally. However, it is just as important to examine the performance of the models under the specific conditions, such as dim lighting and occlusion settings, in isolation.
 
 
-\subsection{Occlusion}
-TODO: RESULTS OF DIM LIGHTING AND OCCLUSION SCENARIO
+\subsection{Dim Lighting Condition}
+First, the dim lighting condition experiments are isolated and compared against the non-occluding captures under regular lighting. For brevity, Table \ref{tab:dimlighting_averaged_acc_fb} shows the mean accuracy and weighted F-measures for each of the nine models, assigning equal weight to subject and liveness predictions. Nonetheless, the findings suggest only a marginal decrease of 0.4\% in subject accuracy, on average, in comparison to regular lighting condition captures. Interestingly, the dim lighting setting produces a slight increase in liveness accuracy, averaging 0.2\% across all fusion strategies. This is most likely due to the reduced sample size amplifying the impact of outlier results. 
+
 \begin{table}[htbp]
     \centering
     \vspace{-0.1cm}
@@ -486,10 +487,48 @@ TODO: RESULTS OF DIM LIGHTING AND OCCLUSION SCENARIO
             \toprule
             \textbf{Fusion Strategy}   & {\textbf{Mean Accuracy (\%)}} & {\textbf{Mean $\bm{F_{0.5}}$ Score}} & \textbf{Coverage (\%)} \\
             \midrule
+            Concatenate          & 90.4 & 0.903 & 99.9 \\
+            Add                  & 85.5 & 0.862 & 100.0 \\
+            Hadamard Product     & 88.9 & 0.886 & 96.8 \\
+            Pairwise Dot Mean    & 82.8 & 0.825 & 96.0 \\
+            \rowcolor{lightred}
+            Pairwise Dot Max     & 79.8 & 0.792 & 93.2 \\
+            Pairwise Dot Flatten & 90.7 & 0.906 & 98.5 \\
+            \rowcolor{lightgreen}
+            Multi-Head Attention & 91.1 & 0.902 & 95.7 \\
+            \midrule
+            Radar Only           & 67.2 & 0.636 & 80.1 \\
+            RGB Only             & 82.0 & 0.811 & 92.7 \\
+            \bottomrule
+        \end{tabular}
+    }
+    \vspace{0.1cm}
+    \caption{Averaged accuracy and $F_{0.5}$ score for the seven fusion strategies and individual modalities against the dim lighting settings only. Equal weighting is applied to subject and liveness predictions.}
+    \label{tab:dimlighting_averaged_acc_fb}
+\end{table}
+
+This time the multi-head attention strategy emerges as the overall top performer, although it still exhibits a low coverage giving the pairwise dot then flatten method a slight edge. A more interesting observation arises with the RGB-only model, leveraging solely on the 2D InsightFace embedding. It achieves a relatively high $F_{0.5}$ measure of 0.821 for recognising subjects, contrary to our initial hypothesis. While it was anticipated that the RGB-only model would suffer under dim lighting, it still manages to outperform the radar-only model. Ignoring the small sample size, it is worth noting that the dim lighting environment was not controlled as rigorously with a fixed lumen rating. Instead, it was achieved through the lowest light setting of the experiment room and closed shades. Additionally, variations in ambient lighting from the sun at different capture times were not accounted for. It's evident that a more extreme condition is necessary to fully assess the impact of ambient lighting on RGB captures and the robust InsightFace model.
+
+
+\subsection{Occlusion}
+Next, the captures incorporating day-to-day occlusion scenarios where participants were asked to wear hats, sunglasses and scarves, as they normally would. In order to minimise the effect of the model learning to segment a specific colour or shape, several types of hats were used such as different coloured baseball hats and beanie hats. All sunglasses used included a mirrored lens such that the participant eyes could not be seen.
+
+
+
+\begin{table}[htbp]
+    \centering
+    \vspace{-0.1cm}
+    \resizebox{1.01\columnwidth}{1.6cm}{
+        \begin{tabular}{lccc}
+            \toprule
+            \textbf{Fusion Strategy}   & {\textbf{Mean Accuracy (\%)}} & {\textbf{Mean $\bm{F_{0.5}}$ Score}} & \textbf{Coverage (\%)} \\
+            \midrule
+            \rowcolor{lightgreen}
             Concatenate          & 91.4 & 0.911 & 99.7 \\
             Add                  & 78.8 & 0.781 & 99.2 \\
             Hadamard Product     & 88.4 & 0.829 & 93.8 \\
             Pairwise Dot Mean    & 82.4 & 0.764 & 92.6 \\
+            \rowcolor{lightred}
             Pairwise Dot Max     & 77.6 & 0.710 & 91.5 \\
             Pairwise Dot Flatten & 88.7 & 0.871 & 98.2 \\
             Multi-Head Attention & 82.5 & 0.813 & 98.5 \\
@@ -500,15 +539,15 @@ TODO: RESULTS OF DIM LIGHTING AND OCCLUSION SCENARIO
         \end{tabular}
     }
     \vspace{0.1cm}
-    \caption{TODO}
+    \caption{Averaged accuracy and $F_{0.5}$ score for the seven fusion strategies and individual modalities against the occlusion scenarios only. Equal weighting is applied to subject and liveness predictions.}
     \label{tab:occlusion_averaged_acc_fb}
-    \vspace{-0.9cm}
 \end{table}
 
 
 \subsection{Discussion}
 % TODO: SENSITIVITY & (1 - SPECIFICITY)
 % TODO: AUC OF INDIVIDUAL MODALITIES
+% TODO: MULTIHEAD BAD COS OF LOW COVERAGE
 It is important to note that the AUC metric is invariant to the decision threshold which has a profound impact whenever there is disparity in the cost of false negatives over false positives. In face recognition, especially for secure biometric authentication, false positives indicate a large flaw meaning the model should prioritise minimising them, even if that entails an increase of false negatives which are more tolerable. This is especially true for the binary liveness check. The model should be rewarded for minimising the success rate of 2D spoofing attacks. For this reason
 
 

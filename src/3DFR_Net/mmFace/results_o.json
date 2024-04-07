@@ -1,137 +1,137 @@
 {
     "mmFace-concatenate.pt": {
         "SUBJECT": {
-            "Accuracy": 83.2789,
-            "Micro-Accuracy": 0.8301,
-            "Weighted-Averaged F-Score": 0.8313
+            "Accuracy": 82.7586,
+            "Micro-Accuracy": 0.825,
+            "Weighted-Averaged F-Score": 0.8269
         },
         "LIVENESS": {
-            "Accuracy": 99.5428,
+            "Accuracy": 99.5298,
             "Micro-Accuracy": 0.9922,
-            "Weighted-Averaged F-Score": 0.9948
+            "Weighted-Averaged F-Score": 0.9947
         },
-        "Coverage": 99.6745,
-        "Macro-Averaged AUC": 0.9466,
-        "KL Divergence": 0.4534
+        "Coverage": 99.6875,
+        "Macro-Averaged AUC": 0.9473,
+        "KL Divergence": 0.4255
     },
     "mmFace-add.pt": {
         "SUBJECT": {
-            "Accuracy": 58.0052,
-            "Micro-Accuracy": 0.5755,
-            "Weighted-Averaged F-Score": 0.5688
+            "Accuracy": 58.3987,
+            "Micro-Accuracy": 0.5812,
+            "Weighted-Averaged F-Score": 0.5755
         },
         "LIVENESS": {
-            "Accuracy": 99.4751,
-            "Micro-Accuracy": 0.987,
-            "Weighted-Averaged F-Score": 0.9932
+            "Accuracy": 99.3721,
+            "Micro-Accuracy": 0.9891,
+            "Weighted-Averaged F-Score": 0.9928
         },
-        "Coverage": 99.2188,
-        "Macro-Averaged AUC": 0.8945,
-        "KL Divergence": 0.8458
+        "Coverage": 99.5312,
+        "Macro-Averaged AUC": 0.895,
+        "KL Divergence": 0.7696
     },
     "mmFace-hadamard_product.pt": {
         "SUBJECT": {
-            "Accuracy": 83.3333,
-            "Micro-Accuracy": 0.7812,
-            "Weighted-Averaged F-Score": 0.8179
+            "Accuracy": 83.7364,
+            "Micro-Accuracy": 0.7844,
+            "Weighted-Averaged F-Score": 0.822
         },
         "LIVENESS": {
-            "Accuracy": 93.5417,
-            "Micro-Accuracy": 0.877,
-            "Weighted-Averaged F-Score": 0.9252
+            "Accuracy": 93.6614,
+            "Micro-Accuracy": 0.8773,
+            "Weighted-Averaged F-Score": 0.9263
         },
-        "Coverage": 93.75,
-        "Macro-Averaged AUC": 0.908,
-        "KL Divergence": 0.317
+        "Coverage": 93.6719,
+        "Macro-Averaged AUC": 0.9054,
+        "KL Divergence": 0.287
     },
     "mmFace-pairwise_dot_mean.pt": {
         "SUBJECT": {
-            "Accuracy": 90.4427,
-            "Micro-Accuracy": 0.8379,
-            "Weighted-Averaged F-Score": 0.891
+            "Accuracy": 90.5692,
+            "Micro-Accuracy": 0.8328,
+            "Weighted-Averaged F-Score": 0.8907
         },
         "LIVENESS": {
-            "Accuracy": 74.4202,
-            "Micro-Accuracy": 0.6895,
-            "Weighted-Averaged F-Score": 0.7419
+            "Accuracy": 74.5115,
+            "Micro-Accuracy": 0.6852,
+            "Weighted-Averaged F-Score": 0.7493
         },
-        "Coverage": 92.6432,
-        "Macro-Averaged AUC": 0.8905,
-        "KL Divergence": 0.2186
+        "Coverage": 91.9531,
+        "Macro-Averaged AUC": 0.8888,
+        "KL Divergence": 0.2103
     },
     "mmFace-pairwise_dot_max.pt": {
         "SUBJECT": {
-            "Accuracy": 84.4239,
-            "Micro-Accuracy": 0.7728,
-            "Weighted-Averaged F-Score": 0.834
+            "Accuracy": 83.9864,
+            "Micro-Accuracy": 0.7703,
+            "Weighted-Averaged F-Score": 0.8291
         },
         "LIVENESS": {
-            "Accuracy": 70.697,
-            "Micro-Accuracy": 0.6471,
-            "Weighted-Averaged F-Score": 0.6968
+            "Accuracy": 71.891,
+            "Micro-Accuracy": 0.6594,
+            "Weighted-Averaged F-Score": 0.7096
         },
-        "Coverage": 91.5365,
-        "Macro-Averaged AUC": 0.8157,
-        "KL Divergence": 0.2577
+        "Coverage": 91.7188,
+        "Macro-Averaged AUC": 0.8117,
+        "KL Divergence": 0.2725
     },
     "mmFace-pairwise_dot_flatten.pt": {
         "SUBJECT": {
-            "Accuracy": 84.3605,
-            "Micro-Accuracy": 0.8288,
-            "Weighted-Averaged F-Score": 0.8419
+            "Accuracy": 85.4992,
+            "Micro-Accuracy": 0.843,
+            "Weighted-Averaged F-Score": 0.8541
         },
         "LIVENESS": {
-            "Accuracy": 93.0417,
-            "Micro-Accuracy": 0.9141,
-            "Weighted-Averaged F-Score": 0.9286
+            "Accuracy": 92.8685,
+            "Micro-Accuracy": 0.9156,
+            "Weighted-Averaged F-Score": 0.9273
         },
-        "Coverage": 98.2422,
-        "Macro-Averaged AUC": 0.9351,
-        "KL Divergence": 0.2422
+        "Coverage": 98.5938,
+        "Macro-Averaged AUC": 0.9412,
+        "KL Divergence": 0.2411
     },
     "mmFace-multihead_attention.pt": {
         "SUBJECT": {
-            "Accuracy": 68.2089,
-            "Micro-Accuracy": 0.6719,
-            "Weighted-Averaged F-Score": 0.6565
+            "Accuracy": 67.5397,
+            "Micro-Accuracy": 0.6648,
+            "Weighted-Averaged F-Score": 0.6578
         },
         "LIVENESS": {
-            "Accuracy": 96.7614,
-            "Micro-Accuracy": 0.9531,
-            "Weighted-Averaged F-Score": 0.9647
+            "Accuracy": 96.9048,
+            "Micro-Accuracy": 0.9539,
+            "Weighted-Averaged F-Score": 0.9661
         },
-        "Coverage": 98.5026,
-        "Macro-Averaged AUC": 0.9076,
-        "KL Divergence": 0.2505
+        "Coverage": 98.4375,
+        "Macro-Averaged AUC": 0.9067,
+        "KL Divergence": 0.2462
     },
     "mmFace-radar.pt": {
         "SUBJECT": {
-            "Accuracy": 41.0236,
-            "Micro-Accuracy": 0.3392,
-            "Weighted-Averaged F-Score": 0.3912
+            "Accuracy": 41.182,
+            "Micro-Accuracy": 0.343,
+            "Weighted-Averaged F-Score": 0.3908
         },
         "LIVENESS": {
-            "Accuracy": 98.4252,
-            "Micro-Accuracy": 0.8138,
-            "Weighted-Averaged F-Score": 0.9424
+            "Accuracy": 99.3433,
+            "Micro-Accuracy": 0.8273,
+            "Weighted-Averaged F-Score": 0.9533
         },
-        "Coverage": 82.6823,
-        "Macro-Averaged AUC": 0.7606,
-        "KL Divergence": 1.443
+        "Coverage": 83.2812,
+        "Macro-Averaged AUC": 0.7791,
+        "KL Divergence": 1.3075
     },
     "mmFace-rgb.pt": {
         "SUBJECT": {
-            "Accuracy": 87.8592,
-            "Micro-Accuracy": 0.7962,
-            "Weighted-Averaged F-Score": 0.8587
+            "Accuracy": 87.3473,
+            "Micro-Accuracy": 0.782,
+            "Weighted-Averaged F-Score": 0.8465
         },
         "LIVENESS": {
-            "Accuracy": 69.181,
-            "Micro-Accuracy": 0.627,
-            "Weighted-Averaged F-Score": 0.6775
+            "Accuracy": 70.3316,
+            "Micro-Accuracy": 0.6297,
+            "Weighted-Averaged F-Score": 0.6865
         },
-        "Coverage": 90.625,
-        "Macro-Averaged AUC": 0.8611,
-        "KL Divergence": 0.1487
+        "Coverage": 89.5312,
+        "Macro-Averaged AUC": 0.8613,
+        "KL Divergence": 0.1658
     }
 }
