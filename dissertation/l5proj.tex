@@ -206,7 +206,7 @@ To illustrate the results of the collection process, the left half of Figure \re
     \centering
     \includegraphics[width=1\textwidth]{figures/model_workflow.png}
     \vspace{0.001cm}
-    \caption{High-level model workflow diagram of our proposed 3D face recognition system incorporating millimetre-wave radar and RGB images.}
+    \caption{High-level model workflow diagram of our proposed 3D face recognition system incorporating millimetre wave radar and RGB images.}
     \label{fig:model_workflow}
     \vspace{0.1cm}
 \end{figure*}
@@ -215,7 +215,7 @@ To illustrate the results of the collection process, the left half of Figure \re
     \centering
     \includegraphics[width=1.02\textwidth]{figures/model_architecture.png}
     \vspace{0.001cm}
-    \caption{Model architecture of our \texttt{mmFace} model displaying each layer, as well as its input and output sizes.}
+    \caption{Architecture diagram of our \texttt{mmFace} model displaying each layer, as well as their input and output channels.}
     \label{fig:model_architecture}
     \vspace{-0.2cm}
 \end{figure*}
@@ -335,7 +335,7 @@ We investigate seven feature-level fusion strategies listed as follows in terms 
 We evaluate our models through a zero-shot classification task in order to assess its discriminative ability at representing the four unseen faces. This also examines the generalisability of the model to new faces, a task akin to real world face recognition problems. We utilise various metrics such as the prediction accuracies, precision, recall, and ROC AUC to analyse the different fusion strategies. They are compared against each other as well as simply using the individual modalities. Prior to the zero-shot task, we extract the features from the final hidden layer, \verb|fc_hybrid1|, of eight pre-selected reference input pairs. These reference embeddings serve as the basis for comparison against the rest of the test set, encompassing both live and fake instances of the four unseen subjects. The reference frames were picked out of the frontal pose, non-occlusion, and regular lighting category ($0^\circ , \, \text{NO}, \, \text{RLC}$) as this is the most frequently encountered setting. During inference, the classifier stage of the model is discarded with the final embeddings being used for comparison. 
 
 
-\subsection{Overal Results}
+\subsection{General Results}
 Firstly, we gauge the accuracies of the models in predicting both the facial identity and authenticity. This involves determining the most similar reference embedding for each specific test sample using the maximal cosine similarity score. A decision threshold $t$ of 0.5 is used such that the maximal score must be greater than it to qualify as a valid prediction, otherwise, it is marked as a failed prediction. This ensures that predictions are not made for output embeddings that are too far or equidistant to all reference embeddings such that no practical decision can be made. 
 
 All models demonstrate high coverage, as illustrated in Table \ref{tab:averaged_acc_fb}, with the radar-only model achieving the lowest coverage at 79.8\%. Secondly, since the eight selected reference instances exhibit two properties -- facial identity and liveness status -- this allows for the calculation of separate metrics to assess each model's ability to predict identity independently of the liveness check.
