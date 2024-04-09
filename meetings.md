@@ -292,3 +292,23 @@ https://github.com/deepinsight/insightface
 
 - Should change Research Aims section in Intro to Contributions and summarise achievements of project.
 - Final presentation date around week 3 of April since deadline extended to 30th.
+
+
+## Meeting 23 (02/04/24) - 0:15
+
+- Problem statement section of introduction
+- Should only go in detail of best performing fusion strategies.
+
+
+## Meeting 24 (08/04/24) - 0:30
+
+- Add challenges (Problem Statement) section to intro - What things am I going to overcome in methodology
+- Change BACKGROUND to RELATED WORK
+    - Related Work to mmWave Face Recognition
+- Move data pre-processing before mmFace and make into subsection
+    - Move each stage into its own subsubsection and formalise using high-level functions (InsightFace(image) → rgb_emb, mmFace(ard) → radar_emb)
+    - Move loss function to Class Prediction?
+    - Move testing to EVALUATION (rename to Experimental Settings)
+    - Don’t use numberings for the fusion strategies
+- Add source code link to ABSTRACT?
+- Add Limitations subsection to CONCLUSIONS

@@ -45,10 +45,10 @@ venv.bak/
 # Virtual Environment #
 3dfr/
 
-# 3DFR_Net #
+# mmFace #
 data/
-model/
 models/
+buffalo_l/
 frontal_images/
 
 # dissertation #

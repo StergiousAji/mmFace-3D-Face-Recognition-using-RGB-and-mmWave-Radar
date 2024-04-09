@@ -1,5 +1,7 @@
 # mmFace: 3D Face Recognition using RGB and Millimetre Wave Radar
 
+A novel hybrid 3D face recognition system that harnesses both RGB images and millimetre wave face signatures to accurately recognise facial identities and detect their authenticity. 
+
 ## Project Structure Overview:
 
 * `meetings.md` Records of the meetings during the project and subsequent notes made
