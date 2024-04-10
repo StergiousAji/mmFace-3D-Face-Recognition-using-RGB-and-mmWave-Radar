@@ -326,55 +326,6 @@ We investigate seven feature-level fusion strategies listed as follows in terms 
     \end{align*}
 \end{enumerate}
 
-% \textbf{Concatenate:} This is a straightforward concatenation of the two feature vectors, the most common strategy employed for its ease of implementation and effectiveness as all information is preserved.
-% $$\mathtt{concatenate}(\bm{\vec{x}}, \bm{\vec{y}}) = \left[\bm{\vec{x}}, \bm{\vec{y}}\right]$$
-
-% \textbf{Add:} This involves an element-wise vector addition of $\bm{\vec{x}}$ and $\bm{\vec{y}}$. This can be highly effective when both feature vectors point in the same direction compounding their resulting summation. However, if both feature vectors point in opposite directions, then this would result in a more orthogonal resulting vector direction.
-% % $$\mathtt{add}(\bm{\vec{x}}, \bm{\vec{y}}) = [x_1 + y_1, x_2 + y_2, \ldots, x_n + y_n]$$
-% $$\mathtt{add}(\bm{\vec{x}}, \bm{\vec{y}}) = \left[(x_i + y_i) \ | \ \forall i \in \{1, \ldots, n\}\right]$$
-
-% \textbf{Hadamard Product:} This is the element-wise vector multiplication or the Hadamard product of $\bm{\vec{x}}$ and $\bm{\vec{y}}$. The idea here is to preserve the original feature vector structure while emphasising relationships between corresponding feature elements. It has been used successfully for multimodal residual learning by Kim et al. \cite{kim2016multimodal}.
-% % $$\mathtt{hadamard\_product}(\bm{\vec{x}}, \bm{\vec{y}}) = [x_1 \cdot y_1, x_2 \cdot y_2,\ldots, x_n \cdot y_n]$$
-% $$\verb|hadamard_product|(\bm{\vec{x}}, \bm{\vec{y}}) = \left[(x_iy_i) \ | \ \forall i \in \{1, \ldots, n\}\right]$$
-
-% \textbf{Pairwise Dot Mean:} This involves a dot product of the transpose of vector $\bm{\vec{x}}$ with vector $\bm{\vec{y}}$, resulting in an $n \times n$ matrix followed by a column-wise mean operation to produce an $n$-dimensional fused feature vector. The rationale behind this stems from the pairwise dot providing a more comprehensive blending of the feature. Each radar feature is multiplied by every RGB feature, and the resulting values are all attended to during the pooling process to reduce the dimensionality of the matrix.
-% \begin{align*}
-%     \mathit{Let} \ \bm{Z} & = \ \bm{\vec{x}}^T\!\cdot \bm{\vec{y}} \ \mathit{in} \\
-%     % \mathtt{pairwise\_dot\_average}&(\bm{\vec{x}}, \bm{\vec{y}}) =\\& \left[ \frac{1}{n}\sum_{i=1}^n \bm{Z}_{i,1}, \frac{1}{n} \sum_{i=1}^n \bm{Z}_{i,2}, \ldots, \frac{1}{n}\sum_{i=1}^n \bm{Z}_{i,n} \right] \\
-%     \hspace{-0.2cm}\verbtt{pairwise_dot_mean}(\bm{\vec{x}}, \bm{\vec{y}}) &= \left[ \frac{1}{n} \sum_{j=1}^n \bm{Z}_{j,i} \ \middle| \ \forall i \in \{1, \ldots, n\}\right]
-% \end{align*}
-
-% \textbf{Pairwise Dot Max:} This similarly involves the dot product followed by a column-wise max. In contrast to averaging, which could squash certain feature correlations, this approach isolates larger features resulting from the exhaustive mixing of both modalities, a similar intuition behind the max-pooling layers. Here, $*$ denotes the selection of all rows of a matrix.
-% \begin{align*}
-%     \mathit{Let} \ \bm{Z} & = \bm{\vec{x}}^T\!\cdot \bm{\vec{y}} \ \mathit{in} \\
-%     % \mathtt{pairwise\_dot\_max}(\bm{\vec{x}}, &\bm{\vec{y}}) =\\ &\left[ \max(\bm{Z}_{*1}), \max(\bm{Z}_{*,2}), \ldots, \max(\bm{Z}_{*,n}) \right] \\
-%     \verbtt{pairwise_dot_max}(\bm{\vec{x}}, \bm{\vec{y}}) &= \left[ \max(\bm{Z}_{*,i}) \ \middle| \ \forall i \in \{1, \ldots, n\} \right]
-% \end{align*}
-
-% \textbf{Pairwise Dot Flatten:} This is the final pairwise dot strategy now following the dot product with a flatten operation of the $n \times n$ matrix into an $n^2$-dimensional vector. This conversely retains all correlations between the radar and RGB features, leaving the subsequent fully connected layers of the model to determine which features are most relevant.
-% \vspace*{-0.1cm}
-% \begin{align*}
-%     \mathit{Let} \ \bm{Z} = & \ \bm{\vec{x}}^T\!\cdot \bm{\vec{y}} \ \mathit{in} \\
-%     \verbtt{pairwise_dot_flatten}(\bm{\vec{x}}, &\bm{\vec{y}}) =\\ &\left[ \bm{Z}_{1,1}, \bm{Z}_{1,2}, \ldots, \bm{Z}_{n\!,n\text{-}1}, \bm{Z}_{n,n} \right]
-% \end{align*} 
-
-% \textbf{Multi-Head Attention:} This involves using a self-attention mechanism prevalent in transformer architectures popularised by the seminal paper by Vaswani et al. \cite{vaswani2017attention}. It was initially designed for natural language processing tasks but has shown a lot of success in computer vision. The key idea of using self-attention is to isolate and mix the most important aspects from both feature vectors by converting them into three distinct representations: a query $\bm{Q}$, key $\bm{K}$, and value $\bm{V}$. Each embedding plays a unique role such as the query capturing features that the model deems relevant for making predictions. To do this $\bm{Q}$ may focus on features that are shared or discriminative across both modalities such as facial landmarks and overall identity information. Meanwhile, $\bm{K}$ might focus on modality-specific elements such as the colour and texture information embedded within the RGB feature vector, while 3D structural details being offered by the radar embedding. Finally, $\bm{V}$ encapsulates the actual fine-grained details captured by both modalities that will be attended to by the model based on the resulting query-key similarities. In order to maximise this affect, this mechanism is applied separately across multiple attention heads, reducing the risk of overlooking salient characteristics.
-% This is expressed formally below, where first, the two inputs are stacked vertically, $\b{X} = \begin{bmatrix} \bm{\vec{x}} \\ \bm{\vec{y}} \end{bmatrix}$, then copied through threeseparate linear transformations to obtain the $\bm{Q}$, $\bm{K}$, and $\bm{V}$ matrices.This is done for each of the $k$ attention heads using separate learnable weight matrices.
-% % TODO: HOW ATTENTION FROM PYTORCH DOCS
-% % TODO: POSITIONAL ENCODING??
-% \begin{align*}
-%     \mathit{Let} \ h_i = \text{Attention}(\bm{Q}_i&, \bm{K}_i, \bm{V}_i) \ \mathit{in} \\
-%     \hspace{-1cm}\verbtt{multihead_attention}(\bm{\vec{x}}, \bm{\vec{y}}) &= [h_1, \ldots,h_k]\bm{W}^O \\
-%     \mathit{where} \ 
-%     % \bm{X} = 
-%     % \begin{bmatrix}
-%     %     \bm{\vec{x}} \\
-%     %     \bm{\vec{y}}
-%     % \end{bmatrix} 
-%     % \bm{Q}_i = \bm{W}_{Q_i}\bm{X}, \ \bm{K}_i = \bm{W}_{K_i}&\bm{X} \ \mathit{and} \ \bm{V_i = \bm{W}_{V_i}\bm{X}
-%     \bm{Q}_i = \bm{W}^{Q}_i\bm{X}, \ \bm{K}_i = \bm{W}^{K}_i&\bm{X} \ \mathit{and} \ \bm{V_i} = \bm{W}^{V}_i\bm{X}
-% \end{align*}
-
 
 \section{Evaluation}
 We evaluate our models through a zero-shot classification task in order to assess its discriminative ability at representing the four unseen faces. This also examines the extent at which the model can generalise to new faces, a task akin to real-world face recognition scenarios. Various metrics, including prediction accuracies, precision, recall, and ROC AUC are used to analyse the different fusion strategies. These metrics help to benchmark the feature fusion methods against solely using the individual modalities. Prior to the zero-shot task, we extract the features from the final hidden layer, \verb|fc_hybrid1|, of eight pre-selected reference input pairs. These reference embeddings serve as the basis for comparison against the rest of the test set, encompassing both live and fake instances of the four unseen subjects. The reference frames were picked out of the frontal pose, non-occluding, regular lighting category ($0^\circ , \, \text{NO}, \, \text{RLC}$) as this represents the most frequently encountered setting. During inference, the classifier component of the model is discarded such that the final embeddings are used for comparison. 
@@ -415,7 +366,6 @@ Table \ref{tab:subject_liveness_acc_fb} presents the subject and liveness accura
     \vspace{-0.1cm}
 \end{table}
 
-% TODO: Discuss results of individual modalities
 The best and worst performers are highlighted in green and red respectively. Evidently, certain fusion strategies excel at discriminating subjects, while others are more adept at discerning face liveness. Among these strategies, the concatenation method emerges as the most effective for accurately verifying liveness. Meanwhile, the pairwise dot then mean strategy outperforms within the subject category, attaining the highest accuracy and $F_{0.5}$ measure. However, it's ability to perceive face liveness is notably lacking, obtaining an accuracy that is even lower than simply using the mmWave radar features. This is likely due to the average-pooling step squashing outlier feature correlations between the two modalities that may be relevant for the liveness detection. Lastly, the vector addition proves to be very ineffective in generating identity-specific embeddings, being much better at predicting liveness in comparison. 
 
 Examining the performance at predicting each category independently provides insight into each strategy and their effectiveness at classifying unseen data to their respective labels. However, it is just as important to determine the overall best strategy that performs equally well in both categories.
@@ -505,7 +455,7 @@ Table \ref{tab:macro_auc} lists the macro-averaged AUC metrics for all nine mode
         \end{tabular}
     }
     \vspace{0.1cm}
-    \caption{Table listing the macro-averaged AUC metrics for all fusion methods as well as the individual modalities.}
+    \caption{Table listing the macro-averaged ROC AUC metrics for all fusion methods as well as the individual modalities.}
     \label{tab:macro_auc}
     \vspace{-0.3cm}
 \end{table}
