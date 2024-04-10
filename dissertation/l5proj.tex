@@ -230,7 +230,7 @@ where $c$ denotes the speed of light. The Soli chip comprises a single transmit 
 In order to simplify computation, the magnitudes of each complex value encoding the range $r$ and Doppler $d$ bin, are derived to generate an Absolute Range-Doppler (ARD) map as follows:
 $$\mathtt{ARD}_{r\!,d} = \text{abs}(\mathtt{CRD}_{r\!,d})$$
 
-Finally, data augmentations are applied to both the \texttt{ARD} and RGB frames, restricted to horizontal and vertical flips due to the distinct nature of both modalities. Augmentations were carefully selected to be semantically consistent across the layout of the mmWave face signatures and colour images. Rotational augmentations, for instance, cannot be seamlessly translated into the range and Doppler bins of the \texttt{ARD} as is the case with traditional images. Data augmentations aimed to inflate the small dataset size as well as introduce positional equivariance for the model to learn facial features consistently across different instances.
+Finally, data augmentations are applied to both the ARD and RGB frames, restricted to horizontal and vertical flips due to the distinct nature of both modalities. Augmentations were carefully selected to be semantically consistent across the layout of the mmWave face signatures and colour images. Rotational augmentations, for instance, cannot be seamlessly translated into the range and Doppler bins of the \texttt{ARD} as is the case with traditional images. Data augmentations aimed to inflate the small dataset size as well as introduce positional equivariance for the model to learn facial features consistently across different instances.
 
 
 \subsection{mmFace}
@@ -264,7 +264,6 @@ As our model generates two predictions, we merge the losses from each with equal
 $$\mathcal{L} = L_{\text{CE}}(s, \hat{s}) + L_{\text{CE}}(l, \hat{l})$$
 where $s$ and $l$ represent the true subject and liveness labels.
 
-% TODO: CPU INFERENCE TIME??
 \vspace{0.2cm}
 \subsubsection{Training}
 We created and trained our models using PyTorch version 2.1 \cite{paszke2019pytorch}, running for 20 to 25 epochs. We opted for a fixed learning rate of 0.01, an L2 regularisation rate of $1e\text{--3}$, and a momentum of 0.9. Furthermore, we trained our models on a random subset of 17 out of the total 21 subjects, which accounts for just over an 80\% training split. Note that this includes the 17 fake counterparts, giving 34 total subject instances. The remaining four subjects (or eight instances) are left out for testing. 
@@ -273,7 +272,6 @@ All linear layers within the feedforward network are followed by batch normalisa
 
 
 \subsection{Feature-level Fusion Strategies}
-% TODO: DIAGRAMS FOR ALL SEVEN FUSIONS?? MULTIHEAD ATTENTION
 % TODO: BACKUP WITH SOURCES
 We investigate seven feature-level fusion strategies listed as follows in terms of two $n$-dimensional feature vector inputs, $\bm{\vec{x}} = [x_1, x_2, \ldots, x_n]$ and $\bm{\vec{y}} = [y_1, y_2, \ldots, y_n]$:
 \vspace{-0.1cm}
@@ -314,8 +312,6 @@ We investigate seven feature-level fusion strategies listed as follows in terms 
 
     \item \textbf{Multi-Head Attention:} This involves using a self-attention mechanism prevalent in transformer architectures popularised by the seminal paper by Vaswani et al. \cite{vaswani2017attention}. It was initially designed for natural language processing tasks but has shown a lot of success in computer vision. The key idea of using self-attention is to isolate and mix the most important aspects from both feature vectors by converting them into three distinct representations: a query $\bm{Q}$, key $\bm{K}$, and value $\bm{V}$. Each embedding plays a unique role such as the query capturing features that the model deems relevant for making predictions. To do this $\bm{Q}$ may focus on features that are shared or discriminative across both modalities such as facial landmarks and overall identity information. Meanwhile, $\bm{K}$ might focus on modality-specific elements such as the colour and texture information embedded within the RGB feature vector, while 3D structural details being offered by the radar embedding. Finally, $\bm{V}$ encapsulates the actual fine-grained details captured by both modalities that will be attended to by the model based on the resulting query-key similarities. In order to maximise this affect, this mechanism is applied separately across multiple attention heads, reducing the risk of overlooking salient characteristics.
     This is expressed formally below, where first, the two inputs are stacked vertically, $\bm{X} = \begin{bmatrix} \bm{\vec{x}} \\ \bm{\vec{y}} \end{bmatrix}$, then copied through three separate linear transformations to obtain the $\bm{Q}$, $\bm{K}$, and $\bm{V}$ matrices. This is done for each of the $k$ attention heads using separate learnable weight matrices.
-    % TODO: HOW ATTENTION FROM PYTORCH DOCS
-    % TODO: POSITIONAL ENCODING??
     \begin{align*}
         \mathit{Let} \ h_i = \text{Attention}(\bm{Q}_i&, \bm{K}_i, \bm{V}_i) \ \mathit{in} \\
         \hspace{-1cm}\verbtt{multihead_attention}(\bm{\vec{x}}, \bm{\vec{y}}) &= [h_1, \ldots, h_k]\bm{W}^O \\
@@ -549,45 +545,47 @@ Nonetheless, the concatenation strategy produces a clearer linear separation bet
 Thus far the models have been assessed from a general perspective, treating all conditions equally. However, it is equally as important to examine the performance of the models under the specific conditions in isolation, such as dim lighting and occlusion settings.
 
 
-% TODO: REGULAR LIGHTING CONDITION AND NO OCCLUSION?
-% \subsection{Non-occluding Regular Lighting Condition}
+\subsection{Regular Lighting Condition}
+Firstly, we focus on the most frequently encountered face recognition case, namely the faces under standard lighting with no facial obfuscation (NO, RLC). The same eight reference frames as in the general experiment are used for this subset of the test collection. For brevity, Table \ref{tab:reglighting_averaged_acc_fb} displays the mean accuracy and weighted F-measures for each of the nine models, assigning equal weight to subject and liveness predictions. 
 
-% \begin{table}[htbp]
-%     \centering
-%     \vspace{-0.1cm}
-%     \resizebox{1.01\columnwidth}{1.65cm}{
-%         \begin{tabular}{lccc}
-%             \toprule
-%             \textbf{Fusion Strategy}   & {\textbf{Mean Accuracy (\%)}} & {\textbf{Mean $\bm{F_{0.5}}$ Score}} & \textbf{Coverage (\%)} \\
-%             \midrule
-%             Concatenate          & 90.4 & 0.903 & 99.9 \\
-%             Add                  & 85.5 & 0.862 & 100.0 \\
-%             Hadamard Product     & 88.9 & 0.886 & 96.8 \\
-%             Pairwise Dot Mean    & 82.8 & 0.825 & 96.0 \\
-%             \rowcolor{lightred}
-%             Pairwise Dot Max     & 79.8 & 0.792 & 93.2 \\
-%             Pairwise Dot Flatten & 90.7 & 0.906 & 98.5 \\
-%             \rowcolor{lightgreen}
-%             Multi-Head Attention & 91.1 & 0.902 & 95.7 \\
-%             \midrule
-%             Radar Only           & 67.2 & 0.636 & 80.1 \\
-%             RGB Only             & 82.0 & 0.811 & 92.7 \\
-%             \bottomrule
-%         \end{tabular}
-%     }
-%     \vspace{0.1cm}
-%     \caption{Averaged accuracy and $F_{0.5}$ score for the seven fusion strategies and individual modalities against the \textbf{non-occluding regular lighting} settings only. Equal weighting is applied to subject and liveness predictions.}
-%     \label{tab:reglighting_averaged_acc_fb}
-%     \vspace{-0.2cm}
-% \end{table}
-
-
-\subsection{Dim Lighting Condition}
-First, the dim lighting condition experiments are isolated and compared against the non-occluding captures under regular lighting (NO, RLC). The eight references frames are also retaken from the ($0^\circ$, NO, DLC) setting. For brevity, Table \ref{tab:dimlighting_averaged_acc_fb} shows the mean accuracy and weighted F-measures for each of the nine models, assigning equal weight to subject and liveness predictions. Nonetheless, the findings suggest only a marginal decrease of 0.43\% in subject accuracy, on average, in comparison to captures under regular light. Interestingly, the dim lighting setting produces a slight increase in liveness accuracy, averaging 0.2\% across all fusion strategies. This is most likely due to the reduced sample size, amplifying the impact of outlier results. 
+The results of the models under standard lighting mirrors the main trends in the general findings, with the Hadamard product narrowly beating multi-head attention and concatenation in mean accuracy. Meanwhile, the pairwise dot max yielding the lowest metrics. Notably, the concatenation strategy does yield a marginally higher $F_{0.5}$ measure by 0.02 compared to the element-wise product. The results from this setting serve as a baseline for comparison against the dim lighting and occlusion scenarios, which is subsequently analysed in isolation.
 
 \begin{table}[htbp]
     \centering
     \vspace{-0.1cm}
+    \resizebox{1.01\columnwidth}{1.65cm}{
+        \begin{tabular}{lccc}
+            \toprule
+            \textbf{Fusion Strategy}   & {\textbf{Mean Accuracy (\%)}} & {\textbf{Mean $\bm{F_{0.5}}$ Score}} & \textbf{Coverage (\%)} \\
+            \midrule
+            Concatenate          & 91.7 & 0.918 & 99.6 \\
+            Add                  & 80.9 & 0.809 & 100.0 \\
+            \rowcolor{lightgreen}
+            Hadamard Product     & 92.0 & 0.916 & 97.5 \\
+            Pairwise Dot Mean    & 85.0 & 0.845 & 95.3 \\
+            \rowcolor{lightred}
+            Pairwise Dot Max     & 77.6 & 0.778 & 95.3 \\
+            Pairwise Dot Flatten & 91.1 & 0.907 & 97.5 \\
+            Multi-Head Attention & 91.8 & 0.903 & 91.6 \\
+            \midrule
+            Radar Only           & 67.9 & 0.652 & 80.8 \\
+            RGB Only             & 77.7 & 0.775 & 95.5 \\
+            \bottomrule
+        \end{tabular}
+    }
+    \vspace{0.1cm}
+    \caption{Averaged accuracy and $F_{0.5}$ score for the seven fusion strategies and individual modalities against the \textbf{non-occluding regular lighting} settings only. Equal weighting is applied to subject and liveness predictions.}
+    \label{tab:reglighting_averaged_acc_fb}
+    \vspace{-0.2cm}
+\end{table}
+
+
+\subsection{Dim Lighting Condition}
+Next, the dim lighting condition experiments are isolated and compared against the non-occluding captures under regular lighting (NO, RLC). The eight references frames are now retaken from the ($0^\circ$, NO, DLC) subset. Table \ref{tab:dimlighting_averaged_acc_fb} shows the aggregated metrics for each of the nine models, applying an equal weight to subject and liveness measures. The findings suggest only a marginal decrease of 0.43\% in subject accuracy, on average, in comparison to captures under regular light. Interestingly, the dim lighting setting produces a slight increase in liveness accuracy, averaging 0.2\% across all fusion strategies. This is most likely due to the reduced sample size, amplifying the impact of outlier results. 
+
+\begin{table}[htbp]
+    \centering
+    \vspace{-0.4cm}
     \resizebox{1.01\columnwidth}{1.65cm}{
         \begin{tabular}{lccc}
             \toprule
@@ -611,7 +609,7 @@ First, the dim lighting condition experiments are isolated and compared against 
     \vspace{0.1cm}
     \caption{Averaged accuracy and $F_{0.5}$ score for the seven fusion strategies and individual modalities, isolated on the \textbf{dim lighting} settings. Equal weighting is applied to subject and liveness predictions.}
     \label{tab:dimlighting_averaged_acc_fb}
-    \vspace{-0.2cm}
+    \vspace{-0.5cm}
 \end{table}
 
 This time the multi-head attention strategy emerges as the overall top performer, although it still exhibits a low coverage giving the pairwise dot-then-flatten method a slight edge. A more interesting observation arises with the RGB-only model, relying solely on the 2D InsightFace embedding. It achieves a relatively high $F_{0.5}$ measure of 0.821 for recognising subjects, contrary to our initial hypothesis. While it was anticipated that the RGB-only model would suffer under dim lighting, it still manages to outperform the radar-only model. Ignoring the small sample size, it is worth noting that the dim lighting environment was not controlled as rigorously such as with a measured lumen rating. Instead, it was achieved through the lowest light setting of our experiment room and closed shades. Additionally, variations in ambient lighting from the sun at different capture times were not accounted for. It is evident that a more extreme condition is necessary to fully assess the impact of ambient lighting on RGB captures and the robust InsightFace model.
@@ -620,11 +618,11 @@ This time the multi-head attention strategy emerges as the overall top performer
 \subsection{Occlusion}
 Next, the captures incorporating day-to-day occlusion scenarios where participants were asked to wear hats, sunglasses and scarves are isolated. To minimise the risk of the model learning to segment specific colours or shapes, several types of hats were utilised including different coloured baseball caps and beanies. All sunglasses used included a mirrored lens such that the participant eyes could not be seen by the RGB camera. Moreover, the participants were instructed to wear the accessories as they naturally would, providing more variations within the dataset. The eight reference frames are redrawn from the ($0^\circ$, O, RLC) category and compared against the non-occluding captures under regular lighting (NO, RLC).
 
-Table \ref{tab:occlusion_averaged_acc_fb} presents the aggregated findings for all nine models, similarly applying equal weighting to subject and liveness measures. Evidently, there is a 3.9\% decrease in subject classification accuracy and a 1.7\% decrease for liveness detection, averaged across all seven methods, compared to the non-occlusion scenarios. However, it can be asserted that this decline is due to the less discriminative RGB features, as evidenced by the radar-only model's improved performance in both categories over the general performance. The radar-only model achieves 42.3\% accuracy at recognising the unseen subjects with occlusion and a liveness detection rate of 99.3\%, beating the scores of the RGB-only model. This aligns with our hypothesis that mmWaves, with their ability to permeate through fabric to directly reach the dermal layer of the skin, could offer robustness against face concealment. However, this warrants verification with a bigger participant pool and even more extreme occluding accessories to say with confidence.
+Table \ref{tab:occlusion_averaged_acc_fb} presents the aggregated findings for all nine models, with a similar weighting scheme for the two predictions. Evidently, there is a 3.9\% decrease in subject classification accuracy and a 1.7\% decrease for liveness detection, averaged across all seven methods, compared to the non-occlusion scenarios. However, it can be asserted that this decline is due to the less discriminative RGB features, as evidenced by the radar-only model's improved performance in both categories over the general performance. The radar-only model achieves 42.3\% accuracy at recognising the unseen subjects with occlusion and a liveness detection rate of 99.3\%, beating the scores of the RGB-only model. This aligns with our hypothesis that mmWaves, with their ability to permeate through fabric to directly reach the dermal layer of the skin, could offer robustness against face concealment. However, this warrants verification with a bigger participant pool and even more extreme occluding accessories to say with confidence.
 
 \begin{table}[h!]
     \centering
-    \vspace{0.1cm}
+    \vspace{-0.4cm}
     \resizebox{1.01\columnwidth}{1.65cm}{
         \begin{tabular}{lccc}
             \toprule
@@ -648,6 +646,7 @@ Table \ref{tab:occlusion_averaged_acc_fb} presents the aggregated findings for a
     \vspace{0.1cm}
     \caption{Averaged accuracy and $F_{0.5}$ score for the seven fusion strategies and individual modalities, isolated on the \textbf{occlusion} scenarios. Equal weighting is applied to subject and liveness predictions.}
     \label{tab:occlusion_averaged_acc_fb}
+    \vspace{-0.5cm}
 \end{table}
 
 The concatenation arises as the outperforming strategy surpassing other strategies by over 6.8\% in mean accuracy, on average. This is mainly attributed to its high liveness detection accuracy of 99.5\%. Impressively, it is still able to cover a significant proportion of the test subset, achieving a 99.7\% coverage rate, exceeding even the individual modalities. 
@@ -669,37 +668,38 @@ The results of the non-hybrid models, utilising the modalities independently, th
 
 
 \section{Conclusions}
-In this paper, we proposed \texttt{mmFace}, a novel 3D face recognition system that is able to recognise and distinguish between unseen identities and perceive their liveness efficiently. The system harnesses information gathered from RGB cameras in tandem with mmWave radar sensors to accurately encode human faces regardless of environmental lighting conditions and face accessories that the subject may be wearing. The system is shown to be secure and robust against 2D spoofing attacks and face concealments using scarves, sunglasses, and hats. 
+In this paper, we proposed \texttt{mmFace}, a novel 3D face recognition system designed to efficiently recognise and distinguish between unseen identities while also verifying their legitimacy. The system harnesses data gathered from RGB cameras alongide compact mmWave radar sensors to encode human faces regardless of environmental conditions and the presence of face accessories. The system demonstrates robustness against 2D spoofing attacks and attempts to conceal the face using everyday items such as scarves, sunglasses, and hats. Our models were trained on our own dataset featuring the faces of 21 subjects captured under specific controlled conditions. These include five facial poses: frontal, as well as $30^\circ$ and $45^\circ$ left and right azimuth angles -- two lighting settings: regular and dim -- and finally, two occlusion scenarios: with and without face accessories.
 
-We collected and train our models on our own dataset comprising faces of 21 participants under specific controlled conditions of five facial poses -- frontal, and $15^\circ$ and $30^\circ$ left and right head rotations -- two lighting settings -- regular and dim -- and finally, two occlusion scenarios -- with and without.
+Several strategies for blending the information from both modalities were looked at to identify the most optimal fusion method. We evaluated the strategies through a zero-shot classification task to assess the generalisability of our models using standard metrics such as prediction accuracy, F-measures and ROC curves. Furthermore, the final fused features of the test samples were visually inspected in order to verify that specific subjects are pushed to distinct regions of the multimodal space. Benchmarking the strategies against the non-hybrid models provided clear evidence that the hybrid models effectively improved on the performance of the individual modalities acting separately.
 
-Several strategies for fusing the information from the two modalities were looked at to identify most optimal using a thorough empirical analysis. We evaluated the strategies through a zero-shot classification task to assess the generalisability of our models using standard metrics such as prediction accuracy, precision, recall, F-measures, and ROC AUC. Furthermore, the final fused features of the test set was visually inspected in order to verify that specific unseen facial identities are pushed to distinct regions of the multimodal space. The strategies were benchmarked against the performance of the individual modalities acting by themselves, giving clear evidence that the hybrid models effectively improved on the results of the non-hybrid models. Next, the strategies were compared and contrasted in isolation of specific conditions such as the dim lighting condition and the occlusion scenarios. This ultimately resulted in the concatenation fusion strategy being found to be the best overall performing method producing high face recognition scores as well as extremely high liveness detection. 
+Next, the strategies were evaluated  under isolation of specific conditions such as the dim lighting and the occlusion settings. This ultimately resulted in the concatenation fusion strategy being found to be the best overall performing method, producing high face recognition scores as well as extremely accurate liveness detection. 
 
 % TODO: BENCHMARK AGAINST RELATED WORK???
-However, even with the positive outcomes, there were a number of limitations that need to be addressed.
+Our work investigated the application of mmWave sensing from a new perspective for compact, secure biometric authenticaiton not looked at by previous work. However, even with the positive outcomes, there were a number of limitations that need to be addressed.
 
 
 \subsection{Limitations}
-Firstly, our curated dataset is too small of a sample size to be representative of the general population. We initially aimed for 50 participants, however, this goal was not met in time. Although, we believe our current dataset of 21 represents a markable improvement over previous papers often utilising three to eight participants, giving a better indication of the performance of the model. Additionally, a larger collection of faces allows a bigger test set and hence a more comprehensive look at the model's generalisation ability to unseen faces. 
+The primary limitation to address is the fact that our curated dataset is too small of a sample size to be representative of the general population. Additionally, a larger collection of faces allows a bigger test set and hence a more comprehensive look at the model's generalisation ability to unseen faces. We initially aimed for 50 participants, however, this goal was not met in time. Although, we believe our current dataset of 21 represents a markable improvement over previous papers exploring mmWave sensing \cite{lim2020dnn,kim2020face,pho2021radar} that often utilised three to eight participants, giving a better confidence in the performance of the model.
 
-Furthermore, the data acquisition could expand on the environmental conditions. For instance, specified and tested lumen measurements could be used to ensure all conditions are consistent in a light controlled room. This would provide more concrete results at each model's performance under a number of increasingly dim lighting settings. This would also provide a tested proof that radar-based yields better classifications than RGB cameras. An expansion of occlusion settings would also be useful with even more diverse clothing apparel such as ski masks or Halloween masks for more extreme cases of facial concealment.
+Another limitation exposed by the results of the dim lighting experiment was the inconsistencies between face scans. The dim lighting environment could not be rigorously controlled due to the experiment room allowing natural light that could not be blocked, producing variations from captures at different times of the day. This suggests a more rigorous approach for future using  specific lumen measurements and a light controlled room to ensure consistency throughout captures. This would also provide a tested proof that radar-based yields better classifications than RGB cameras in more extreme lighting environments.
 
 One of the major limitations of the paper found is that the data collected by the Google's Soli chip was not rich enough to produce distinctive radar embeddings. This yielded in relatively low subject prediction performance by the radar-only model compared to the InsightFace pretrained model. This was expected however, the InsightFace RGB embeddings were still able to get relatively high scores within the liveness detection category which was expected to be dominated by the radar-only model. 
 
 \subsection{Future Work}
-%ViT with bigger dataset
-% multihead attention
+% ViT with bigger dataset
+% multihead attention - positional encoding
 % More layers for pdf
 % Facial expressions
 The identified limitations demonstrate areas of further scope for improving our proposed model. Increasing the dataset collection size within a more controlled environment, not only improves the quality of the dataset but also permits the possibility of attempting vision transformers for the task. Vision transformers have shown remarkable success in large scale image classification tasks, leveraging self-attention mechanisms to learn complex visual patterns and relationships. However, transformer architectures are famously data hungry, requiring a large number of training samples to effectively learn from. The multi-head attention strategy for multimodal fusion showed promise within our model achieving third-highest ranking against our zero-shot task. However, it is important to note that the self-attention mechanism was only applied at a single layer to integrate separate modal features. A possible avenue could be to use multi-head attention layers throughout the feedforward network starting from patches of the base \texttt{ARD} input with added positional encoding to maintain spatial context and working its way through layers of abstraction, attending to different parts of the range and Doppler information.
 
 Another area of interest was the pairwise dot then flatten strategy, it was chosen to keep a single fully connected layer following the fusion consistent with all fusion strategies. However, this strategy demonstrates a special case since it produces a feature vector spanning 260 thousand dimensions requiring a series of hidden layers step by step to reduce its embedding dimension space. This is an intriguing aspect due to the success of the concatenation strategy showing that keeping all information from both modal features offers the best compromise. This is the aim of the flatten in order to keep all correlations between the extracted radar and RGB features.
 
-Lastly, the effect of facial expressions can be investigated, incorporating them into future data acquisition work such that the model is able to learn to be expression invariant.
+An expansion of the experimental conditions during the data acquisition could be helpful. Diversifying the clothing apparel to more extreme cases of facial concealment with items such as ski masks or Halloween masks could be an interesting avenue. Furthermore, a look into the effect of facial expressions can be incorporated into future collection work such that the model is able to learn to be expression-invariant.
 
 
+\vspace{0.4cm}
 {\bf Acknowledgments.}
-I would like to thank my supervisor Dr. Hang Dai for his helpful comments and guidance throughout the year. I'd also like to thank Dr. Chaitanya Kaul for providing me with the equipment and his invaluable support with the data acquisition process which played a crucial role in the project's success. Last but not least, a huge thanks to all who participated in our study.
+I would like to thank my supervisor, Dr Hang Dai, for his helpful comments and guidance throughout the year. I'd also like to thank Dr Chaitanya Kaul for providing me with the equipment and his invaluable support with the data acquisition process which was critical to the project's success. Last but not least, a huge thanks to all who participated in our study.
 % This is optional; it is a location for you to thank people, most probably your family and your supervisor.
 
 
