@@ -35,13 +35,6 @@ venv.bak/
 !.vscode/extensions.json 
 .history
 
-# Data Files - Chaitanya-code #
-**/data/*.json
-**/python/*.npy
-**/python/perfectmodel/
-**/python/mymodel_rt_slab_25/
-**/p2go/
-
 # Virtual Environment #
 3dfr/
 
@@ -50,6 +43,11 @@ data/
 models/
 buffalo_l/
 frontal_images/
+
+# soli #
+libmc/
+src/soli_realsense/Makefile
+soli.cpp
 
 # dissertation #
 *_template.tex
