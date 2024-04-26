@@ -121,16 +121,16 @@
     },
     "mmFace-rgb.pt": {
         "SUBJECT": {
-            "Accuracy": 87.3473,
+            "Accuracy": 72.256,
             "Micro-Accuracy": 0.782,
-            "Weighted-Averaged F-Score": 0.8465
+            "Weighted-Averaged F-Score": 0.7327
         },
         "LIVENESS": {
-            "Accuracy": 70.3316,
+            "Accuracy": 64.873,
             "Micro-Accuracy": 0.6297,
             "Weighted-Averaged F-Score": 0.6865
         },
-        "Coverage": 89.5312,
+        "Coverage": 80.689,
         "Macro-Averaged AUC": 0.8613,
         "KL Divergence": 0.1658
     }
